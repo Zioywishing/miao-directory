@@ -1,0 +1,25 @@
+{
+    "name": "miao-directory",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "dev": "node index.js",
+        "dev:bun": "bun index.js",
+        "serve": "node dist/index.min.js",
+        "serve:bun": "bun dist/index.min.js",
+        "build": "ncc build index.js && uglifyjs dist/index.js -o dist/index.min.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^4.19.2"
+    },
+    "devDependencies": {
+        "@vercel/ncc": "^0.38.1",
+        "uglify-js": "^3.19.1"
+    }
+}
