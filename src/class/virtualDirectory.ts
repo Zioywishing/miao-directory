@@ -1,18 +1,21 @@
+import generateId from "@/hooks/generateId";
 import type { stats, file, directory } from "@/types/type.ts";
 
-class VirtualFile {
+export class VirtualFile {
 	constructor(info: file, parent: VirtualDirectory) {
 		this.name = info.name;
 		this.size = info.size;
 		this.stats = info.stats;
 		this.parent = parent;
 		this.type = "file";
+		this.uid = generateId()
 	}
 	name: string;
 	type: "file";
 	size: number;
 	stats: stats;
 	parent: VirtualDirectory;
+	uid: number
 	get path() {
 		return `${this.parent.path}${this.name}`;
 	}
@@ -24,7 +27,7 @@ class VirtualDirectory {
 		this.type = "directory";
 		this.stats = info.stats;
 		this.parent = parent ?? undefined;
-		// 这里要改
+		this.uid = generateId()
 	}
 	// 文件夹名
 	name: string;
@@ -38,6 +41,8 @@ class VirtualDirectory {
 	stats: stats;
 	// 父文件夹
 	parent?: VirtualDirectory;
+
+	uid: number
 
 	/**
 	 * 获取相对于根目录的路径的层数
@@ -83,13 +88,34 @@ class VirtualDirectory {
 	}
 
 	setContent(content: (file | directory)[]) {
-		this.files = [];
-		this.directorys = [];
+		this.files = this.files ?? [];
+		this.directorys = this.directorys ?? [];
+		const fileNames:string[] = this.files.map(v=>v.name)
+		const dirNames:string[] = this.directorys.map(v=>v.name)
+		const itemNames:string[] = content.map(v=>v.name)
+		// 删去远程端已不存在的文件与文件夹
+		const _delete = (target: (VirtualFile | VirtualDirectory)[]) => {
+			let index = 0
+			while(index < target.length){
+				if(!itemNames.includes(target[index].name)){
+					target.splice(index, 1)
+				}else{
+					index += 1
+				}
+			}
+		}
+		_delete(this.files)
+		_delete(this.directorys)
+		// 加入新的文件与文件夹
 		for (let item of content) {
 			if (item.type === "file") {
-				this.files.push(new VirtualFile(item, this));
+				if(!fileNames.includes(item.name)){
+					this.files.push(new VirtualFile(item, this));
+				}
 			} else if (item.type === "directory") {
-				this.directorys.push(new VirtualDirectory(item, this));
+				if(!dirNames.includes(item.name)){
+					this.directorys.push(new VirtualDirectory(item, this));
+				}
 			}
 		}
 	}

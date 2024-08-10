@@ -1,22 +1,36 @@
-import { ref, Ref } from "vue";
+import VirtualDirectory from "./virtualDirectory";
+import generateId from "@/hooks/generateId";
 
 export default class VirtualPage {
-	constructor() {
-		this.visible = ref<boolean>(true);
-		this.title = ref<string>("");
-		this.uid = Math.ceil(Math.random() * 10000000000000);
+	constructor(initDirectory: VirtualDirectory) {
+		this.visible = true;
+		this.uid = generateId()
+		this.currentDirectory = initDirectory
+		this.refreshKey = Math.random()
 	}
-	visible: Ref<boolean>;
-	title: Ref<string>;
+	visible: boolean;
+	currentDirectory: VirtualDirectory;
+	// 区分每一个页面的唯一id
 	uid: number;
+	// 当refreshKey改变时需要刷新页面，目前还没接入刷新
+	refreshKey:number;
 
+	get title(){
+		return this.currentDirectory.name
+	}
+
+	// 切换显示状态
 	switchShow() {
-		// @ts-ignore 你只要知道这是对的就行了
 		this.visible = !this.visible;
 	}
-
-	setTitle(newTitle: string) {
-		// @ts-ignore 你只要知道这是对的就行了
-		this.title = newTitle;
+	
+	// 设置（同步）正在展示的文件夹
+	setCurrrentDirectory(currDir: VirtualDirectory) {
+		this.currentDirectory = currDir
 	}
+
+	refresh(){
+		this.refreshKey = Math.random()
+	}
+
 }

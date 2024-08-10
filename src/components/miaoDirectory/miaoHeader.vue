@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="miao-directory-item-container">
         
     </div>
 </template>
