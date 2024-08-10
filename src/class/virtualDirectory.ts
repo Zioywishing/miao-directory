@@ -8,14 +8,14 @@ export class VirtualFile {
 		this.stats = info.stats;
 		this.parent = parent;
 		this.type = "file";
-		this.uid = generateId()
+		this.uid = generateId();
 	}
 	name: string;
 	type: "file";
 	size: number;
 	stats: stats;
 	parent: VirtualDirectory;
-	uid: number
+	uid: number;
 	get path() {
 		return `${this.parent.path}${this.name}`;
 	}
@@ -27,7 +27,7 @@ class VirtualDirectory {
 		this.type = "directory";
 		this.stats = info.stats;
 		this.parent = parent ?? undefined;
-		this.uid = generateId()
+		this.uid = generateId();
 	}
 	// 文件夹名
 	name: string;
@@ -42,7 +42,7 @@ class VirtualDirectory {
 	// 父文件夹
 	parent?: VirtualDirectory;
 
-	uid: number
+	uid: number;
 
 	/**
 	 * 获取相对于根目录的路径的层数
@@ -87,36 +87,44 @@ class VirtualDirectory {
 		return this.parent.getParent(layer - 1);
 	}
 
-	setContent(content: (file | directory)[]) {
+	updateContent(content: (file | directory)[]) {
 		this.files = this.files ?? [];
 		this.directorys = this.directorys ?? [];
-		const fileNames:string[] = this.files.map(v=>v.name)
-		const dirNames:string[] = this.directorys.map(v=>v.name)
-		const itemNames:string[] = content.map(v=>v.name)
+		const fileNames: string[] = this.files.map(v => v.name);
+		const dirNames: string[] = this.directorys.map(v => v.name);
+		const itemNames: string[] = content.map(v => v.name);
 		// 删去远程端已不存在的文件与文件夹
 		const _delete = (target: (VirtualFile | VirtualDirectory)[]) => {
-			let index = 0
-			while(index < target.length){
-				if(!itemNames.includes(target[index].name)){
-					target.splice(index, 1)
-				}else{
-					index += 1
+			let index = 0;
+			while (index < target.length) {
+				if (!itemNames.includes(target[index].name)) {
+					target.splice(index, 1);
+				} else {
+					index += 1;
 				}
 			}
-		}
-		_delete(this.files)
-		_delete(this.directorys)
+		};
+		_delete(this.files);
+		_delete(this.directorys);
 		// 加入新的文件与文件夹
 		for (let item of content) {
 			if (item.type === "file") {
-				if(!fileNames.includes(item.name)){
+				if (!fileNames.includes(item.name)) {
 					this.files.push(new VirtualFile(item, this));
 				}
 			} else if (item.type === "directory") {
-				if(!dirNames.includes(item.name)){
+				if (!dirNames.includes(item.name)) {
 					this.directorys.push(new VirtualDirectory(item, this));
 				}
 			}
+		}
+	}
+
+	hasChild(item: VirtualDirectory | VirtualFile): boolean {
+		if (item.type === "directory") {
+			return this.directorys?.includes(item) ?? false;
+		} else {
+			return this.files?.includes(item) ?? false;
 		}
 	}
 }

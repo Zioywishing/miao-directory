@@ -44,6 +44,7 @@ onMounted(() => {
 			<div class="tags-container">
 				<div class="tag" v-for="(view, index) of views" :key="view.uid">
 					<div class="tag-title">{{ view.title }}</div>
+					<div class="tag-point" :style="{ backgroundColor: view.color } "></div>
 					<div class="tag-control">
 						<n-icon class="tag-control-icon icon" @click="view.switchShow()">
 							<EyeOutline v-show="view.visible" class="icon-inner" />
@@ -68,8 +69,8 @@ onMounted(() => {
 		</div>
 	</div>
 	<div class="view-container">
-		<div class="view" v-for="(view) of views" v-show="view.visible" :key="view.uid">
-			<miao-directory v-model:current-directory="view.currentDirectory"></miao-directory>
+		<div class="view" v-for="(view, index) of views" v-show="view.visible" :key="view.uid">
+			<miao-directory v-model:current-directory="view.currentDirectory" :color="view.color" :index="index" @exit="deleteView(index)"></miao-directory>
 		</div>
 	</div>
 </template>
@@ -81,7 +82,7 @@ $controler-height: 25px;
   display: flex;
   height: $controler-height;
   width: 100%;
-  background-color: #f2f2f2;
+  background-color: #dadada;
   // overflow: hidden;
 
   .tags-container {
@@ -100,8 +101,15 @@ $controler-height: 25px;
 
       .tag-title {
         margin-left: 4px;
-        width: 70%;
+        // width: 70%;
         user-select: none;
+      }
+
+      .tag-point {
+        height: 5px;
+        aspect-ratio: 1;
+        border-radius: 66px;
+        margin-left: 5px;
       }
 
       .tag-control {
@@ -172,6 +180,10 @@ $controler-height: 25px;
   height: calc(100% - $controler-height);
   overflow-y: overlay;
   overflow-x: overlay;
+  .view {
+    flex: 1;
+    height: 100%;
+  }
   &::-webkit-scrollbar {
     position: absolute;
     width: 4px;
@@ -190,13 +202,5 @@ $controler-height: 25px;
     background: #999999;
   }
 
-  .view {
-    // border: 1px solid black;
-    // outline: 1px solid black;
-    // margin: 0 5px;
-    // padding: 3px;
-    flex: 1;
-    height: 100%;
-  }
 }
 </style>

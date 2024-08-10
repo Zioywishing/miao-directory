@@ -24,6 +24,7 @@ const showMask = defineModel<boolean | number>('show', { default: false, require
     justify-content: center;
     align-items: center;
     background-color: rgba(0, 0, 0, 0.3);
+    z-index: 7058214053994319;
     &-show {
         display: flex;
         transition: opacity 0.3s 0.01s;

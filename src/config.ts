@@ -1,4 +1,9 @@
+const baseUrl = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+
 export default {
-	baseUrl: "http://127.0.0.1:17705",
-	uploadSizeLimit: 1024 * 1024 * 100
+	baseUrl,
+	uploadSizeLimit: 1024 * 1024 * 100,
+	api: {
+		get: '/get'
+	}
 };
