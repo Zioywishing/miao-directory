@@ -31,7 +31,7 @@ app.use(prev, (req, res) => {
                 name: file,
                 size: stats.isDirectory() ? undefined : stats.size,
                 type: stats.isDirectory() ? 'directory' : 'file',
-                stat: {
+                stats: {
                     atimeMs: stats.atimeMs,
                     birthtimeMs: stats.birthtimeMs,
                     ctimeMs: stats.ctimeMs,
