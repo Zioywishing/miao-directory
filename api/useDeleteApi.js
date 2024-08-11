@@ -22,7 +22,7 @@ function deletePath(targetPath) {
                 // console.log('delete file')
             } else if (stats.isDirectory()) {
                 // 如果是文件夹，递归删除
-                fs.rmdir(targetPath, { recursive: true }, (err) => {
+                fs.rm(targetPath, { recursive: true }, (err) => {
                     if (err) return reject(err);
                     resolve(); // 删除成功
                 });
