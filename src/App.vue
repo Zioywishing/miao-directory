@@ -3,8 +3,8 @@ import { onMounted, reactive } from 'vue';
 import { NIcon, NScrollbar } from 'naive-ui';
 import { EyeOffOutline, EyeOutline, CloseOutline, CopyOutline, EllipsisVertical } from '@vicons/ionicons5'
 import miaoDirectory from './views/miaoDirectory.vue';
-import VirtualPage from './class/virtualPage';
-import VirtualDirectory from './class/virtualDirectory';
+import VirtualPage from './class/VirtualPage';
+import VirtualDirectory from './class/VirtualDirectory';
 
 const views = reactive<VirtualPage[]>([])
 

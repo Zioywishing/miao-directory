@@ -1,4 +1,4 @@
-import VirtualDirectory from "./virtualDirectory";
+import VirtualDirectory from "./VirtualDirectory";
 import generateId from "@/hooks/generateId";
 
 const getRandomWebSafeColor = (() => {

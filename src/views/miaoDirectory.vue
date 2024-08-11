@@ -51,7 +51,7 @@
 <script setup lang="ts">
 import { NBreadcrumbItem, NBreadcrumb, NIcon, NScrollbar } from 'naive-ui'
 import type { file, directory } from '@/types/type.ts'
-import VirtualDirectory from '@/class/virtualDirectory';
+import VirtualDirectory from '@/class/VirtualDirectory';
 import { onMounted, ref } from 'vue';
 import Config from '@/config'
 import dropHandler, { dropHandlerHooks } from '@/hooks/dropHandler';
@@ -112,11 +112,11 @@ const openUrl = (href: string, config?: {
 }) => {
     let {target, download} = config ?? {}
 
-    console.log({target, download})
+    console.log({target, download, href})
     const a = document.createElement('a');
     a.setAttribute('href', href);
     a.setAttribute('target', target ?? '_blank')
-    a.setAttribute('download', download ?? '');
+    download && a.setAttribute('download', download);
     a.click();
     // var a = document.createElement("a");
     // a.setAttribute('href', href)

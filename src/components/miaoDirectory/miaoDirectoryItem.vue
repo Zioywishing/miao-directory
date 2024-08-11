@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 
-import VirtualDirectory, { VirtualFile } from '@/class/virtualDirectory';
+import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory';
 import { DocumentText, FileTray, Help, Image, LogoChrome, LogoCss3, LogoJavascript, LogoVue, PlayCircle, EllipsisVertical, Disc } from '@vicons/ionicons5';
 import { computed, ref } from 'vue';
 import dateFormatter from '@/hooks/dateFormatter';
