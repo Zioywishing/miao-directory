@@ -1,7 +1,9 @@
 import express from "express";
 import path from "path";
 import fs from "fs";
-import { staticPath, api_get } from "../config.js";
+import { staticPath, api } from "../config.js";
+
+const api_get = api.get
 
 export default function useGetApi(app) {
     // 不存在文件与文件夹同名的问题

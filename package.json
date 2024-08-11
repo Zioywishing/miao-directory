@@ -5,7 +5,7 @@
     "main": "index.js",
     "type": "module",
     "scripts": {
-        "dev": "node index.js",
+        "dev": "ts-node index.js",
         "dev:bun": "bun index.js",
         "serve": "node dist/index.min.js",
         "serve:bun": "bun dist/index.min.js",
@@ -17,7 +17,8 @@
     "dependencies": {
         "cors": "^2.8.5",
         "express": "^4.19.2",
-        "multer": "1.4.5-lts.1"
+        "multer": "1.4.5-lts.1",
+        "ts-node": "^10.9.2"
     },
     "devDependencies": {
         "@vercel/ncc": "^0.38.1",

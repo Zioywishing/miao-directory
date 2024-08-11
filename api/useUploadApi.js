@@ -1,15 +1,20 @@
 import path from "path";
 import fs from "fs";
 import multer from "multer";
-import { api_upload, staticPath } from "../config.js";
+import { api, staticPath } from "../config.js";
+
+const api_upload = api.upload
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }).single('file');
 
 export default function useUploadApi(app) {
 	app.post(api_upload, upload, (req, res) => {
-		const decodedPath = decodeURIComponent(req.path).substring(8);
-        const savePath = path.join(staticPath, decodedPath, req.file.originalname)
+        // 必须这样传，不然中文乱码
+        const fileName = req.body.fileName
+
+		const decodedPath = decodeURIComponent(req.path).substring(api_upload.length - 1);
+        const savePath = path.join(staticPath, decodedPath, fileName)
         // 覆盖写or追加写
         const oprateType = req.body.oprateType === 'write' ? 'write' : 'append'
         const data = req.file.buffer

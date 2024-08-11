@@ -2,23 +2,25 @@ import express from "express";
 import os from "os";
 import cors from "cors";
 import fs from "fs";
-import useGetApi from "./api/useGetApi.js";
 import Config from "./config.js";
+import useGetApi from "./api/useGetApi.js";
 import useUploadApi from "./api/useUploadApi.js";
+import useDeleteApi from "./api/useDeleteApi.js";
+import useQueryApi from "./api/useQueryApi.js";
 
-
-const { staticPath, port, api_get } = Config;
+const { staticPath, port, api } = Config;
 
 if (!fs.existsSync(staticPath)) {
 	fs.mkdirSync(staticPath);
 }
-
 
 const app = express();
 app.use(cors());
 
 useGetApi(app);
 useUploadApi(app);
+useDeleteApi(app);
+useQueryApi(app);
 
 app.listen(port, "::", () => {
 	const interfaces = os.networkInterfaces();
@@ -31,7 +33,7 @@ app.listen(port, "::", () => {
 	console.log(`以下地址访问文件/文件夹：`);
 	for (const name of Object.keys(interfaces)) {
 		for (const iface of interfaces[name]) {
-			iface.family === "IPv6" ? console.log(`http://[${iface.address}]:${port}${api_get}`) : console.log(`http://${iface.address}:${port}${api_get}`);
+			iface.family === "IPv6" ? console.log(`http://[${iface.address}]:${port}${api.get}`) : console.log(`http://${iface.address}:${port}${api.get}`);
 		}
 	}
 });
