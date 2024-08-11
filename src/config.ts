@@ -4,6 +4,8 @@ export default {
 	baseUrl,
 	uploadSizeLimit: 1024 * 1024 * 100,
 	api: {
-		get: '/get'
-	}
+		get: '/get',
+		upload: '/upload'
+	},
+	enableUpload: true,
 };

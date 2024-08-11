@@ -50,9 +50,13 @@ const time = computed(()=>{
 })
 
 const dropDownOptions = computed(()=> {
-    const options = []
+    const options = [{
+        label: '删除',
+        key: 'delete'
+    }]
     if(itemType.value === 'file'){
-        options.push(...[{
+        options.push(...[
+            {
                 label: '下载',
                 key: 'download',
             }
@@ -135,6 +139,7 @@ const handleDragStart = () => {
         .item-main-icon {
             margin-left: 10px;
             height: 80%;
+            color: #00403e;
         }
         .item-main-info {
             margin-left: 10px;

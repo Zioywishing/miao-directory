@@ -6,7 +6,7 @@ export default function useDataBus() {
 			dataStorage[key] = value;
 			return value;
 		},
-		get(key: string | number) {
+		pop(key: string | number) {
 			const value = dataStorage[key];
 			dataStorage[key] = undefined;
 			return value;

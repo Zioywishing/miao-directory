@@ -1,6 +1,6 @@
 <template>
-	<div class="miao-directory-item-container" ref="rootDomRef">
-		<div class="container-top">
+	<div class="miao-directory-item-container" ref="rootDomRef" >
+		<div class="container-top" :style="{ backgroundColor: props.index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)' }">
 			<div class="container-top-colorbar" :style="{ backgroundColor: props.color }"></div>
 			<div class="container-top-breadcrumb">
 				<!-- <n-scrollbar x-scrollable> -->
@@ -57,16 +57,15 @@ import Config from '@/config'
 import dropHandler, { dropHandlerHooks } from '@/hooks/dropHandler';
 import miaoMask from '@/components/miaoMask.vue';
 import miaoDirectoryItem from '@/components/miaoDirectory/miaoDirectoryItem.vue';
-import useMiaoFetch from '@/hooks/useMiaoFetch';
+import useMiaoFetchApi from '@/hooks/useMiaoFetchApi';
 import useDataBus from '@/hooks/useDataBus';
 import { CloudOutline, ChevronBackOutline, ReloadOutline, CloseOutline } from '@vicons/ionicons5'
+import useUploadQueue from '@/hooks/useUploadQueue';
 
 const { baseUrl, api } = Config
 const dataBus = useDataBus()
 
-const miaoFetch = useMiaoFetch({
-    retry: 5,
-})
+const miaoFetchApi = useMiaoFetchApi()
 
 const props = defineProps<{
     color: string
@@ -86,15 +85,17 @@ const showModel = ref(0)
 // 用于监听拖拽文件事件
 const rootDomRef = ref<HTMLDivElement>()
 
+const uploadQueue = useUploadQueue()
+
 // 设置显示的dir
 const setCurrentDirectory = async (virtualDirectory: VirtualDirectory) => {
     // 若没有缓存数据则同步刷新，有缓存数据则异步刷新
     if (virtualDirectory.files === undefined || virtualDirectory.directorys === undefined) {
-        const data: (file | directory)[] = await (await miaoFetch(`${baseUrl}${api.get}${virtualDirectory.path}`)).json()
+        const data: (file | directory)[] = await miaoFetchApi.get(virtualDirectory)
         virtualDirectory.updateContent(data)
     } else {
         ; (async () => {
-            const data: (file | directory)[] = await (await miaoFetch(`${baseUrl}${api.get}${virtualDirectory.path}`)).json()
+            const data: (file | directory)[] = await miaoFetchApi.get(virtualDirectory)
             virtualDirectory.updateContent(data)
             currentDirectory.value = undefined
             currentDirectory.value = virtualDirectory
@@ -104,6 +105,10 @@ const setCurrentDirectory = async (virtualDirectory: VirtualDirectory) => {
     currentDirectory.value = undefined
     currentDirectory.value = virtualDirectory
     // emit("onCurrentDirectoryChange", currentDirectory.value)
+}
+
+const reload = () => {
+    currentDirectory.value && setCurrentDirectory(currentDirectory.value)
 }
 
 const openUrl = (href: string, config?: {
@@ -133,7 +138,7 @@ const handleBack = () => {
 }
 
 const handleReload = () => {
-    currentDirectory.value && setCurrentDirectory(currentDirectory.value)
+    reload()
 }
 
 onMounted(async () => {
@@ -141,8 +146,17 @@ onMounted(async () => {
     // 拖动事件处理
     const dropFileOption:dropHandlerHooks = {
         onDropFiles(files: File[]) {
-            const dragData = dataBus.get('dragData')
+            const dragData = dataBus.pop('dragData')
             console.log({dragData, files})
+            if(files && files.length > 0){
+                currentDirectory.value && uploadQueue.push(files, currentDirectory.value, {
+                    onFinish() {
+                        reload()
+                    },
+                })
+                const _f = files[0]
+                currentDirectory.value && miaoFetchApi.upload(_f, currentDirectory.value)
+            }
         },
         onEnter() {
             showModel.value += 1
@@ -238,7 +252,7 @@ $bottom-bar-height: 60px;
                 content: '';
                 height: 60%;
                 position: absolute;
-                right: -1px;
+                right: -2px;
                 width: 2px;
                 background-color: #828282;
             }

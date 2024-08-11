@@ -1,7 +1,9 @@
 <template>
 	<transition name="transition">
 		<div class="mask-body" ref="maskBodyRef" v-show="showMask">
-			<slot> {{}} </slot>
+      <div @click="e=>e.stopPropagation()">
+        <slot> {{}} </slot>
+      </div>
 		</div>
 	</transition>
 </template>

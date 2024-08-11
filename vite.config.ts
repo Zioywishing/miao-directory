@@ -17,6 +17,12 @@ export default defineConfig({
 				target: "http://127.0.0.1:17705",
 				changeOrigin: true,
 				rewrite: path => path.replace(/^\/get/, "/get")
+			}, 
+			
+			"/upload": {
+				target: "http://127.0.0.1:17705",
+				changeOrigin: true,
+				rewrite: path => path.replace(/^\/upload/, "/upload")
 			}
 		}
 	},
