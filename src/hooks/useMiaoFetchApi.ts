@@ -1,5 +1,5 @@
-import VirtualDirectory from "@/class/VirtualDirectory";
-import { getOption, getResponse, miaoFetchConfig, uploadOption } from "@/types/fetch";
+import VirtualDirectory, { VirtualFile } from "@/class/VirtualDirectory";
+import { getOption, getResponse, miaoFetchConfig, deleteOption, uploadOption, queryOption } from "@/types/fetch";
 import Config from "@/config";
 import axios, { AxiosRequestConfig } from "axios";
 
@@ -55,36 +55,92 @@ const miaoFetchApi = {
 	},
 
 	/**
-	 * 上传单个文件到对应文件夹
+	 * 上传单个文件到对应文件夹, 后续要将data类型改成buffer以支持分片上传
 	 */
-	upload(file: File, targetVDir: VirtualDirectory, option?: uploadOption) {
+	upload(data: File, targetVDir: VirtualDirectory, option?: uploadOption) {
 		const { baseUrl, api } = Config;
 		const url = `${baseUrl}${api.upload}${targetVDir.path}`;
 		const retry = option?.retry ?? 0;
 		const { miaoFetch, abortMiaoFetch } = useMiaoFetch({
 			retry
 		});
-		const sizeTotal = file.size
+		const sizeTotal = data.size;
 
-		const opType = option?.type ?? 'write'
+		const opType = option?.type ?? "write";
 
-		const data = new FormData()
+		const formData = new FormData();
 
-		data.append('file', file)
-		data.append('oprateType', opType)
+		formData.append("file", data);
+        // 必须这样传，不然中文乱码
+		formData.append("fileName", data.name)
+		formData.append("oprateType", opType);
 
 		return {
 			abort: () => abortMiaoFetch(),
-			status: new Promise(async (resolve)=>{
+			response: new Promise<{
+				message: 'success' | 'failed'
+				error?: string
+			}>(async resolve => {
 				const response = await miaoFetch({
 					url,
-					method: 'post',
-					data: data,
+					method: "post",
+					data: formData,
 					onUploadProgress(progressEvent) {
-						option && option.onProcess && option.onProcess(progressEvent.loaded / sizeTotal)
-					},
-				})
-				resolve(response.data)
+						option && option.onProcess && option.onProcess(progressEvent.loaded / sizeTotal);
+					}
+				});
+				resolve(response.data);
+			})
+		};
+	},
+
+	/**
+	 * 删除对应的文件或文件夹，若为文件夹会递归删除
+	 */
+	delete(target: VirtualFile | VirtualDirectory, option?: deleteOption) {
+		const { baseUrl, api } = Config;
+		const url = `${baseUrl}${api.delete}${target.path}`;
+		const retry = option?.retry ?? 0;
+		const { miaoFetch } = useMiaoFetch({
+			retry
+		});
+
+		return {
+			response: new Promise<{
+				eventId: number
+			}>(async resolve => {
+				const response = await miaoFetch({
+					url,
+					method: "post"
+				});
+				resolve(response.data);
+			})
+		};
+	},
+
+	/**
+	 * 查询服务端操作事件的进展
+	 */
+	query(eventId: number, option?: queryOption) {
+		const { baseUrl, api } = Config;
+		const url = `${baseUrl}${api.query}`;
+		const retry = option?.retry ?? 0;
+		const { miaoFetch } = useMiaoFetch({
+			retry
+		});
+		return {
+			response: new Promise<{
+				status: 'process' | 'success' | 'failed',
+				error?: unknown
+			}>(async resolve => {
+				const response = await miaoFetch({
+					url,
+					method: "get",
+					params: {
+                        id: eventId
+                    }
+				});
+				resolve(response.data);
 			})
 		};
 	}

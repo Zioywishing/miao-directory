@@ -23,7 +23,18 @@ export default defineConfig({
 				target: "http://127.0.0.1:17705",
 				changeOrigin: true,
 				rewrite: path => path.replace(/^\/upload/, "/upload")
-			}
+			},
+			
+			"/delete": {
+				target: "http://127.0.0.1:17705",
+				changeOrigin: true,
+				rewrite: path => path.replace(/^\/delete/, "/delete")
+			},
+			"/query": {
+				target: "http://127.0.0.1:17705",
+				changeOrigin: true,
+				rewrite: path => path.replace(/^\/query/, "/query")
+			}, 
 		}
 	},
 	build: {

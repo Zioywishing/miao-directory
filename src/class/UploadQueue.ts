@@ -41,15 +41,15 @@ export class UploadQueueItem {
 		if (this.status === "uploading") {
 			return;
 		}
-		const { abort, status } = miaoFetchApi.upload(this.file, this.targetDirectory, {
+		const { abort, response } = miaoFetchApi.upload(this.file, this.targetDirectory, {
 			onProcess: percent => {
 				this.process = percent;
 			}
 		});
 		this._abort = abort;
-		this._status = status;
+		this._status = response;
 		this.status = "uploading";
-		status
+		response
 			.then(() => {
 				this.status = "success";
 				this.onSuccess && this.onSuccess();

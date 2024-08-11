@@ -22,3 +22,8 @@ export type uploadOption = {
      */
     type?: 'write' | 'append'
 } & miaoFetchConfig
+
+export type deleteOption = {
+} & miaoFetchConfig
+export type queryOption = {
+} & miaoFetchConfig

@@ -42,6 +42,23 @@ const deleteView = (index: number) => {
   }
 }
 
+// 若存在两个以上标签页可见则除点击的标签页以外其他全部隐藏，若只有一个标签页可见则全部展示
+// 这个逻辑以后再研究吧，平时感觉用不到
+const handleClickTitle = (index: number) => {
+  let count = views.filter(v=>v.visible).length
+  let _index = 0
+  while(_index < views.length) {
+    if(_index !== index) {
+      views[_index].visible = count > 1 ? false : true
+    }else {
+      views[_index].visible = true
+    }
+    _index += 1
+  }
+}
+
+
+// 顶部菜单相关
 function renderIcon(icon: any) {
   return () => {
     return h(NIcon, null, {
@@ -66,7 +83,7 @@ const handleMenuSelect = (key: string) => {
       component: NQrCode,
       props: {
         value: baseUrl,
-        size: 500,
+        size: 300,
         errorCorrectionLevel: 'H'
       }
     }
@@ -76,8 +93,6 @@ const handleMenuSelect = (key: string) => {
 onMounted(() => {
   createView(rootDirectory)
 })
-
-// todo: 让所有伪页面共享一个rootDirectory
 </script>
 
 <template>
@@ -86,7 +101,7 @@ onMounted(() => {
 			<n-scrollbar x-scrollable>
 				<div class="tags-container">
 					<div class="tag" v-for="(view, index) of views" :key="view.uid">
-						<div class="tag-title">{{ view.title }}</div>
+						<div class="tag-title" @click="handleClickTitle(index)">{{ view.title }}</div>
 						<div class="tag-point" :style="{ backgroundColor: view.color } "></div>
 						<div class="tag-control">
 							<n-icon class="tag-control-icon icon" @click="view.switchShow()">
@@ -156,6 +171,7 @@ $controler-height: 25px;
           margin-left: 4px;
           // width: 70%;
           user-select: none;
+          cursor: pointer;
         }
 
         .tag-point {

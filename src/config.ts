@@ -5,7 +5,9 @@ export default {
 	uploadSizeLimit: 1024 * 1024 * 100,
 	api: {
 		get: '/get',
-		upload: '/upload'
+		upload: '/upload',
+		delete: '/delete',
+		query: '/query'
 	},
 	enableUpload: true,
 };

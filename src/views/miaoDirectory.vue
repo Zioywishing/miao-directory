@@ -1,5 +1,5 @@
 <template>
-	<div class="miao-directory-item-container" ref="rootDomRef" >
+	<div class="miao-directory-item-container" ref="rootDomRef">
 		<div class="container-top" :style="{ backgroundColor: props.index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)' }">
 			<div class="container-top-colorbar" :style="{ backgroundColor: props.color }"></div>
 			<div class="container-top-breadcrumb">
@@ -32,13 +32,21 @@
 		</div>
 		<div class="container-items" :style="{ backgroundColor: props.index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)' }">
 			<n-scrollbar>
-				<miaoDirectoryItem v-for="(dir) in currentDirectory?.directorys" @click="setCurrentDirectory(dir)" :item="dir" :key="dir.uid" :color="props.color" />
 				<miaoDirectoryItem
-					v-for="(file) in currentDirectory?.files"
+					v-for="(dir) in showData_directory"
+					@click="setCurrentDirectory(dir)"
+					:item="dir"
+					:key="dir.uid"
+					:color="props.color"
+					@delete="handleItemDelete(dir)"
+				/>
+				<miaoDirectoryItem
+					v-for="(file) in showData_files"
 					:item="file"
 					:key="file.uid"
 					@click="openUrl(`${baseUrl}${api.get}${file.path}`)"
 					@download="openUrl(`${baseUrl}${api.get}${file.path}`, {download: file.name})"
+					@delete="handleItemDelete(file)"
 					:color="props.color"
 				/>
 			</n-scrollbar>
@@ -51,8 +59,8 @@
 <script setup lang="ts">
 import { NBreadcrumbItem, NBreadcrumb, NIcon, NScrollbar } from 'naive-ui'
 import type { file, directory } from '@/types/type.ts'
-import VirtualDirectory from '@/class/VirtualDirectory';
-import { onMounted, ref } from 'vue';
+import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory';
+import { computed, onMounted, ref } from 'vue';
 import Config from '@/config'
 import dropHandler, { dropHandlerHooks } from '@/hooks/dropHandler';
 import miaoMask from '@/components/miaoMask.vue';
@@ -75,12 +83,21 @@ const props = defineProps<{
 const emit = defineEmits<{
     exit: []
 }>()
+// 是否显示模态框
+const showModel = ref(0)
 
 // 目前展示的Dir
 const currentDirectory = defineModel<VirtualDirectory | undefined>('currentDirectory', { required: true })
 
-// 是否显示模态框
-const showModel = ref(0)
+// 用于展示的数据，后续会增加排序等操作
+const showData_directory = computed<VirtualDirectory[]>(() => {
+    const data = currentDirectory.value?.directorys ? [...currentDirectory.value?.directorys ] : []
+    return data
+})
+const showData_files = computed<VirtualFile[]>(() => {
+    const data = currentDirectory.value?.files ? [...currentDirectory.value?.files ] : []
+    return data
+})
 
 // 用于监听拖拽文件事件
 const rootDomRef = ref<HTMLDivElement>()
@@ -123,12 +140,6 @@ const openUrl = (href: string, config?: {
     a.setAttribute('target', target ?? '_blank')
     download && a.setAttribute('download', download);
     a.click();
-    // var a = document.createElement("a");
-    // a.setAttribute('href', href)
-    // a.setAttribute('target', target ?? '_blank')
-    // a.setAttribute('download', download ?? '')
-    // console.log({target, download})
-    // a.click();
 }
 
 const handleBack = () => {
@@ -139,6 +150,17 @@ const handleBack = () => {
 
 const handleReload = () => {
     reload()
+}
+
+const handleItemDelete = async (item: VirtualDirectory | VirtualFile) => {
+    const {response} = miaoFetchApi.delete(item)
+    // todo: 将删除事件统一用一个事件管理中心管理
+    const id = (await response).eventId
+    const {response : res} = miaoFetchApi.query(id)
+    const eventResult = await res
+    if(eventResult.status === 'success'){
+        reload()
+    }
 }
 
 onMounted(async () => {

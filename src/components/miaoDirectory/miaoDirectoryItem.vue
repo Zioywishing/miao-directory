@@ -33,6 +33,7 @@ const dataBus = useDataBus()
 
 const emit = defineEmits<{
     download: []
+    delete: []
 }>()
 
 const props = defineProps<{
@@ -65,9 +66,13 @@ const dropDownOptions = computed(()=> {
     return options
 })
 
-const handleDropdownSelect = (key: 'download') => {
+const handleDropdownSelect = (key: 'download' | 'delete') => {
     console.log(key)
-    emit(key)
+    if(key === 'download'){
+        emit('download')
+    } else if (key === 'delete') {
+        emit('delete')
+    }
 }
 
 const Icon = computed(()=>{
@@ -112,7 +117,7 @@ const handleDragStart = () => {
 <style lang="scss" scoped>
 .miao-item {
     cursor: pointer;
-    width: calc(100% - 16px);
+    width: calc(100% - 20px);
     min-width: 250px;
     // aspect-ratio: 66/9;
     height: 50px;
@@ -120,7 +125,7 @@ const handleDragStart = () => {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 10px 8px;
+    margin: 10px 10px;
     .item-main {
         position: relative;
         width: 100%;
