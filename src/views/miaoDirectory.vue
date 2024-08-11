@@ -176,8 +176,6 @@ onMounted(async () => {
                         reload()
                     },
                 })
-                const _f = files[0]
-                currentDirectory.value && miaoFetchApi.upload(_f, currentDirectory.value)
             }
         },
         onEnter() {

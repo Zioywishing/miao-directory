@@ -67,7 +67,6 @@ const dropDownOptions = computed(()=> {
 })
 
 const handleDropdownSelect = (key: 'download' | 'delete') => {
-    console.log(key)
     if(key === 'download'){
         emit('download')
     } else if (key === 'delete') {
