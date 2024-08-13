@@ -1,62 +1,59 @@
 <template>
-	<div class="miao-directory-item-container" ref="rootDomRef">
-		<div class="container-top" :style="{ backgroundColor: props.index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)' }">
-			<div class="container-top-colorbar" :style="{ backgroundColor: props.color }"></div>
-			<div class="container-top-breadcrumb">
-				<!-- <n-scrollbar x-scrollable> -->
-				<div class="container-top-breadcrumb-container">
-					<n-breadcrumb separator=">" style="margin-left: 5px;">
-						<n-breadcrumb-item :clickable="false">
-							<n-icon size="18">
-								<CloudOutline />
-							</n-icon>
-						</n-breadcrumb-item>
-						<n-breadcrumb-item v-for="(dir) in currentDirectory?.directoryArray" @click="setCurrentDirectory(dir)" :clickable="true">
-							<div>{{ dir.name }}</div>
-						</n-breadcrumb-item>
-					</n-breadcrumb>
-				</div>
-				<!-- </n-scrollbar> -->
-			</div>
-			<div class="container-top-tools">
-				<n-icon class="container-top-tools-item" size="15" @click="handleBack">
-					<ChevronBackOutline />
-				</n-icon>
-				<n-icon class="container-top-tools-item" size="14" @click="handleReload">
-					<ReloadOutline class="container-top-tools-item-reload" />
-				</n-icon>
-				<n-icon class="container-top-tools-item" size="20" @click="emit('exit')">
-					<CloseOutline />
-				</n-icon>
-			</div>
-		</div>
-		<div class="container-items" :style="{ backgroundColor: props.index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)' }">
-			<n-scrollbar>
-				<miaoDirectoryItem
-					v-for="(dir) in showData_directory"
-					@click="setCurrentDirectory(dir)"
-					:item="dir"
-					:key="dir.uid"
-					:color="props.color"
-					@delete="handleItemDelete(dir)"
-				/>
-				<miaoDirectoryItem
-					v-for="(file) in showData_files"
-					:item="file"
-					:key="file.uid"
-					@click="openUrl(`${baseUrl}${api.get}${file.path}`)"
-					@download="openUrl(`${baseUrl}${api.get}${file.path}`, {download: file.name})"
-					@delete="handleItemDelete(file)"
-					:color="props.color"
-				/>
-			</n-scrollbar>
-		</div>
-		<div class="container-bottom" :style="{ backgroundColor: props.index % 2 === 1 ? 'rgb(61 61 61)' : 'rgb(162 162 162)' }"></div>
-		<miaoMask v-model:show="showModel"></miaoMask>
-	</div>
+    <div class="miao-directory-item-container" ref="rootDomRef">
+        <div class="container-top" :style="{ backgroundColor: props.index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)' }">
+            <div class="container-top-colorbar" :style="{ backgroundColor: props.color }"></div>
+            <div class="container-top-breadcrumb">
+                <!-- <n-scrollbar x-scrollable> -->
+                <div class="container-top-breadcrumb-container">
+                    <n-breadcrumb separator=">" style="margin-left: 5px;">
+                        <n-breadcrumb-item :clickable="false">
+                            <n-icon size="18">
+                                <CloudOutline />
+                            </n-icon>
+                        </n-breadcrumb-item>
+                        <n-breadcrumb-item v-for="(dir) in currentDirectory?.directoryArray"
+                            @click="setCurrentDirectory(dir)" :clickable="true">
+                            <div>{{ dir.name }}</div>
+                        </n-breadcrumb-item>
+                    </n-breadcrumb>
+                </div>
+                <!-- </n-scrollbar> -->
+            </div>
+            <div class="container-top-tools">
+                <n-icon class="container-top-tools-item" size="15" @click="handleBack">
+                    <ChevronBackOutline />
+                </n-icon>
+                <n-icon class="container-top-tools-item" size="14" @click="handleReload">
+                    <ReloadOutline class="container-top-tools-item-reload" />
+                </n-icon>
+                <n-icon class="container-top-tools-item" size="20" @click="emit('exit')">
+                    <CloseOutline />
+                </n-icon>
+            </div>
+        </div>
+        <div class="container-items"
+            :style="{ backgroundColor: props.index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)' }">
+            <n-scrollbar>
+                <transition-group name="dirItem">
+                    <miaoDirectoryItem v-for="(dir) in showData_directory" @click="setCurrentDirectory(dir)" :item="dir"
+                        :key="dir.uid" :color="props.color" @delete="handleItemDelete(dir)" />
+                </transition-group>
+                <transition-group name="dirItem">
+                    <miaoDirectoryItem v-for="(file) in showData_files" :item="file" :key="file.uid"
+                        @click="openUrl(`${baseUrl}${api.get}${file.path}`)"
+                        @download="openUrl(`${baseUrl}${api.get}${file.path}`, { download: file.name })"
+                        @delete="handleItemDelete(file)" :color="props.color" />
+                </transition-group>
+            </n-scrollbar>
+        </div>
+        <div class="container-bottom"
+            :style="{ backgroundColor: props.index % 2 === 1 ? 'rgb(61 61 61)' : 'rgb(162 162 162)' }"></div>
+        <miaoMask v-model:show="showModel"></miaoMask>
+    </div>
 </template>
 
 <script setup lang="ts">
+
 import { NBreadcrumbItem, NBreadcrumb, NIcon, NScrollbar } from 'naive-ui'
 import type { file, directory } from '@/types/type.ts'
 import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory';
@@ -87,15 +84,15 @@ const emit = defineEmits<{
 const showModel = ref(0)
 
 // 目前展示的Dir
-const currentDirectory = defineModel<VirtualDirectory | undefined>('currentDirectory', { required: true })
+const currentDirectory = defineModel<VirtualDirectory>('currentDirectory', { required: true })
 
 // 用于展示的数据，后续会增加排序等操作
 const showData_directory = computed<VirtualDirectory[]>(() => {
-    const data = currentDirectory.value?.directorys ? [...currentDirectory.value?.directorys ] : []
+    const data = currentDirectory.value?.directorys ? [...currentDirectory.value?.directorys] : []
     return data
 })
 const showData_files = computed<VirtualFile[]>(() => {
-    const data = currentDirectory.value?.files ? [...currentDirectory.value?.files ] : []
+    const data = currentDirectory.value?.files ? [...currentDirectory.value?.files] : []
     return data
 })
 
@@ -114,27 +111,22 @@ const setCurrentDirectory = async (virtualDirectory: VirtualDirectory) => {
         ; (async () => {
             const data: (file | directory)[] = await miaoFetchApi.get(virtualDirectory)
             virtualDirectory.updateContent(data)
-            currentDirectory.value = undefined
-            currentDirectory.value = virtualDirectory
         })()
     }
-    // 刷新一下
-    currentDirectory.value = undefined
     currentDirectory.value = virtualDirectory
-    // emit("onCurrentDirectoryChange", currentDirectory.value)
 }
 
 const reload = () => {
-    currentDirectory.value && setCurrentDirectory(currentDirectory.value)
+    setCurrentDirectory(currentDirectory.value)
 }
 
 const openUrl = (href: string, config?: {
     download?: string
     target?: string
 }) => {
-    let {target, download} = config ?? {}
+    let { target, download } = config ?? {}
 
-    console.log({target, download, href})
+    console.log({ target, download, href })
     const a = document.createElement('a');
     a.setAttribute('href', href);
     a.setAttribute('target', target ?? '_blank')
@@ -143,7 +135,7 @@ const openUrl = (href: string, config?: {
 }
 
 const handleBack = () => {
-    if(currentDirectory.value?.parent){
+    if (currentDirectory.value?.parent) {
         setCurrentDirectory(currentDirectory.value.parent)
     }
 }
@@ -153,12 +145,14 @@ const handleReload = () => {
 }
 
 const handleItemDelete = async (item: VirtualDirectory | VirtualFile) => {
-    const {response} = miaoFetchApi.delete(item)
+    const { response } = miaoFetchApi.delete(item, {
+        retry: 5
+    })
     // todo: 将删除事件统一用一个事件管理中心管理
     const id = (await response).eventId
-    const {response : res} = miaoFetchApi.query(id)
+    const { response: res } = miaoFetchApi.query(id)
     const eventResult = await res
-    if(eventResult.status === 'success'){
+    if (eventResult.status === 'success') {
         reload()
     }
 }
@@ -166,11 +160,11 @@ const handleItemDelete = async (item: VirtualDirectory | VirtualFile) => {
 onMounted(async () => {
     currentDirectory.value && await setCurrentDirectory(currentDirectory.value)
     // 拖动事件处理
-    const dropFileOption:dropHandlerHooks = {
+    const dropFileOption: dropHandlerHooks = {
         onDropFiles(files: File[]) {
             const dragData = dataBus.pop('dragData')
-            console.log({dragData, files})
-            if(files && files.length > 0){
+            console.log({ dragData, files })
+            if (files && files.length > 0) {
                 currentDirectory.value && uploadQueue.push(files, currentDirectory.value, {
                     onFinish() {
                         reload()
@@ -201,6 +195,7 @@ $bottom-bar-height: 60px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+
     .container-top {
         height: $top-height;
         width: 100%;
@@ -210,12 +205,14 @@ $bottom-bar-height: 60px;
         align-items: center;
         overflow: hidden;
         background-color: #f1f1f1;
+
         .container-top-colorbar {
             height: 70%;
             width: 5px;
             margin-left: 10px;
             border-radius: 3px 0 0 3px;
         }
+
         .container-top-breadcrumb {
             position: relative;
             height: 70%;
@@ -229,6 +226,7 @@ $bottom-bar-height: 60px;
             background-color: #ffffff;
             padding: 0 5px;
             border-radius: 0 3px 3px 0;
+
             .container-top-breadcrumb-container {
                 position: absolute;
                 height: 100%;
@@ -240,6 +238,7 @@ $bottom-bar-height: 60px;
                 align-items: center;
             }
         }
+
         .container-top-tools {
             position: relative;
             height: 100%;
@@ -248,6 +247,7 @@ $bottom-bar-height: 60px;
             display: flex;
             justify-content: space-around;
             align-items: center;
+
             .container-top-tools-item {
                 width: 20px;
                 height: 20px;
@@ -258,30 +258,37 @@ $bottom-bar-height: 60px;
                 border-radius: 5px;
                 transition: background-color 0.3s;
                 cursor: pointer;
+
                 .container-top-tools-item-reload {
                     transition: transform 0.6s ease-in-out;
                 }
+
                 &:hover {
-                    background-color: rgba(128,128,128,0.4);
+                    background-color: rgba(128, 128, 128, 0.4);
                 }
+
                 &:active .container-top-tools-item-reload {
                     transform: rotate(360deg);
                 }
             }
-            &::after {
-                content: '';
-                height: 60%;
-                position: absolute;
-                right: -2px;
-                width: 2px;
-                background-color: #828282;
-            }
+
+            // &::after {
+            //     content: '';
+            //     height: 60%;
+            //     position: absolute;
+            //     right: -2px;
+            //     width: 2px;
+            //     background-color: #828282;
+            // }
         }
     }
+
     .container-items {
         width: 100%;
         height: calc(100% - $top-height - $bottom-bar-height);
+        // flex: 1;
     }
+
     .container-bottom {
         height: $bottom-bar-height;
         background-color: bisque;
@@ -291,6 +298,24 @@ $bottom-bar-height: 60px;
         user-select: none;
         box-shadow: 0px 1px 10px #888888;
         z-index: 2;
+    }
+}
+// transition动画相关
+.miao-directory-item-container {
+    .container-items {
+        .dirItem-move,
+        .dirItem-enter-active {
+            transition: all 0.2s ease;
+        }
+        .dirItem-leave-active {
+            transition: none;
+        }
+        .dirItem-enter-from {
+            opacity: 0;
+        }
+        .dirItem-leave-active {
+            position: absolute;
+        }
     }
 }
 </style>

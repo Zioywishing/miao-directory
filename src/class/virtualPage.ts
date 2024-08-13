@@ -42,6 +42,8 @@ export default class VirtualPage {
 		this.currentDirectory = currDir;
 	}
 
+	// 刷新，不过好像没有用得到的时候吧
+	// 事实上也不应该用得到，因为更新应该是响应式的
 	refresh() {
 		this.refreshKey = Math.random();
 	}

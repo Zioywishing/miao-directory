@@ -1,6 +1,13 @@
-const dataStorage: any = {};
+import { reactive } from "vue";
+
+let dataStorage: {
+	[key: string | number] : any
+};
 
 export default function useDataBus() {
+	if(dataStorage === undefined) {
+		dataStorage = reactive({})
+	}
 	return {
 		set(key: string | number, value: any) {
 			dataStorage[key] = value;
