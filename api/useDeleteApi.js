@@ -15,7 +15,7 @@ function deletePath(targetPath) {
 
             if (stats.isFile()) {
                 // 如果是文件，直接删除
-                fs.unlink(targetPath, (err) => {
+                fs.rm(targetPath, { recursive: true }, (err) => {
                     if (err) return reject(err);
                     resolve(); // 删除成功
                 });
