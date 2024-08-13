@@ -21,7 +21,7 @@ const modalData = shallowRef<{
 
 const views = useViretualPages()
 
-const rootDirectory = new VirtualDirectory({
+const rootDirectory = reactive(new VirtualDirectory({
   name: '根目录',
   stats: {
     atimeMs: 0,
@@ -29,7 +29,7 @@ const rootDirectory = new VirtualDirectory({
     ctimeMs: 0,
     mtimeMs: 0,
   }
-})
+}))
 
 const createView = (initDirectory: VirtualDirectory, index?: number) => {
   index ?? (index = views.length)
@@ -290,6 +290,7 @@ $tag-width: 170px;
     }
   }
 }
+
 // transition动画相关
 .view {
   .view-controler {
@@ -322,28 +323,26 @@ $tag-width: 170px;
 
   .view-container {
 
-    .page-move,
-    .page-enter-active {
-      transition: all 0.2s ease;
-    }
-
-    .page-leave-active {
-      transition: none;
-    }
-
-    .page-enter-from {
-      opacity: 0;
-      // transform: translateY(-100px);
-    }
-
-    // .page-leave-to {
-    //   opacity: 0;
-    //   transform: translateY(-80px) translateX(calc($tag-width + 10px));
+    // .page-move {
+    //   transition: all 0.2s ease;
     // }
 
-    .page-leave-active {
-      position: absolute;
-    }
+    
+    // .page-enter-active {
+
+    // }
+
+    // .page-leave-active {
+    //   transition: none;
+    // }
+
+    // .page-enter-from {
+    //   opacity: 0;
+    // }
+
+    // .page-leave-active {
+    //   position: absolute;
+    // }
   }
 }
 </style>

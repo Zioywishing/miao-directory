@@ -303,8 +303,7 @@ $bottom-bar-height: 60px;
 // transition动画相关
 .miao-directory-item-container {
     .container-items {
-        .dirItem-move,
-        .dirItem-enter-active {
+        .dirItem-move {
             transition: all 0.2s ease;
         }
         .dirItem-leave-active {
