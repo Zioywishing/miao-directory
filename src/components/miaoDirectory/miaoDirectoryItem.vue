@@ -34,6 +34,7 @@ const dataBus = useDataBus()
 const emit = defineEmits<{
     download: []
     delete: []
+    dragStart: []
 }>()
 
 const props = defineProps<{

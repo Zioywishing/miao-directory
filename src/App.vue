@@ -5,7 +5,7 @@ import { NIcon, NScrollbar, NDropdown, NQrCode } from 'naive-ui';
 import { EyeOffOutline, EyeOutline, CloseOutline, CopyOutline, EllipsisVertical, QrCodeOutline } from '@vicons/ionicons5'
 import miaoDirectory from './views/miaoDirectory.vue';
 import VirtualPage from './class/VirtualPage';
-import VirtualDirectory from './class/VirtualDirectory';
+import VirtualDirectory, { VirtualFile } from './class/VirtualDirectory';
 import MiaoMask from './components/miaoMask.vue';
 import config from './config';
 import useViretualPages from './hooks/useVirtualPages';
@@ -31,16 +31,16 @@ const rootDirectory = reactive(new VirtualDirectory({
   }
 }))
 
-const createView = (initDirectory: VirtualDirectory, index?: number) => {
+// component就是一个vue组件，类似于miaoDirectory
+const createView = (component: any, currentObjects: (VirtualDirectory | VirtualFile)[], index?: number) => {
   index ?? (index = views.length)
-  console.log(initDirectory)
-  views.splice(index, 0, reactive<VirtualPage>(new VirtualPage(initDirectory)))
+  views.splice(index, 0, reactive<VirtualPage>(new VirtualPage(component, [...currentObjects])))
 }
 
 const deleteView = (index: number) => {
   views.splice(index, 1)
   if (views.length === 0) {
-    createView(rootDirectory)
+    createView(miaoDirectory, [rootDirectory])
   }
 }
 
@@ -78,7 +78,6 @@ const openMenuOption = [
 ]
 
 const handleMenuSelect = (key: string) => {
-  console.log(key)
   if (key === 'share') {
     showModal.value = true
     modalData.value = {
@@ -93,7 +92,7 @@ const handleMenuSelect = (key: string) => {
 }
 
 onMounted(() => {
-  createView(rootDirectory)
+  createView(miaoDirectory, [rootDirectory])
 })
 </script>
 
@@ -111,7 +110,8 @@ onMounted(() => {
                   <EyeOutline v-show="view.visible" class="icon-inner" />
                   <EyeOffOutline v-show="!view.visible" class="icon-inner" />
                 </n-icon>
-                <n-icon class="tag-control-icon icon" @click="createView(view.currentDirectory, index + 1)">
+                <n-icon class="tag-control-icon icon"
+                  @click="createView(view.component, view.currentObjects, index + 1)">
                   <CopyOutline />
                 </n-icon>
                 <n-icon class="tag-control-icon icon" @click="deleteView(index)">
@@ -135,8 +135,8 @@ onMounted(() => {
     <div class="view-container">
       <transition-group name="page">
         <div class="view-container-item" v-for="(view, index) of views" v-show="view.visible" :key="view.uid">
-          <miao-directory v-model:current-directory="view.currentDirectory" :color="view.color" :index="index"
-            @exit="deleteView(index)"></miao-directory>
+          <component :is="view.component" v-model:current-objects="view.currentObjects" :id="view.uid"
+            :color="view.color" @exit="deleteView(index)"></component>
         </div>
       </transition-group>
     </div>
@@ -327,7 +327,7 @@ $tag-width: 170px;
     //   transition: all 0.2s ease;
     // }
 
-    
+
     // .page-enter-active {
 
     // }
