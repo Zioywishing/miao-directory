@@ -59,7 +59,7 @@ class FsOprateEventCenter {
         const res = {status}
         if( ['success', 'failed'].includes(status) ){
             if(status === 'failed'){
-                res.result = this.eventMap[id].event.failedEvent
+                res.failedEvent = this.eventMap[id].event.failedEvent
             }
             clearInterval(this.eventMap[id].timer)
             this.eventMap[id] = undefined

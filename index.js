@@ -7,6 +7,8 @@ import useGetApi from "./api/useGetApi.js";
 import useUploadApi from "./api/useUploadApi.js";
 import useDeleteApi from "./api/useDeleteApi.js";
 import useQueryApi from "./api/useQueryApi.js";
+import useRenameApi from "./api/useRenameApi.js";
+import useCutApi from "./api/useCutApi.js";
 
 const { staticPath, port, api } = Config;
 
@@ -21,6 +23,8 @@ useGetApi(app);
 useUploadApi(app);
 useDeleteApi(app);
 useQueryApi(app);
+useRenameApi(app);
+useCutApi(app);
 
 app.listen(port, "::", () => {
 	const interfaces = os.networkInterfaces();

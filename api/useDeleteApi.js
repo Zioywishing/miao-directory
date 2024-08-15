@@ -10,27 +10,21 @@ function deletePath(targetPath) {
         fs.stat(targetPath, (err, stats) => {
             if (err) {
                 console.log(err)
-                return reject(err); // 如果获取状态失败，返回错误
+                return reject(err);
             }
 
             if (stats.isFile()) {
-                // 如果是文件，直接删除
                 fs.rm(targetPath, { recursive: true }, (err) => {
                     if (err) return reject(err);
-                    resolve(); // 删除成功
+                    resolve();
                 });
-                // console.log('delete file')
             } else if (stats.isDirectory()) {
-                // 如果是文件夹，递归删除
                 fs.rm(targetPath, { recursive: true }, (err) => {
                     if (err) return reject(err);
-                    resolve(); // 删除成功
+                    resolve();
                 });
-                // console.log('delete directory')
             } else {
-                // console.log('unknow file')
-                // 其他类型（如符号链接等），可以根据需要处理
-                reject('unknow file'); // 这里选择不处理其他类型
+                reject('unknow file');
             }
         });
     });

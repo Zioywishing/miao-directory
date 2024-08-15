@@ -6,9 +6,11 @@ export const port = 17705;
 
 export const api = {
     get: `/${"get"}`,
+    query: `/${"query"}`,
     upload: `/${"upload"}/*`,
     delete: `/${"delete"}/*`,
-    query: `/${"query"}`
+    rename: `/${"rename"}/*`,
+    cut: `/${"cut"}/*`,
 }
 
 export default { staticPath, port, api }
