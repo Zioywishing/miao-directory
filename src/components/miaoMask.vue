@@ -2,7 +2,7 @@
 	<transition name="transition">
 		<div class="mask-body" ref="maskBodyRef" v-show="showMask">
       <div @click="e=>e.stopPropagation()">
-        <slot> {{}} </slot>
+        <slot></slot>
       </div>
 		</div>
 	</transition>

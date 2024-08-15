@@ -1,116 +1,169 @@
 <template>
-	<div class="miao-item" draggable="true" ref="itemRef" @dragstart="handleDragStart">
-		<div class="item-main">
-			<div class="item-main-front" :style="{ backgroundColor: props.color }"></div>
-			<Icon class="item-main-icon"></Icon>
-			<div class="item-main-info">
-				<div class="item-main-info-name">
-					{{ name }}
-				</div>
-				<div class="item-main-info-date" v-if="time">
-					{{ time }}
-				</div>
-			</div>
-			<n-dropdown trigger="click" :options="dropDownOptions" @select="handleDropdownSelect">
-				<div class="item-main-option" @click="e=>e.stopPropagation()">
-					<EllipsisVertical class="item-main-option-icon" />
-				</div>
-			</n-dropdown>
-		</div>
-	</div>
+    <div
+        class="miao-item"
+        draggable="true"
+        ref="itemRef"
+        @dragstart="handleDragStart">
+        <div class="item-main">
+            <div
+                class="item-main-front"
+                :style="{ backgroundColor: props.color }"></div>
+            <Icon class="item-main-icon"></Icon>
+            <div class="item-main-info">
+                <div class="item-main-info-name">
+                    {{ name }}
+                </div>
+                <div class="item-main-info-date" v-if="time">
+                    {{ time }}
+                </div>
+            </div>
+            <n-dropdown
+                trigger="click"
+                :options="dropDownOptions"
+                @select="handleDropdownSelect">
+                <div
+                    class="item-main-option"
+                    @click="(e) => e.stopPropagation()">
+                    <EllipsisVertical class="item-main-option-icon" />
+                </div>
+            </n-dropdown>
+        </div>
+    </div>
 </template>
 
 <script setup lang="ts">
+import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory'
+import {
+    DocumentText,
+    FileTray,
+    Help,
+    Image,
+    LogoChrome,
+    LogoCss3,
+    LogoJavascript,
+    LogoVue,
+    PlayCircle,
+    EllipsisVertical,
+    Disc
+} from '@vicons/ionicons5'
+import { computed, ref } from 'vue'
+import dateFormatter from '@/hooks/dateFormatter'
+// import useDataBus from '@/hooks/useDataBus'
+import { NDropdown } from 'naive-ui'
 
-import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory';
-import { DocumentText, FileTray, Help, Image, LogoChrome, LogoCss3, LogoJavascript, LogoVue, PlayCircle, EllipsisVertical, Disc } from '@vicons/ionicons5';
-import { computed, ref } from 'vue';
-import dateFormatter from '@/hooks/dateFormatter';
-import useDataBus from '@/hooks/useDataBus';
-import { NDropdown } from 'naive-ui';
+// const dataBus = useDataBus()
 
-const dataBus = useDataBus()
+const props = defineProps<{
+    item: VirtualDirectory | VirtualFile
+    name?: string
+    color: string
+}>()
 
 const emit = defineEmits<{
     download: []
     delete: []
-    dragStart: []
-}>()
-
-const props = defineProps<{
-  item: VirtualDirectory | VirtualFile
-  name?: string
-  color:string
+    dragStart: [event: DragEvent, item: VirtualDirectory | VirtualFile]
 }>()
 
 const itemType = ref<'file' | 'directory'>(props.item.type)
 
 const name = props.name ?? props.item.name
 
-const time = computed(()=>{
-    return dateFormatter(new Date(props.item.stats.mtimeMs), "yyyy-MM-dd hh:mm:ss");
+const time = computed(() => {
+    return dateFormatter(
+        new Date(props.item.stats.mtimeMs),
+        'yyyy-MM-dd hh:mm:ss'
+    )
 })
 
-const dropDownOptions = computed(()=> {
-    const options = [{
-        label: '删除',
-        key: 'delete'
-    }]
-    if(itemType.value === 'file'){
-        options.push(...[
-            {
-                label: '下载',
-                key: 'download',
-            }
-        ])
+const dropDownOptions = computed(() => {
+    const options = [
+        {
+            label: '删除',
+            key: 'delete'
+        }
+    ]
+    if (itemType.value === 'file') {
+        options.push(
+            ...[
+                {
+                    label: '下载',
+                    key: 'download'
+                }
+            ]
+        )
     }
     return options
 })
 
 const handleDropdownSelect = (key: 'download' | 'delete') => {
-    if(key === 'download'){
+    if (key === 'download') {
         emit('download')
     } else if (key === 'delete') {
         emit('delete')
     }
 }
 
-const Icon = computed(()=>{
-    try{
-        if(props.item.type === 'directory') {
+const Icon = computed(() => {
+    try {
+        if (props.item.type === 'directory') {
             return FileTray
-        } else if(props.item.type === 'file') {
+        } else if (props.item.type === 'file') {
             const aft = props.item.name.split('.').at(-1)?.toLowerCase()
-            if(!aft){
-                throw(1)
-            }else if(['txt', 'doc', 'docs', 'docx', 'xls', 'xlsx'].includes(aft)){
+            if (!aft) {
+                throw 1
+            } else if (
+                ['txt', 'doc', 'docs', 'docx', 'xls', 'xlsx'].includes(aft)
+            ) {
                 return DocumentText
-            }else if(['mp3', 'wav', 'ape', 'acc', 'ogg', 'flac'].includes(aft)){
+            } else if (
+                ['mp3', 'wav', 'ape', 'acc', 'ogg', 'flac'].includes(aft)
+            ) {
                 return Disc
-            }else if(['.xbm','.tif','pjp','.svgz','jpg','jpeg','ico','tiff','.gif','svg','.jfif','.webp','.png','.bmp','pjpeg','.avif'].includes(aft)){
+            } else if (
+                [
+                    '.xbm',
+                    '.tif',
+                    'pjp',
+                    '.svgz',
+                    'jpg',
+                    'jpeg',
+                    'ico',
+                    'tiff',
+                    '.gif',
+                    'svg',
+                    '.jfif',
+                    '.webp',
+                    '.png',
+                    '.bmp',
+                    'pjpeg',
+                    '.avif'
+                ].includes(aft)
+            ) {
                 return Image
-            }else if(['mp4', 'm2v', 'mkv'].includes(aft)){
+            } else if (['mp4', 'm2v', 'mkv'].includes(aft)) {
                 return PlayCircle
-            }else if(['js', 'jsx', 'ts', 'tsx'].includes(aft)){
+            } else if (['js', 'jsx', 'ts', 'tsx'].includes(aft)) {
                 return LogoJavascript
-            }else if(['html'].includes(aft)){
+            } else if (['html'].includes(aft)) {
                 return LogoChrome
-            }else if(['css', 'scss', 'less'].includes(aft)){
+            } else if (['css', 'scss', 'less'].includes(aft)) {
                 return LogoCss3
-            }else if(['vue'].includes(aft)){
+            } else if (['vue'].includes(aft)) {
                 return LogoVue
             }
             return DocumentText
         }
-    }catch{
+    } catch {
         return Help
     }
 })
 
 const itemRef = ref()
 
-const handleDragStart = () => {
-    dataBus.set('dragData', [ props.item ])
+const handleDragStart = (event: DragEvent) => {
+    emit('dragStart', event, props.item)
+    // dataBus.set('dragData', [props.item])
 }
 </script>
 
@@ -138,7 +191,7 @@ const handleDragStart = () => {
         .item-main-front {
             height: 100%;
             width: 10px;
-            border-radius: 7px 0 0 7px ;
+            border-radius: 7px 0 0 7px;
             background-color: rgb(0, 0, 0);
         }
         .item-main-icon {
@@ -176,17 +229,18 @@ const handleDragStart = () => {
                 color: #000;
                 transition: color 0.15s;
             }
-            &:hover, &:active {
+            &:hover,
+            &:active {
                 background-color: #8b8b8b;
                 .item-main-option-icon {
-                    color: #FFF;
+                    color: #fff;
                 }
             }
         }
-        &:hover, &:active {
+        &:hover,
+        &:active {
             background-color: #d2d2d2;
         }
-
     }
 }
 </style>
