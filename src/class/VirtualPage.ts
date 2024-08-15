@@ -13,20 +13,23 @@ const getRandomWebSafeColor = (() => {
 })();
 
 export default class VirtualPage {
-	constructor(component: any, initObjects: (VirtualDirectory | VirtualFile)[]) {
+	constructor(component: any, initObjects?:{ directorys?: VirtualDirectory[], files?: VirtualFile[]}) {
 		this.component = shallowRef(component);
-		this.currentObjects = initObjects;
-
+		this.currentDirectorys = initObjects?.directorys ?? [];
+		this.currentFiles = initObjects?.files ?? [];
 		this.visible = true;
 		this.uid = generateId();
 		this.refreshKey = Math.random();
 		this.color = getRandomWebSafeColor();
 	}
+	// 页面使用的组件
 	component: any;
 	// 是否可见
 	visible: boolean;
-	// 当前正在使用的文件或是文件夹
-	currentObjects: (VirtualDirectory | VirtualFile)[];
+	// 当前正在使用的文件夹
+	currentDirectorys: VirtualDirectory[];
+	// 当前正在使用的文件
+	currentFiles: VirtualFile[];
 	// 区分每一个页面的唯一id
 	uid: number;
 	// 当refreshKey改变时需要刷新页面，目前还没接入刷新
@@ -40,7 +43,7 @@ export default class VirtualPage {
 		if (this._title) {
 			return this._title;
 		}
-		return this.currentObjects[0].name;
+		return this.currentDirectorys[0].name;
 	}
 
 	setTitle(title: string) {

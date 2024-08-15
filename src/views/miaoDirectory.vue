@@ -1,15 +1,11 @@
 <template>
     <miao-drop-handler @on-virtual-directory="handleDropVDirectory" @on-files="handleDropFiles">
         <div class="miao-directory-item-container" ref="rootDomRef">
-            <div
-                class="container-top"
-                :style="{
-                    backgroundColor:
-                        index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)'
-                }">
-                <div
-                    class="container-top-colorfulBar"
-                    :style="{ backgroundColor: props.color }"></div>
+            <div class="container-top" :style="{
+                backgroundColor:
+                    index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)'
+            }">
+                <div class="container-top-colorfulBar" :style="{ backgroundColor: props.color }"></div>
                 <div class="container-top-breadcrumb">
                     <!-- <n-scrollbar x-scrollable> -->
                     <div class="container-top-breadcrumb-container">
@@ -19,10 +15,8 @@
                                     <CloudOutline />
                                 </n-icon>
                             </n-breadcrumb-item>
-                            <n-breadcrumb-item
-                                v-for="dir in currentDirectory?.directoryArray"
-                                @click="setCurrentDirectory(dir)"
-                                :clickable="true">
+                            <n-breadcrumb-item v-for="dir in currentDirectory?.directoryArray"
+                                @click="setCurrentDirectory(dir)" :clickable="true">
                                 <div>{{ dir.name }}</div>
                             </n-breadcrumb-item>
                         </n-breadcrumb>
@@ -30,69 +24,44 @@
                     <!-- </n-scrollbar> -->
                 </div>
                 <div class="container-top-tools">
-                    <n-icon
-                        class="container-top-tools-item"
-                        size="15"
-                        @click="handleBack">
+                    <n-icon class="container-top-tools-item" size="15" @click="handleBack">
                         <ChevronBackOutline />
                     </n-icon>
-                    <n-icon
-                        class="container-top-tools-item"
-                        size="14"
-                        @click="handleReload">
-                        <ReloadOutline
-                            class="container-top-tools-item-reload" />
+                    <n-icon class="container-top-tools-item" size="14" @click="handleReload">
+                        <ReloadOutline class="container-top-tools-item-reload" />
                     </n-icon>
-                    <n-icon
-                        class="container-top-tools-item"
-                        size="20"
-                        @click="emit('exit')">
+                    <n-icon class="container-top-tools-item" size="20" @click="emit('exit')">
                         <CloseOutline />
                     </n-icon>
                 </div>
             </div>
-            <div
-                class="container-items"
-                :style="{
-                    backgroundColor:
-                        index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)'
-                }">
+            <div class="container-items" :style="{
+                backgroundColor:
+                    index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)'
+            }">
                 <n-scrollbar>
                     <transition-group name="dirItem">
-                        <miaoDirectoryItem
-                            v-for="dir in showData_directory"
-                            @click="setCurrentDirectory(dir)"
-                            :item="dir"
-                            :key="dir.uid"
-                            :color="props.color"
-                            @delete="handleItemDelete(dir)"
+                        <miaoDirectoryItem v-for="dir in showData_directory" @click="setCurrentDirectory(dir)"
+                            :item="dir" :key="dir.uid" :color="props.color" @delete="handleItemDelete(dir)"
                             @drag-start="handleItemDragStart" />
                     </transition-group>
                     <transition-group name="dirItem">
-                        <miaoDirectoryItem
-                            v-for="file in showData_files"
-                            :item="file"
-                            :key="file.uid"
-                            @click="openUrl(`${baseUrl}${api.get}${file.path}`)"
-                            @download="
+                        <miaoDirectoryItem v-for="file in showData_files" :item="file" :key="file.uid"
+                            @click="openUrl(`${baseUrl}${api.get}${file.path}`)" @download="
                                 openUrl(`${baseUrl}${api.get}${file.path}`, {
                                     download: file.name
                                 })
-                            "
-                            @delete="handleItemDelete(file)"
-                            @drag-start="handleItemDragStart"
+                                " @delete="handleItemDelete(file)" @drag-start="handleItemDragStart"
                             :color="props.color" />
                     </transition-group>
                 </n-scrollbar>
             </div>
-            <div
-                class="container-bottom"
-                :style="{
-                    backgroundColor:
-                        index % 2 === 1 ? 'rgb(61 61 61)' : 'rgb(162 162 162)'
-                }"></div>
+            <div class="container-bottom" :style="{
+                backgroundColor:
+                    index % 2 === 1 ? 'rgb(61 61 61)' : 'rgb(162 162 162)'
+            }"></div>
             <miao-mask v-model:show="showModel"></miao-mask>
-            <!-- <miao-popup-input ref="popupInput"></miao-popup-input> -->
+            <miao-popup-input ref="popupInput"></miao-popup-input>
         </div>
     </miao-drop-handler>
 </template>
@@ -105,7 +74,7 @@ import { computed, onMounted, ref } from 'vue'
 import Config from '@/config'
 import miaoMask from '@/components/miaoMask.vue'
 import miaoDirectoryItem from '@/components/miaoDirectory/miaoDirectoryItem.vue'
-// import miaoPopupInput from "@/components/miaoPopupInput.vue";
+import miaoPopupInput from "@/components/miaoPopupInput.vue";
 import miaoDropHandler from '@/components/miaoDropHandler.vue'
 import useMiaoFetchApi from '@/hooks/useMiaoFetchApi'
 import useDataBus from '@/hooks/useDataBus'
@@ -146,6 +115,7 @@ const currentDirectory = computed(() => {
     return currentObjects.value[0]
 })
 
+// 当前组件在views中的序号
 const index = computed(() => {
     for (let i in views) {
         if (views[i].uid === props.id) {
@@ -186,7 +156,7 @@ const setCurrentDirectory = async (virtualDirectory: VirtualDirectory) => {
         )
         virtualDirectory.updateContent(data)
     } else {
-        ;(async () => {
+        ; (async () => {
             const data: (file | directory)[] = await miaoFetchApi.get(
                 virtualDirectory
             )
@@ -249,10 +219,6 @@ const handleItemDragStart = async (
     }
 }
 
-const handleDropVDirectory = async (vDirs: VirtualDirectory[]) => {
-    setCurrentDirectory(vDirs[0])
-}
-
 const handleDropFiles = async (files: File[]) => {
     currentDirectory.value &&
         uploadQueue.push(files, currentDirectory.value, {
@@ -260,6 +226,30 @@ const handleDropFiles = async (files: File[]) => {
                 reload()
             }
         })
+}
+
+const handleDropVDirectory = async (vDirs: VirtualDirectory[]) => {
+    if (vDirs[0].parent === currentDirectory.value) {
+        return
+    }
+    const popupRes = await popupInput.value.popup({
+        title: '重命名',
+        showInput: true,
+        inputProps: {
+            placeholder: '',
+        },
+        options: [{
+            label: '取消',
+            key: false,
+            type: 'error'
+        }, {
+            label: '确认',
+            key: true,
+            type: 'success'
+        },]
+    })
+    console.log({ popupRes })
+    // setCurrentDirectory(vDirs[0])
 }
 
 onMounted(async () => {
@@ -404,5 +394,4 @@ $bottom-bar-height: 60px;
 //             position: absolute;
 //         }
 //     }
-// }
-</style>
+// }</style>

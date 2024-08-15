@@ -1,11 +1,9 @@
 <template>
-	<transition name="transition">
-		<div class="mask-body" ref="maskBodyRef" v-show="showMask">
-      <div @click="e=>e.stopPropagation()">
+  <transition name="transition">
+    <div class="mask-body" ref="maskBodyRef" v-show="showMask">
         <slot></slot>
-      </div>
-		</div>
-	</transition>
+    </div>
+  </transition>
 </template>
 <script lang="ts" setup>
 import { ref } from 'vue';
@@ -17,27 +15,34 @@ const showMask = defineModel<boolean | number>('show', { default: false, require
 </script>
 <style lang="scss" scoped>
 .mask-body {
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    top:0;
-    left: 0;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 7058214053994319;
+
+  // &-container {
+
+  // }
+
+  &-show {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.3);
-    z-index: 7058214053994319;
-    &-show {
-        display: flex;
-        transition: opacity 0.3s 0.01s;
-        opacity: 1;
-    }
-    &-hide {
-        opacity: 0;
-        transition: display 0.01s 0.3s;
-        display: none;
-    }
+    transition: opacity 0.3s 0.01s;
+    opacity: 1;
+  }
+
+  &-hide {
+    opacity: 0;
+    transition: display 0.01s 0.3s;
+    display: none;
+  }
 }
+
 .transition-enter-active,
 .transition-leave-active {
   transition: opacity 0.3s ease;

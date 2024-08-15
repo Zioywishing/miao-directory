@@ -42,14 +42,18 @@ const rootDirectory = reactive(
 // component就是一个vue组件，类似于miaoDirectory
 const createView = (
     component: any,
-    currentObjects: (VirtualDirectory | VirtualFile)[],
+    currentDirectorys?: VirtualDirectory[],
+    currentFiles?: VirtualFile[],
     index?: number
 ) => {
     index ?? (index = views.length)
     views.splice(
         index,
         0,
-        reactive<VirtualPage>(new VirtualPage(component, [...currentObjects]))
+        reactive<VirtualPage>(new VirtualPage(component, {
+          directorys: [...(currentDirectorys ?? [])],
+          files: [...(currentFiles ?? [])]
+        }))
     )
 }
 
@@ -145,7 +149,8 @@ onMounted(() => {
                                     @click="
                                         createView(
                                             view.component,
-                                            view.currentObjects,
+                                            view.currentDirectorys,
+                                            view.currentFiles,
                                             index + 1
                                         )
                                     ">
@@ -183,7 +188,7 @@ onMounted(() => {
                     :key="view.uid">
                     <component
                         :is="view.component"
-                        v-model:current-objects="view.currentObjects"
+                        v-model:current-objects="view.currentDirectorys"
                         :id="view.uid"
                         :color="view.color"
                         @exit="deleteView(index)"></component>
@@ -194,6 +199,7 @@ onMounted(() => {
     <!-- 模态框展示，用来显示分享二维码，设置菜单之类的东西 -->
     <MiaoMask v-model:show="showModal" @click="showModal = false">
         <component
+            @click="(e:any) => e.stopPropagation()"
             :is="modalData?.component"
             v-bind="modalData?.props"></component>
     </MiaoMask>

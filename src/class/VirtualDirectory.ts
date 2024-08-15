@@ -80,11 +80,11 @@ class VirtualDirectory {
 	 * @param {number} layer 需要跳转的层数
 	 * @returns {VirtualDirectory}
 	 */
-	getParent(layer: number): VirtualDirectory {
+	getParents(layer: number): VirtualDirectory {
 		if (layer <= 0 || !this.parent) {
 			return this;
 		}
-		return this.parent.getParent(layer - 1);
+		return this.parent.getParents(layer - 1);
 	}
 
 	updateContent(content: (file | directory)[]) {

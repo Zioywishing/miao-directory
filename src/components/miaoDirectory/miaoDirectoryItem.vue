@@ -1,38 +1,31 @@
 <template>
-    <div
-        class="miao-item"
-        draggable="true"
-        ref="itemRef"
-        @dragstart="handleDragStart">
-        <div class="item-main">
-            <div
-                class="item-main-front"
-                :style="{ backgroundColor: props.color }"></div>
-            <Icon class="item-main-icon"></Icon>
-            <div class="item-main-info">
-                <div class="item-main-info-name">
-                    {{ name }}
+    <div class="miao-item" draggable="true" ref="itemRef" @dragstart="handleDragStart">
+        <miaoContextMenu :options="dropDownOptions" :touch-time-out="500" @select="handleDropdownSelect">
+            <div class="item-main">
+                <div class="item-main-front" :style="{ backgroundColor: props.color }"></div>
+                <Icon class="item-main-icon"></Icon>
+                <div class="item-main-info">
+                    <div class="item-main-info-name">
+                        {{ name }}
+                    </div>
+                    <div class="item-main-info-date" v-if="time">
+                        {{ time }}
+                    </div>
                 </div>
-                <div class="item-main-info-date" v-if="time">
-                    {{ time }}
-                </div>
+                <!-- 菜单现在通过右键/长按呼出 -->
+                <!-- <n-dropdown trigger="click" :options="dropDownOptions" @select="handleDropdownSelect">
+                    <div class="item-main-option" @click="(e) => e.stopPropagation()">
+                        <EllipsisVertical class="item-main-option-icon" />
+                    </div>
+                </n-dropdown> -->
             </div>
-            <n-dropdown
-                trigger="click"
-                :options="dropDownOptions"
-                @select="handleDropdownSelect">
-                <div
-                    class="item-main-option"
-                    @click="(e) => e.stopPropagation()">
-                    <EllipsisVertical class="item-main-option-icon" />
-                </div>
-            </n-dropdown>
-        </div>
+        </miaoContextMenu>
     </div>
 </template>
 
 <script setup lang="ts">
 import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory'
+import miaoContextMenu from '../miaoContextMenu.vue'
 import {
     DocumentText,
     FileTray,
@@ -43,15 +36,10 @@ import {
     LogoJavascript,
     LogoVue,
     PlayCircle,
-    EllipsisVertical,
     Disc
 } from '@vicons/ionicons5'
 import { computed, ref } from 'vue'
 import dateFormatter from '@/hooks/dateFormatter'
-// import useDataBus from '@/hooks/useDataBus'
-import { NDropdown } from 'naive-ui'
-
-// const dataBus = useDataBus()
 
 const props = defineProps<{
     item: VirtualDirectory | VirtualFile
@@ -96,7 +84,7 @@ const dropDownOptions = computed(() => {
     return options
 })
 
-const handleDropdownSelect = (key: 'download' | 'delete') => {
+const handleDropdownSelect = (key: string) => {
     if (key === 'download') {
         emit('download')
     } else if (key === 'delete') {
@@ -179,6 +167,7 @@ const handleDragStart = (event: DragEvent) => {
     justify-content: center;
     align-items: center;
     margin: 10px 10px;
+
     .item-main {
         position: relative;
         width: 100%;
@@ -188,30 +177,36 @@ const handleDragStart = (event: DragEvent) => {
         display: flex;
         align-items: center;
         transition: background-color 0.3s;
+
         .item-main-front {
             height: 100%;
             width: 10px;
             border-radius: 7px 0 0 7px;
             background-color: rgb(0, 0, 0);
         }
+
         .item-main-icon {
             margin-left: 10px;
             height: 80%;
             color: #00403e;
         }
+
         .item-main-info {
             margin-left: 10px;
             height: 100%;
             display: flex;
             flex-direction: column;
+
             &-name {
                 user-select: none;
             }
+
             &-date {
                 user-select: none;
                 font-size: small;
             }
         }
+
         .item-main-option {
             height: 100%;
             width: 20px;
@@ -225,18 +220,22 @@ const handleDragStart = (event: DragEvent) => {
             align-items: center;
 
             transition: background-color 0.3s;
+
             .item-main-option-icon {
                 color: #000;
                 transition: color 0.15s;
             }
+
             &:hover,
             &:active {
                 background-color: #8b8b8b;
+
                 .item-main-option-icon {
                     color: #fff;
                 }
             }
         }
+
         &:hover,
         &:active {
             background-color: #d2d2d2;
