@@ -14,7 +14,7 @@ import VirtualPage from './class/VirtualPage'
 import VirtualDirectory, { VirtualFile } from './class/VirtualDirectory'
 import MiaoMask from './components/miaoMask.vue'
 import config from './config'
-import useViretualPages from './hooks/useVirtualPages'
+import useVirtualPages from './hooks/useVirtualPages'
 
 const { baseUrl } = config
 
@@ -25,7 +25,7 @@ const modalData = shallowRef<{
     props: any
 }>()
 
-const views = useViretualPages()
+const views = useVirtualPages()
 
 const rootDirectory = reactive(
     new VirtualDirectory({
