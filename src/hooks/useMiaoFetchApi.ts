@@ -1,5 +1,5 @@
 import VirtualDirectory, { VirtualFile } from "@/class/VirtualDirectory";
-import { getOption, getResponse, miaoFetchConfig, deleteOption, uploadOption, queryOption } from "@/types/fetch";
+import { getOption, getResponse, miaoFetchConfig, deleteOption, uploadOption, queryOption, renameOption, cutOption } from "@/types/fetch";
 import Config from "@/config";
 import axios, { AxiosRequestConfig } from "axios";
 
@@ -71,15 +71,15 @@ const miaoFetchApi = {
 		const formData = new FormData();
 
 		formData.append("file", data);
-        // 必须这样传，不然中文乱码
-		formData.append("fileName", data.name)
+		// 必须这样传，不然中文乱码
+		formData.append("fileName", data.name);
 		formData.append("oprateType", opType);
 
 		return {
 			abort: () => abortMiaoFetch(),
 			response: new Promise<{
-				message: 'success' | 'failed'
-				error?: string
+				message: "success" | "failed";
+				error?: string;
 			}>(async resolve => {
 				const response = await miaoFetch({
 					url,
@@ -107,11 +107,59 @@ const miaoFetchApi = {
 
 		return {
 			response: new Promise<{
-				eventId: number
+				eventId: number;
 			}>(async resolve => {
 				const response = await miaoFetch({
 					url,
 					method: "post"
+				});
+				resolve(response.data);
+			})
+		};
+	},
+	/**
+	 * 重命名对应的文件或文件夹
+	 */
+	rename(target: VirtualFile | VirtualDirectory, newName: string, option?: renameOption) {
+		const { baseUrl, api } = Config;
+		const url = `${baseUrl}${api.rename}${target.path}`;
+		const retry = option?.retry ?? 0;
+		const { miaoFetch } = useMiaoFetch({
+			retry
+		});
+
+		return {
+			response: new Promise<{
+				eventId: number;
+			}>(async resolve => {
+				const response = await miaoFetch({
+					url,
+					method: "post",
+					data: { newName }
+				});
+				resolve(response.data);
+			})
+		};
+	},
+	/**
+	 * 剪切文件或文件夹
+	 */
+	cut(target: VirtualFile | VirtualDirectory, to: VirtualDirectory, option?: cutOption) {
+		const newPath = to.path
+		const { baseUrl, api } = Config;
+		const url = `${baseUrl}${api.cut}${target.path}`;
+		const retry = option?.retry ?? 0;
+		const { miaoFetch } = useMiaoFetch({
+			retry
+		});
+		return {
+			response: new Promise<{
+				eventId: number;
+			}>(async resolve => {
+				const response = await miaoFetch({
+					url,
+					method: "post",
+					data: { newPath }
 				});
 				resolve(response.data);
 			})
@@ -130,15 +178,15 @@ const miaoFetchApi = {
 		});
 		return {
 			response: new Promise<{
-				status: 'process' | 'success' | 'failed',
-				error?: unknown
+				status: "process" | "success" | "failed";
+				error?: unknown;
 			}>(async resolve => {
 				const response = await miaoFetch({
 					url,
 					method: "get",
 					params: {
-                        id: eventId
-                    }
+						id: eventId
+					}
 				});
 				resolve(response.data);
 			})

@@ -7,7 +7,9 @@ export default {
 		get: '/get',
 		upload: '/upload',
 		delete: '/delete',
-		query: '/query'
+		query: '/query',
+		rename: '/rename',
+		cut: '/cut'
 	},
 	enableUpload: true,
 };

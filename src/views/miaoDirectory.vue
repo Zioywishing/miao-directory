@@ -1,5 +1,6 @@
 <template>
-    <miao-drop-handler @on-virtual-directory="handleDropVDirectory" @on-files="handleDropFiles">
+    <miao-drop-handler @on-virtual-directory="handleDropVDirectory" @on-files="handleDropFiles"
+        @on-virtual-files="handleDropVirtualFiles">
         <div class="miao-directory-item-container" ref="rootDomRef">
             <div class="container-top" :style="{
                 backgroundColor:
@@ -43,23 +44,25 @@
                     <transition-group name="dirItem">
                         <miaoDirectoryItem v-for="dir in showData_directory" @click="setCurrentDirectory(dir)"
                             :item="dir" :key="dir.uid" :color="props.color" @delete="handleItemDelete(dir)"
-                            @drag-start="handleItemDragStart" />
+                            @drag-start="handleItemDragStart" @rename="handleItemRename(dir)" />
                     </transition-group>
                     <transition-group name="dirItem">
                         <miaoDirectoryItem v-for="file in showData_files" :item="file" :key="file.uid"
-                            @click="openUrl(`${baseUrl}${api.get}${file.path}`)" @download="
-                                openUrl(`${baseUrl}${api.get}${file.path}`, {
-                                    download: file.name
-                                })
-                                " @delete="handleItemDelete(file)" @drag-start="handleItemDragStart"
-                            :color="props.color" />
+                            @click="openUrl(`${baseUrl}${api.get}${file.path}`)" @download="handleItemDownload(file)"
+                            @delete="handleItemDelete(file)" @drag-start="handleItemDragStart"
+                            @rename="handleItemRename(file)" :color="props.color" />
                     </transition-group>
                 </n-scrollbar>
             </div>
             <div class="container-bottom" :style="{
                 backgroundColor:
                     index % 2 === 1 ? 'rgb(61 61 61)' : 'rgb(162 162 162)'
-            }"></div>
+            }">
+                <div class="container-bottom-icon">
+                    <cloud-upload-outline
+                        :style="{ color: index % 2 === 0 ? 'rgb(0 0 0)' : 'rgb(255 255 255)' }" @click="handlePickFilesUpload"/>
+                </div>
+            </div>
             <miao-mask v-model:show="showModel"></miao-mask>
             <miao-popup-input ref="popupInput"></miao-popup-input>
         </div>
@@ -82,10 +85,12 @@ import {
     CloudOutline,
     ChevronBackOutline,
     ReloadOutline,
-    CloseOutline
+    CloseOutline,
+    CloudUploadOutline
 } from '@vicons/ionicons5'
 import useUploadQueue from '@/hooks/useUploadQueue'
 import useVirtualPages from '@/hooks/useVirtualPages'
+import { filePicker } from '@/hooks/miaoTools'
 
 const { baseUrl, api } = Config
 const dataBus = useDataBus()
@@ -195,11 +200,50 @@ const handleReload = () => {
     reload()
 }
 
+const handleItemDownload = (item: VirtualFile) => {
+    openUrl(`${baseUrl}${api.get}${item.path}`, {
+        download: item.name
+    })
+}
+
 const handleItemDelete = async (item: VirtualDirectory | VirtualFile) => {
     const { response } = miaoFetchApi.delete(item, {
         retry: 5
     })
     // todo: 将删除事件统一用一个事件管理中心管理
+    const id = (await response).eventId
+    const { response: res } = miaoFetchApi.query(id)
+    const eventResult = await res
+    if (eventResult.status === 'success') {
+        reload()
+    }
+}
+
+const handleItemRename = async (item: VirtualDirectory | VirtualFile) => {
+    const popupRes = await popupInput.value.popup({
+        title: '重命名',
+        showInput: true,
+        inputValue: item.name,
+        inputProps: {
+            placeholder: item.name,
+        },
+        options: [{
+            label: '取消',
+            key: false,
+            type: 'error'
+        }, {
+            label: '确认',
+            key: true,
+            type: 'success'
+        },]
+    })
+    if (popupRes.key === false) {
+        return
+    }
+    const newName = popupRes.text
+    const { response } = miaoFetchApi.rename(item, newName, {
+        retry: 5
+    })
     const id = (await response).eventId
     const { response: res } = miaoFetchApi.query(id)
     const eventResult = await res
@@ -232,24 +276,51 @@ const handleDropVDirectory = async (vDirs: VirtualDirectory[]) => {
     if (vDirs[0].parent === currentDirectory.value) {
         return
     }
-    const popupRes = await popupInput.value.popup({
-        title: '重命名',
-        showInput: true,
-        inputProps: {
-            placeholder: '',
-        },
-        options: [{
-            label: '取消',
-            key: false,
-            type: 'error'
-        }, {
-            label: '确认',
-            key: true,
-            type: 'success'
-        },]
-    })
-    console.log({ popupRes })
+    for (let dir of vDirs) {
+        ; (async () => {
+            const _from = dir.parent
+            const { response } = miaoFetchApi.cut(dir, currentDirectory.value)
+            const id = (await response).eventId
+            const { response: res } = miaoFetchApi.query(id)
+            const eventResult = await res
+            if (eventResult.status === 'success') {
+                reload()
+                _from && _from.update()
+            }
+        })()
+    }
     // setCurrentDirectory(vDirs[0])
+}
+
+const handleDropVirtualFiles = (files: VirtualFile[]) => {
+    if (files[0].parent === currentDirectory.value) {
+        return
+    }
+    for (let file of files) {
+        ; (async () => {
+            const _from = file.parent
+            const { response } = miaoFetchApi.cut(file, currentDirectory.value)
+            const id = (await response).eventId
+            const { response: res } = miaoFetchApi.query(id)
+            const eventResult = await res
+            if (eventResult.status === 'success') {
+                reload()
+                _from.update()
+            }
+        })()
+    }
+}
+
+const handlePickFilesUpload = async () => {
+    const files = await filePicker({
+        multiple: true
+    })
+    const _currDir = currentDirectory.value
+    uploadQueue.push(files, _currDir, {
+        onFinish(){
+            _currDir.update()
+        }
+    })
 }
 
 onMounted(async () => {
@@ -372,6 +443,22 @@ $bottom-bar-height: 60px;
         user-select: none;
         box-shadow: 0px 1px 10px #888888;
         z-index: 2;
+
+        .container-bottom-icon {
+            svg {
+                width: 30px;
+                height: 30px;
+                transition: all 0.3s ease;
+                cursor: pointer;
+            }
+
+            &:hover {
+                svg {
+                    width: 40px;
+                    height: 40px;
+                }
+            }
+        }
     }
 }
 

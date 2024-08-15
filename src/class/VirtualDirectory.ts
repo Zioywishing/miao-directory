@@ -1,5 +1,8 @@
 import generateId from "@/hooks/generateId";
+import useMiaoFetchApi from "@/hooks/useMiaoFetchApi";
 import type { stats, file, directory } from "@/types/type.ts";
+
+const miaoFetchApi = useMiaoFetchApi();
 
 export class VirtualFile {
 	constructor(info: file, parent: VirtualDirectory) {
@@ -126,6 +129,15 @@ class VirtualDirectory {
 		} else {
 			return this.files?.includes(item) ?? false;
 		}
+	}
+
+	/**
+	 * 调用后重新向远端拉取文件夹信息并进行更新
+	 * @returns {void}
+	 */
+	async update(): Promise<void> {
+		const data: (file | directory)[] = await miaoFetchApi.get(this);
+		this.updateContent(data);
 	}
 }
 export default VirtualDirectory;

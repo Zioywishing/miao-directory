@@ -35,6 +35,16 @@ export default defineConfig({
 				changeOrigin: true,
 				rewrite: path => path.replace(/^\/query/, "/query")
 			}, 
+			"/rename": {
+				target: "http://127.0.0.1:17705",
+				changeOrigin: true,
+				rewrite: path => path.replace(/^\/rename/, "/rename")
+			}, 
+			"/cut": {
+				target: "http://127.0.0.1:17705",
+				changeOrigin: true,
+				rewrite: path => path.replace(/^\/cut/, "/cut")
+			}, 
 		}
 	},
 	build: {

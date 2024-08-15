@@ -40,6 +40,9 @@ import {
 } from '@vicons/ionicons5'
 import { computed, ref } from 'vue'
 import dateFormatter from '@/hooks/dateFormatter'
+import useMiaoFetchApi from '@/hooks/useMiaoFetchApi'
+
+const miaoFetchApi = useMiaoFetchApi()
 
 const props = defineProps<{
     item: VirtualDirectory | VirtualFile
@@ -50,6 +53,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     download: []
     delete: []
+    rename: []
     dragStart: [event: DragEvent, item: VirtualDirectory | VirtualFile]
 }>()
 
@@ -67,9 +71,13 @@ const time = computed(() => {
 const dropDownOptions = computed(() => {
     const options = [
         {
+            label: '重命名',
+            key: 'rename'
+        },
+        {
             label: '删除',
             key: 'delete'
-        }
+        },
     ]
     if (itemType.value === 'file') {
         options.push(
@@ -84,8 +92,11 @@ const dropDownOptions = computed(() => {
     return options
 })
 
+// 是不是可以直接在这里面实现？
 const handleDropdownSelect = (key: string) => {
-    if (key === 'download') {
+    if (key === 'rename') {
+        emit('rename')
+    } else if (key === 'download') {
         emit('download')
     } else if (key === 'delete') {
         emit('delete')

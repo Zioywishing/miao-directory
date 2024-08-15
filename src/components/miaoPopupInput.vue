@@ -24,6 +24,7 @@ const _resolve = ref()
 type popupConfigType = {
   title: string
   content?: string
+  inputValue?: string,
   inputProps?: InputProps
   options: {
     label: string
@@ -36,6 +37,7 @@ const popupConfig = ref<popupConfigType>()
 
 const popup = async (config: popupConfigType) => {
   popupConfig.value = config
+  inputValue.value = config.inputValue ?? ''
   showMask.value = true
   const key = await new Promise((resolve: (key: unknown) => unknown) => {
     _resolve.value = resolve
