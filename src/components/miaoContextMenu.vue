@@ -59,7 +59,7 @@ const handleContextMenu = (e: MouseEvent) => {
 
 const handleTouchStart = (e: TouchEvent) => {
     if(props.touchTimeOut === undefined) {
-        return 
+        return
     }
     timer_touch ?? clearTimeout(timer_touch)
     timer_touch = setTimeout(() => {

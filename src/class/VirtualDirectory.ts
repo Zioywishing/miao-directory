@@ -71,11 +71,11 @@ class VirtualDirectory {
 	 * 获取从根目录开始的按顺序的文件夹
 	 * @returns {VirtualDirectory[]}
 	 */
-	get directoryArray(): VirtualDirectory[] {
+	get getParents(): VirtualDirectory[] {
 		if (!this.parent) {
 			return [this];
 		}
-		return [...this.parent.directoryArray, this];
+		return [...this.parent.getParents, this];
 	}
 
 	/**
@@ -83,11 +83,11 @@ class VirtualDirectory {
 	 * @param {number} layer 需要跳转的层数
 	 * @returns {VirtualDirectory}
 	 */
-	getParents(layer: number): VirtualDirectory {
+	getParent(layer: number): VirtualDirectory {
 		if (layer <= 0 || !this.parent) {
 			return this;
 		}
-		return this.parent.getParents(layer - 1);
+		return this.parent.getParent(layer - 1);
 	}
 
 	updateContent(content: (file | directory)[]) {
