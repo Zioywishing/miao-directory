@@ -1,13 +1,13 @@
 <template>
     <div class="miao-item" draggable="true" ref="itemRef" @dragstart="handleDragStart">
         <miaoContextMenu :options="dropDownOptions" :touch-time-out="500" @select="handleDropdownSelect">
-            <div class="item-main" ref="mainRef">
+            <div class="item-main" :class="props.selected ? 'item-main-selected' : ''" ref="mainRef">
                 <div class="item-main-front" :style="{ backgroundColor: props.color }"></div>
-                <Icon class="item-main-icon" v-show="clientWidth > 200"></Icon>
+                <Icon class="item-main-icon" v-show="clientWidth > 250"></Icon>
                 <div class="item-main-info">
                     <div class="item-main-info-name">
-                        <Icon class="item-main-info-name-icon" v-show="clientWidth <= 200"></Icon>
-                        {{ name }}
+                        <Icon class="item-main-info-name-icon" v-show="clientWidth <= 250"></Icon>
+                        <n-ellipsis style="max-width: 140px;">{{ name }}</n-ellipsis>
                     </div>
                     <div class="item-main-info-date" v-if="time">
                         {{ time }}
@@ -41,6 +41,7 @@ import {
 } from '@vicons/ionicons5'
 import { computed, onMounted, ref } from 'vue'
 import dateFormatter from '@/hooks/dateFormatter'
+import { NEllipsis } from 'naive-ui'
 // import useMiaoFetchApi from '@/hooks/useMiaoFetchApi'
 
 // const miaoFetchApi = useMiaoFetchApi()
@@ -49,6 +50,7 @@ const props = defineProps<{
     item: VirtualDirectory | VirtualFile
     name?: string
     color: string
+    selected: boolean
 }>()
 
 const emit = defineEmits<{
@@ -56,6 +58,7 @@ const emit = defineEmits<{
     delete: []
     rename: []
     dragStart: [event: DragEvent, item: VirtualDirectory | VirtualFile]
+    onSelected: []
 }>()
 
 const itemType = ref<'file' | 'directory'>(props.item.type)
@@ -95,6 +98,25 @@ const dropDownOptions = computed(() => {
             ]
         )
     }
+    if (props.selected === false) {
+        options.push(
+            ...[
+                {
+                    label: '多选:选择',
+                    key: 'select'
+                }
+            ]
+        )
+    } else {
+        options.push(
+            ...[
+                {
+                    label: '多选:取消',
+                    key: 'select'
+                }
+            ]
+        )
+    }
     return options
 })
 
@@ -106,6 +128,8 @@ const handleDropdownSelect = (key: string) => {
         emit('download')
     } else if (key === 'delete') {
         emit('delete')
+    } else if (key === 'select') {
+        emit('onSelected')
     }
 }
 
@@ -187,7 +211,7 @@ onMounted(() => {
 .miao-item {
     cursor: pointer;
     width: calc(100% - 20px);
-    min-width: 150px;
+    min-width: 170px;
     // aspect-ratio: 66/9;
     height: 50px;
     position: relative;
@@ -204,7 +228,7 @@ onMounted(() => {
         border-radius: 7px;
         display: flex;
         align-items: center;
-        transition: background-color 0.3s;
+        transition: background-color 0.3s ease;
 
         .item-main-front {
             height: 100%;
@@ -217,6 +241,7 @@ onMounted(() => {
             margin-left: 10px;
             height: 80%;
             color: #00403e;
+            transition: color 0.15s ease-out;
         }
 
         .item-main-info {
@@ -226,6 +251,7 @@ onMounted(() => {
             flex-direction: column;
 
             &-name {
+                position: relative;
                 user-select: none;
                 display: flex;
                 align-items: center;
@@ -235,6 +261,7 @@ onMounted(() => {
                     color: #00403e;
                     width: 20px;
                     margin-right: 5px;
+                    transition: color 0.15s ease-out;
                 }
             }
 
@@ -276,6 +303,12 @@ onMounted(() => {
         &:hover,
         &:active {
             background-color: #d2d2d2;
+        }
+    }
+    .item-main-selected {
+        background-color: rgba(0, 128, 207, 0.32);
+        &:hover {
+            background-color: rgba(0, 128, 207, 0.64);;
         }
     }
 }

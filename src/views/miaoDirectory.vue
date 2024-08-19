@@ -1,18 +1,12 @@
 <template>
-    <miao-drop-handler
-        @on-virtual-directory="handleDropVDirectory"
-        @on-files="handleDropFiles"
+    <miao-drop-handler @on-virtual-directory="handleDropVDirectory" @on-files="handleDropFiles"
         @on-virtual-files="handleDropVirtualFiles">
         <div class="miao-directory-item-container" ref="rootDomRef">
-            <div
-                class="container-top"
-                :style="{
-                    backgroundColor:
-                        index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)'
-                }">
-                <div
-                    class="container-top-colorfulBar"
-                    :style="{ backgroundColor: props.color }"></div>
+            <div class="container-top" :style="{
+                backgroundColor:
+                    index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)'
+            }">
+                <div class="container-top-colorfulBar" :style="{ backgroundColor: props.color }"></div>
                 <div class="container-top-breadcrumb">
                     <!-- <n-scrollbar x-scrollable> -->
                     <div class="container-top-breadcrumb-container">
@@ -22,10 +16,8 @@
                                     <CloudOutline />
                                 </n-icon>
                             </n-breadcrumb-item>
-                            <n-breadcrumb-item
-                                v-for="dir in currentDirectory?.getParents"
-                                @click="setCurrentDirectory(dir)"
-                                :clickable="true">
+                            <n-breadcrumb-item v-for="dir in currentDirectory?.getParents"
+                                @click="setCurrentDirectory(dir)" :clickable="true">
                                 <div>{{ dir.name }}</div>
                             </n-breadcrumb-item>
                         </n-breadcrumb>
@@ -33,87 +25,60 @@
                     <!-- </n-scrollbar> -->
                 </div>
                 <div class="container-top-tools">
-                    <n-icon
-                        class="container-top-tools-item"
-                        size="15"
-                        @click="handleBack">
+                    <n-icon class="container-top-tools-item" size="15" @click="handleBack">
                         <ChevronBackOutline />
                     </n-icon>
-                    <n-icon
-                        class="container-top-tools-item"
-                        size="14"
-                        @click="handleReload">
-                        <ReloadOutline
-                            class="container-top-tools-item-reload" />
+                    <n-icon class="container-top-tools-item" size="14" @click="handleReload">
+                        <ReloadOutline class="container-top-tools-item-reload" />
                     </n-icon>
-                    <n-icon
-                        class="container-top-tools-item"
-                        size="20"
-                        @click="emit('exit')">
+                    <n-icon class="container-top-tools-item" size="20" @click="emit('exit')">
                         <CloseOutline />
                     </n-icon>
                 </div>
             </div>
-            <div
-                class="container-items"
-                :style="{
-                    backgroundColor:
-                        index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)'
-                }">
+            <div class="container-items" :style="{
+                backgroundColor:
+                    index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)'
+            }">
                 <n-scrollbar>
                     <transition-group name="dirItem">
-                        <miaoDirectoryItem
-                            v-for="dir in showData_directory"
-                            @click="setCurrentDirectory(dir)"
-                            :item="dir"
-                            :key="dir.uid"
-                            :color="props.color"
-                            @delete="handleItemDelete(dir)"
-                            @drag-start="handleItemDragStart"
-                            @rename="handleItemRename(dir)" />
+                        <miaoDirectoryItem v-for="dir in showData_directory" :item="dir" :key="dir.uid"
+                            :color="props.color" :selected="selectedItem.value.includes(dir)"
+                            @delete="handleItemDelete(dir)" @click="handleItemClick(dir)"
+                            @drag-start="handleItemDragStart" @rename="handleItemRename(dir)"
+                            @on-selected="handleItemSelect(dir)" />
                     </transition-group>
                     <transition-group name="dirItem">
-                        <miaoDirectoryItem
-                            v-for="file in showData_files"
-                            :item="file"
-                            :key="file.uid"
-                            @click="openUrl(`${baseUrl}${api.get}${file.path}`)"
-                            @download="handleItemDownload(file)"
-                            @delete="handleItemDelete(file)"
-                            @drag-start="handleItemDragStart"
-                            @rename="handleItemRename(file)"
-                            :color="props.color" />
+                        <miaoDirectoryItem v-for="file in showData_files" :item="file" :key="file.uid"
+                            :color="props.color" :selected="selectedItem.value.includes(file)"
+                            @click="handleItemClick(file)" @download="handleItemDownload(file)"
+                            @delete="handleItemDelete(file)" @drag-start="handleItemDragStart"
+                            @rename="handleItemRename(file)" @on-selected="handleItemSelect(file)" />
                     </transition-group>
                 </n-scrollbar>
             </div>
-            <div
-                class="container-bottom"
-                :style="{
-                    backgroundColor:
-                        index % 2 === 1 ? 'rgb(61 61 61)' : 'rgb(162 162 162)'
-                }">
+            <div class="container-bottom" :style="{
+                backgroundColor:
+                    index % 2 === 1 ? 'rgb(61 61 61)' : 'rgb(162 162 162)'
+            }">
                 <div class="container-bottom-item">
                     <div class="container-bottom-item-icon">
-                        <add-outline
-                            :style="{
-                                color:
-                                    index % 2 === 0
-                                        ? 'rgb(0 0 0)'
-                                        : 'rgb(255 255 255)'
-                            }"
-                            @click="handleAddNewItem" />
+                        <add-outline :style="{
+                            color:
+                                index % 2 === 0
+                                    ? 'rgb(0 0 0)'
+                                    : 'rgb(255 255 255)'
+                        }" @click="handleAddNewItem" />
                     </div>
                 </div>
                 <div class="container-bottom-item">
                     <div class="container-bottom-item-icon">
-                        <cloud-upload-outline
-                            :style="{
-                                color:
-                                    index % 2 === 0
-                                        ? 'rgb(0 0 0)'
-                                        : 'rgb(255 255 255)'
-                            }"
-                            @click="handlePickFilesUpload" />
+                        <cloud-upload-outline :style="{
+                            color:
+                                index % 2 === 0
+                                    ? 'rgb(0 0 0)'
+                                    : 'rgb(255 255 255)'
+                        }" @click="handlePickFilesUpload" />
                     </div>
                 </div>
             </div>
@@ -125,9 +90,8 @@
 
 <script setup lang="ts">
 import { NBreadcrumbItem, NBreadcrumb, NIcon, NScrollbar } from 'naive-ui'
-import type { file, directory } from '@/types/type.ts'
 import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import Config from '@/config'
 import miaoMask from '@/components/miaoMask.vue'
 import miaoDirectoryItem from '@/components/miaoDirectory/miaoDirectoryItem.vue'
@@ -146,6 +110,7 @@ import {
 import useUploadQueue from '@/hooks/useUploadQueue'
 import useVirtualPages from '@/hooks/useVirtualPages'
 import { filePicker } from '@/hooks/miaoTools'
+import { uniq } from 'lodash'
 
 const { baseUrl, api } = Config
 const dataBus = useDataBus()
@@ -165,6 +130,34 @@ const emit = defineEmits<{
 const popupInput = ref()
 // 是否显示模态框
 const showModel = ref(0)
+
+class SelectedItem {
+    constructor() {
+        this._selectedItem = []
+    }
+    _selectedItem: (VirtualDirectory | VirtualFile)[]
+    push(item: VirtualDirectory | VirtualFile) {
+        this._selectedItem = [item, ...this._selectedItem]
+    }
+    remove(item: VirtualDirectory | VirtualFile) {
+        this._selectedItem = this._selectedItem.filter(v => v !== item)
+    }
+    clear() {
+        this._selectedItem = []
+    }
+    // 保证内容仍然存在于dir中且各个元素不重复
+    get value() {
+        return uniq(this._selectedItem).filter(v => {
+            if (currentDirectory.value === undefined) {
+                return false
+            }
+            // @ts-ignore
+            return [...currentDirectory.value?.directorys, ...currentDirectory.value?.files].includes(v)
+        })
+    }
+}
+// 已选择的item，用于多选功能
+const selectedItem = reactive(new SelectedItem())
 
 const currentObjects = defineModel<VirtualDirectory[]>('currentObjects', {
     required: true
@@ -211,17 +204,9 @@ const setCurrentDirectory = async (virtualDirectory: VirtualDirectory) => {
         virtualDirectory.files === undefined ||
         virtualDirectory.directorys === undefined
     ) {
-        const data: (file | directory)[] = await miaoFetchApi.get(
-            virtualDirectory
-        )
-        virtualDirectory.updateContent(data)
+        await virtualDirectory.update()
     } else {
-        ;(async () => {
-            const data: (file | directory)[] = await miaoFetchApi.get(
-                virtualDirectory
-            )
-            virtualDirectory.updateContent(data)
-        })()
+        virtualDirectory.update()
     }
     currentObjects.value[0] = virtualDirectory
 }
@@ -255,22 +240,38 @@ const handleReload = () => {
     reload()
 }
 
+const handleItemClick = (item: VirtualDirectory | VirtualFile) => {
+    if (selectedItem.value.length > 0) {
+        handleItemSelect(item)
+    } else {
+        if (item.type === 'file') {
+            openUrl(`${baseUrl}${api.get}${item.path}`)
+        } else if (item.type === 'directory') {
+            setCurrentDirectory(item)
+        }
+    }
+}
+
 const handleItemDownload = (item: VirtualFile) => {
     openUrl(`${baseUrl}${api.get}${item.path}`, {
         download: item.name
     })
 }
 
-const handleItemDelete = async (item: VirtualDirectory | VirtualFile) => {
-    const { response } = miaoFetchApi.delete(item, {
-        retry: 5
-    })
-    // todo: 将删除事件统一用一个事件管理中心管理
-    const id = (await response).eventId
-    const { response: res } = miaoFetchApi.query(id)
-    const eventResult = await res
-    if (eventResult.status === 'success') {
-        reload()
+const handleItemDelete = async (_item: VirtualDirectory | VirtualFile) => {
+    for (let item of uniq([...selectedItem.value, _item])) {
+        ; (async () => {
+            const { response } = miaoFetchApi.delete(item, {
+                retry: 5
+            })
+            // todo: 将删除事件统一用一个事件管理中心管理
+            const id = (await response).eventId
+            const { response: res } = miaoFetchApi.query(id)
+            const eventResult = await res
+            if (eventResult.status === 'success') {
+                reload()
+            }
+        })()
     }
 }
 
@@ -314,11 +315,10 @@ const handleItemDragStart = async (
     _event: DragEvent,
     item: VirtualDirectory | VirtualFile
 ) => {
-    if (item.type === 'file') {
-        dataBus.set('dragData_vFiles', [item])
-    } else {
-        dataBus.set('dragData_vDirectory', [item])
-    }
+    const items = uniq([item, ...selectedItem.value])
+    dataBus.set('dragData_vFiles', items.filter(v => v.type === 'file'))
+    dataBus.set('dragData_vDirectory', items.filter(v => v.type === 'directory'))
+    selectedItem.clear()
 }
 
 const handleDropFiles = async (files: File[]) => {
@@ -338,7 +338,7 @@ const handleDropVDirectory = async (vDirs: VirtualDirectory[]) => {
         }
     }
     for (let dir of vDirs) {
-        ;(async () => {
+        ; (async () => {
             const _from = dir.parent
             const { response } = miaoFetchApi.cut(dir, currentDirectory.value)
             const id = (await response).eventId
@@ -350,7 +350,6 @@ const handleDropVDirectory = async (vDirs: VirtualDirectory[]) => {
             }
         })()
     }
-    // setCurrentDirectory(vDirs[0])
 }
 
 const handleDropVirtualFiles = (files: VirtualFile[]) => {
@@ -358,7 +357,7 @@ const handleDropVirtualFiles = (files: VirtualFile[]) => {
         return
     }
     for (let file of files) {
-        ;(async () => {
+        ; (async () => {
             const _from = file.parent
             const { response } = miaoFetchApi.cut(file, currentDirectory.value)
             const id = (await response).eventId
@@ -413,7 +412,6 @@ const handleAddNewItem = async () => {
     if (popupRes.key === 'cancel' || popupRes.text === '') {
         return
     }
-    console.log(popupRes)
     const _currDir = currentDirectory.value
     const name = popupRes.text
     const opType: 'file' | 'dir' = popupRes.key
@@ -428,6 +426,14 @@ const handleAddNewItem = async () => {
         if (res.message === 'success') {
             _currDir.update()
         }
+    }
+}
+
+const handleItemSelect = (item: VirtualDirectory | VirtualFile) => {
+    if (!selectedItem.value.includes(item)) {
+        selectedItem.push(item)
+    } else {
+        selectedItem.remove(item)
     }
 }
 onMounted(async () => {
@@ -557,6 +563,7 @@ $bottom-bar-height: 60px;
             display: flex;
             justify-content: center;
             align-items: center;
+
             .container-bottom-item-icon {
                 svg {
                     width: 30px;
@@ -595,5 +602,4 @@ $bottom-bar-height: 60px;
 //             position: absolute;
 //         }
 //     }
-// }
-</style>
+// }</style>

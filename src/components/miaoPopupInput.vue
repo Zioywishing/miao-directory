@@ -70,8 +70,10 @@ defineExpose({ popup });
     width: 100%;
     display: flex;
     justify-content: flex-end;
+    flex-wrap: wrap;
 
     .popup-button-container-button {
+      margin-top: 3px;
       &:not(:last-child) {
         margin-right: 5px;
       }

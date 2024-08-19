@@ -37,7 +37,7 @@ const onClickoutside = async () => {
 const handleMainMouseLeave = async () => {
     setTimeout(() => {
         showContextMenu.value -= 1
-    }, 100)
+    }, 20)
     // nextTick(()=>{
     //     showContextMenu.value -= 1
     // })
@@ -45,6 +45,7 @@ const handleMainMouseLeave = async () => {
 
 const handleSelect = async (key: string) => {
     emit('select', key)
+    showContextMenu.value = 0
 }
 
 const handleContextMenu = (e: MouseEvent) => {
