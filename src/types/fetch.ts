@@ -24,5 +24,6 @@ export type uploadOption = {
 
 export type deleteOption = {} & miaoFetchConfig;
 export type renameOption = {} & miaoFetchConfig;
-export type cutOption = {} & miaoFetchConfig;
+export type cutOption = {} & miaoFetchConfig
+export type mkdirOption = {} & miaoFetchConfig
 export type queryOption = {} & miaoFetchConfig;
