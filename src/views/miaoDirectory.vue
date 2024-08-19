@@ -336,7 +336,7 @@ $bottom-bar-height: 60px;
     position: relative;
     height: 100%;
     width: inherit;
-    min-width: 266px;
+    // min-width: 236px;
     display: flex;
     flex-direction: column;
     overflow: hidden;

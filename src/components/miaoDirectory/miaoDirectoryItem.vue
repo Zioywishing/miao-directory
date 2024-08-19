@@ -1,11 +1,12 @@
 <template>
     <div class="miao-item" draggable="true" ref="itemRef" @dragstart="handleDragStart">
         <miaoContextMenu :options="dropDownOptions" :touch-time-out="500" @select="handleDropdownSelect">
-            <div class="item-main">
+            <div class="item-main" ref="mainRef">
                 <div class="item-main-front" :style="{ backgroundColor: props.color }"></div>
-                <Icon class="item-main-icon"></Icon>
+                <Icon class="item-main-icon" v-show="clientWidth > 200"></Icon>
                 <div class="item-main-info">
                     <div class="item-main-info-name">
+                        <Icon class="item-main-info-name-icon" v-show="clientWidth <= 200"></Icon>
                         {{ name }}
                     </div>
                     <div class="item-main-info-date" v-if="time">
@@ -38,11 +39,11 @@ import {
     PlayCircle,
     Disc
 } from '@vicons/ionicons5'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import dateFormatter from '@/hooks/dateFormatter'
-import useMiaoFetchApi from '@/hooks/useMiaoFetchApi'
+// import useMiaoFetchApi from '@/hooks/useMiaoFetchApi'
 
-const miaoFetchApi = useMiaoFetchApi()
+// const miaoFetchApi = useMiaoFetchApi()
 
 const props = defineProps<{
     item: VirtualDirectory | VirtualFile
@@ -58,6 +59,11 @@ const emit = defineEmits<{
 }>()
 
 const itemType = ref<'file' | 'directory'>(props.item.type)
+
+const mainRef = ref<HTMLDivElement>()
+
+// 使用ResizeObserver实现
+const clientWidth = ref<number>(666)
 
 const name = props.name ?? props.item.name
 
@@ -164,13 +170,24 @@ const handleDragStart = (event: DragEvent) => {
     emit('dragStart', event, props.item)
     // dataBus.set('dragData', [props.item])
 }
+
+onMounted(() => {
+    const observer = new ResizeObserver(entries => {
+        for (let entry of entries) {
+            clientWidth.value = entry.contentRect.width;
+        }
+    });
+    if (mainRef.value) {
+        observer.observe(mainRef.value);
+    }
+})
 </script>
 
 <style lang="scss" scoped>
 .miao-item {
     cursor: pointer;
     width: calc(100% - 20px);
-    min-width: 250px;
+    min-width: 150px;
     // aspect-ratio: 66/9;
     height: 50px;
     position: relative;
@@ -210,6 +227,15 @@ const handleDragStart = (event: DragEvent) => {
 
             &-name {
                 user-select: none;
+                display: flex;
+                align-items: center;
+                margin-top: 3px;
+
+                &-icon {
+                    color: #00403e;
+                    width: 20px;
+                    margin-right: 5px;
+                }
             }
 
             &-date {
