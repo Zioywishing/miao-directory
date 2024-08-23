@@ -50,10 +50,12 @@ const createView = (
     views.splice(
         index,
         0,
-        reactive<VirtualPage>(new VirtualPage(component, {
-          directorys: [...(currentDirectorys ?? [])],
-          files: [...(currentFiles ?? [])]
-        }))
+        reactive<VirtualPage>(
+            new VirtualPage(component, {
+                directorys: [...(currentDirectorys ?? [])],
+                files: [...(currentFiles ?? [])]
+            })
+        )
     )
 }
 
@@ -117,19 +119,23 @@ onMounted(() => {
 
 <template>
     <div class="view">
-        <div class="view-controler">
+        <div class="view-controller">
             <n-scrollbar x-scrollable>
-                <div class="tags-container">
+                <div class="tabs-container">
                     <transition-group name="tab">
                         <div
                             class="tab"
                             v-for="(view, index) of views"
                             :key="view.uid">
-                            <div
+                            <span
                                 class="tab-title"
                                 @click="handleClickTitle(index)">
-                                {{ view.title }}
-                            </div>
+                                {{
+                                    view.title.length > 5 && 0
+                                        ? `${view.title.substring(0, 5)}...`
+                                        : view.title
+                                }}
+                            </span>
                             <div
                                 class="tab-point"
                                 :style="{ backgroundColor: view.color }"></div>
@@ -206,7 +212,7 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
-$controler-height: 25px;
+$controller-height: 25px;
 $tag-width: 170px;
 
 .view {
@@ -214,14 +220,14 @@ $tag-width: 170px;
     height: 100%;
     width: 100%;
 
-    .view-controler {
+    .view-controller {
         display: flex;
-        height: $controler-height;
+        height: $controller-height;
         width: 100%;
         background-color: #dadada;
         // overflow: hidden;
 
-        .tags-container {
+        .tabs-container {
             display: flex;
             margin-left: 5px;
             flex: 1;
@@ -230,6 +236,7 @@ $tag-width: 170px;
             .tab {
                 position: relative;
                 width: $tag-width;
+                height: $controller-height;
                 margin: 0 5px;
                 // flex: 1;
                 display: flex;
@@ -237,10 +244,19 @@ $tag-width: 170px;
                 align-items: center;
 
                 .tab-title {
+                    // font-family: monospace;
+                    // font-weight: bolder;
                     margin-left: 4px;
-                    // width: 70%;
+                    width: 90px;
                     user-select: none;
                     cursor: pointer;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    span {
+                        user-select: none;
+                        cursor: pointer;
+                    }
                 }
 
                 .tab-point {
@@ -263,7 +279,7 @@ $tag-width: 170px;
 
                 &:not(:last-child)::after {
                     content: '';
-                    height: calc($controler-height * 0.6);
+                    height: calc($controller-height * 0.6);
                     width: 1px;
                     border-right: 1px solid black;
                     position: absolute;
@@ -288,7 +304,7 @@ $tag-width: 170px;
 
             &::before {
                 content: '';
-                height: calc($controler-height * 0.6);
+                height: calc($controller-height * 0.6);
                 width: 1px;
                 border-right: 1px solid black;
                 position: absolute;
@@ -297,8 +313,8 @@ $tag-width: 170px;
         }
 
         .icon {
-            height: calc($controler-height * 0.7);
-            width: calc($controler-height * 0.7);
+            height: calc($controller-height * 0.7);
+            width: calc($controller-height * 0.7);
             border-radius: 5px;
             display: flex;
             justify-content: center;
@@ -317,7 +333,7 @@ $tag-width: 170px;
         position: relative;
         display: flex;
         // flex-direction: column;
-        height: calc(100% - $controler-height);
+        height: calc(100% - $controller-height);
         overflow-y: overlay;
         overflow-x: overlay;
 
@@ -351,8 +367,8 @@ $tag-width: 170px;
 
 // transition动画相关
 .view {
-    .view-controler {
-        .tags-container {
+    .view-controller {
+        .tabs-container {
             .tab-move,
             .tab-enter-active {
                 transition: all 0.2s ease;

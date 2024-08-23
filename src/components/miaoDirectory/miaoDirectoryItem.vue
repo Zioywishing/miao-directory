@@ -6,7 +6,7 @@
                 <Icon class="item-main-icon" v-show="clientWidth > 250"></Icon>
                 <div class="item-main-info">
                     <div class="item-main-info-name">
-                        <Icon class="item-main-info-name-icon" v-show="clientWidth <= 250"></Icon>
+                        <Icon class="item-main-info-name-icon" v-if="clientWidth <= 250"></Icon>
                         <n-ellipsis style="max-width: 140px;">{{ name }}</n-ellipsis>
                     </div>
                     <div class="item-main-info-date" v-if="time">
