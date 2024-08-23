@@ -1,10 +1,10 @@
 import { api, staticPath } from "../config.js";
 import path from "path";
-import useFsOprateEventCenter from "../hooks/useFsOprateEventCenter.js";
+import useFsOperateEventCenter from "../hooks/useFsOperateEventCenter.js";
 import fs from "fs";
 import express from "express";
 
-const fsOprateEventCenter = useFsOprateEventCenter();
+const fsOperateEventCenter = useFsOperateEventCenter();
 
 function renamePath(targetPath, newName) {
 	return new Promise((resolve, reject) => {
@@ -28,7 +28,7 @@ export default function useRenameApi(app) {
 		const decodedPath = decodeURIComponent(req.path).substring(api.rename.length - 1);
 		const targetPath = path.join(staticPath, decodedPath);
 		const newName = req.body.newName;
-		const eventId = fsOprateEventCenter.push(renamePath(targetPath, newName));
+		const eventId = fsOperateEventCenter.push(renamePath(targetPath, newName));
 		res.send({ eventId });
 	});
 }

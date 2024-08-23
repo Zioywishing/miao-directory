@@ -1,10 +1,10 @@
 import { api, staticPath } from "../config.js";
 import path from "path";
-import useFsOprateEventCenter from "../hooks/useFsOprateEventCenter.js";
+import useFsOperateEventCenter from "../hooks/useFsOperateEventCenter.js";
 import fs from "fs";
 import express from "express";
 
-const fsOprateEventCenter = useFsOprateEventCenter();
+const fsOperateEventCenter = useFsOperateEventCenter();
 
 function cutPath(targetPath, newPath) {
 	return new Promise((resolve, reject) => {
@@ -27,7 +27,7 @@ export default function useCutApi(app) {
 		const decodedPath = decodeURIComponent(req.path).substring(api.cut.length - 1);
 		const targetPath = path.join(staticPath, decodedPath);
 		const newPath = path.join(staticPath, req.body.newPath, path.basename(targetPath));
-		const eventId = fsOprateEventCenter.push(cutPath(targetPath, newPath));
+		const eventId = fsOperateEventCenter.push(cutPath(targetPath, newPath));
 		res.send({ eventId });
 	});
 }

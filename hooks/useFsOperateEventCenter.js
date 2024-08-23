@@ -1,7 +1,7 @@
 import generateId from "./generateId.js"
 
 // 一个文件操作事件
-class FsOprateEvent {
+class FsOperateEvent {
     constructor(event){
         this.status = 'progress'
         this.uid = generateId()
@@ -31,7 +31,7 @@ class FsOprateEventCenter {
      * @returns {number} 事件id
      */
     push(event){
-        const ev = new FsOprateEvent(event)
+        const ev = new FsOperateEvent(event)
         const id = ev.uid
         this.eventMap[id] = {
             event: ev,

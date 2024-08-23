@@ -1,9 +1,9 @@
 import { api, staticPath } from "../config.js";
 import path from "path";
-import useFsOprateEventCenter from "../hooks/useFsOprateEventCenter.js";
+import useFsOperateEventCenter from "../hooks/useFsOperateEventCenter.js";
 import fs from 'fs'
 
-const fsOprateEventCenter = useFsOprateEventCenter()
+const fsOperateEventCenter = useFsOperateEventCenter()
 
 function deletePath(targetPath) {
     return new Promise((resolve, reject) => {
@@ -34,7 +34,7 @@ export default function useDeleteApi(app) {
 	app.post(api.delete, (req, res) => {
 		const decodedPath = decodeURIComponent(req.path).substring(api.delete.length - 1);
 		const targetPath = path.join(staticPath, decodedPath);
-        const eventId = fsOprateEventCenter.push(deletePath(targetPath))
+        const eventId = fsOperateEventCenter.push(deletePath(targetPath))
 		res.send({ eventId });
 	});
 }
