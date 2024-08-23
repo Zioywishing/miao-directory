@@ -27,7 +27,7 @@ func main() {
 
 	router.GET("/query", api.QueryHandler(fsOperateEventCenter))
 	router.GET("/get/*path", api.GetHandler)
-	router.POST("/mkdir", api.MkdirHandler)
+	router.POST("/mkdir/*path", api.MkdirHandler)
 	router.POST("/upload/*path", api.UploadHandler)
 	router.POST("/cut/*path", api.CutHandler(fsOperateEventCenter))
 	router.POST("/copy/*path", api.CopyHandler(fsOperateEventCenter))
@@ -67,6 +67,12 @@ func printListeningAddresses(port string) {
 		if strings.Contains(addr, "%") {
 			addr = strings.Split(addr, "%")[0]
 		}
-		fmt.Printf("  ➜  Network: http://%s%s\n", addr, port)
+		if strings.Contains(addr, ":") {
+			// IPv6 address
+			fmt.Printf("  ➜  Network: http://[%s]%s\n", addr, port)
+		} else {
+			// IPv4 address
+			fmt.Printf("  ➜  Network: http://%s%s\n", addr, port)
+		}
 	}
 }
