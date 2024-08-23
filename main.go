@@ -1,10 +1,12 @@
 package main
 
 import (
-	// "net/http"
+	"embed"
+	"fmt"
+	"net"
+	"net/http"
 	"os"
-	// "path/filepath"
-	// "io/ioutil"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -12,13 +14,12 @@ import (
 	"miao-directory/fsOperateEventCenter"
 )
 
-var staticPath = "./"
+//go:embed web/*
+var webFS embed.FS
+
 var port = ":17705"
 
 func main() {
-	if _, err := os.Stat(staticPath); os.IsNotExist(err) {
-		os.Mkdir(staticPath, os.ModePerm)
-	}
 	fsOperateEventCenter := fsOperateEventCenter.NewFsOperateEventCenter()
 
 	router := gin.Default()
@@ -33,7 +34,20 @@ func main() {
 	router.POST("/rename/*path", api.RenameHandler(fsOperateEventCenter))
 	router.POST("/delete/*path", api.DeleteHandler(fsOperateEventCenter))
 
-	router.Run(port)
+	// Redirect from '/' to '/web/'
+	router.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/web/")
+	})
+
+	// Serve static files from the embedded filesystem
+	staticFS := http.FS(webFS)
+	router.NoRoute(func(c *gin.Context) {
+		http.FileServer(staticFS).ServeHTTP(c.Writer, c.Request)
+	})
+
+	address := "[::]" + port
+	printListeningAddresses(port)
+	router.Run(address)
 }
 
 func corsMiddleware() gin.HandlerFunc {
@@ -43,51 +57,16 @@ func corsMiddleware() gin.HandlerFunc {
 	}
 }
 
-// func getHandler(c *gin.Context) {
-//     decodedPath, err := filepath.Abs(filepath.Join(staticPath, c.Param("path")))
-//     if err != nil {
-//         c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to access path"})
-//         return
-//     }
+func printListeningAddresses(port string) {
+	host, _ := os.Hostname()
+	addrs, _ := net.LookupHost(host)
 
-//     fileInfo, err := os.Stat(decodedPath)
-//     if os.IsNotExist(err) {
-//         c.JSON(http.StatusNotFound, gin.H{"error": "Path not found"})
-//         return
-//     }
-
-//     if fileInfo.IsDir() {
-//         files, err := ioutil.ReadDir(decodedPath)
-//         if err != nil {
-//             c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to scan directory"})
-//             return
-//         }
-
-//         var fileDetails []gin.H
-//         for _, file := range files {
-//             fileDetails = append(fileDetails, gin.H{
-//                 "name": file.Name(),
-//                 "size": file.Size(),
-//                 "type": func() string {
-//                     if file.IsDir() {
-//                         return "directory"
-//                     }
-//                     return "file"
-//                 }(),
-//                 "stats": gin.H{
-//                     "atimeMs": file.ModTime().UnixNano() / 1e6,
-//                     "birthtimeMs": file.ModTime().UnixNano() / 1e6,
-//                     "ctimeMs": file.ModTime().UnixNano() / 1e6,
-//                     "mtimeMs": file.ModTime().UnixNano() / 1e6,
-//                 },
-//             })
-//         }
-//         if len(fileDetails) == 0 {
-//             c.JSON(http.StatusOK, []gin.H{})
-//         } else {
-//             c.JSON(http.StatusOK, fileDetails)
-//         }
-//     } else {
-//         c.File(decodedPath)
-//     }
-// }
+	fmt.Printf("Listening on:\n")
+	fmt.Printf("  ➜  Local:   http://localhost%s\n", port)
+	for _, addr := range addrs {
+		if strings.Contains(addr, "%") {
+			addr = strings.Split(addr, "%")[0]
+		}
+		fmt.Printf("  ➜  Network: http://%s%s\n", addr, port)
+	}
+}
