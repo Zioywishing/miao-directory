@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"my-go-project/fsOperateEventCenter"
+	"miao-directory/fsOperateEventCenter"
 )
 
 func QueryHandler(fsOperateEventCenter *fsOperateEventCenter.FsOperateEventCenter) gin.HandlerFunc {

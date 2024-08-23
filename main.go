@@ -8,8 +8,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"my-go-project/api"
-	"my-go-project/fsOperateEventCenter"
+	"miao-directory/api"
+	"miao-directory/fsOperateEventCenter"
 )
 
 var staticPath = "./"
@@ -29,6 +29,7 @@ func main() {
 	router.POST("/mkdir", api.MkdirHandler)
 	router.POST("/upload/*path", api.UploadHandler)
 	router.POST("/cut/*path", api.CutHandler(fsOperateEventCenter))
+	router.POST("/copy/*path", api.CopyHandler(fsOperateEventCenter))
 	router.POST("/rename/*path", api.RenameHandler(fsOperateEventCenter))
 	router.POST("/delete/*path", api.DeleteHandler(fsOperateEventCenter))
 

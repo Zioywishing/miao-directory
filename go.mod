@@ -1,4 +1,4 @@
-module my-go-project
+module miao-directory
 
 go 1.23.0
 

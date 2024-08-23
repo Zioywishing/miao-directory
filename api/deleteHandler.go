@@ -2,13 +2,12 @@ package api
 
 import (
 	// "fmt"
+	"miao-directory/fsOperateEventCenter"
 	"net/http"
 	"os"
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
-
-	"my-go-project/fsOperateEventCenter"
 )
 
 func DeleteHandler(fsOperateEventCenter *fsOperateEventCenter.FsOperateEventCenter) gin.HandlerFunc {
