@@ -1,7 +1,7 @@
 <template>
     <div class="miao-item" draggable="true" ref="itemRef" @dragstart="handleDragStart">
         <miaoContextMenu :options="dropDownOptions" :touch-time-out="500" @select="handleDropdownSelect">
-            <div class="item-main" :class="props.selected ? 'item-main-selected' : ''" ref="mainRef">
+            <div class="item-main" :class="selected ? 'item-main-selected' : ''" ref="mainRef">
                 <div class="item-main-front" :style="{ backgroundColor: props.color }"></div>
                 <Icon class="item-main-icon" v-show="clientWidth > 250"></Icon>
                 <div class="item-main-info">
@@ -42,6 +42,7 @@ import {
 import { computed, onMounted, ref } from 'vue'
 import dateFormatter from '@/hooks/dateFormatter'
 import { NEllipsis } from 'naive-ui'
+import usePluginCenter from '@/hooks/usePluginCenter'
 // import useMiaoFetchApi from '@/hooks/useMiaoFetchApi'
 
 // const miaoFetchApi = useMiaoFetchApi()
@@ -50,7 +51,7 @@ const props = defineProps<{
     item: VirtualDirectory | VirtualFile
     name?: string
     color: string
-    selected: boolean
+    selectedItem: (VirtualDirectory | VirtualFile)[]
 }>()
 
 const emit = defineEmits<{
@@ -61,6 +62,8 @@ const emit = defineEmits<{
     onSelected: []
 }>()
 
+const pluginCenter = usePluginCenter()
+
 const itemType = ref<'file' | 'directory'>(props.item.type)
 
 const mainRef = ref<HTMLDivElement>()
@@ -70,6 +73,10 @@ const clientWidth = ref<number>(666)
 
 const name = props.name ?? props.item.name
 
+const selected = computed(() => {
+    return props.selectedItem.includes(props.item)
+})
+
 const time = computed(() => {
     return dateFormatter(
         new Date(props.item.stats.mtimeMs),
@@ -78,6 +85,12 @@ const time = computed(() => {
 })
 
 const dropDownOptions = computed(() => {
+    const items = [...props.selectedItem]
+    if (!selected.value) {
+        items.push(props.item)
+    }
+    const vDirs = items.filter(v => v.type === 'directory')
+    const vFiles = items.filter(v => v.type === 'file')
     const options = [
         {
             label: '重命名',
@@ -98,7 +111,7 @@ const dropDownOptions = computed(() => {
             ]
         )
     }
-    if (props.selected === false) {
+    if (selected.value === false) {
         options.push(
             ...[
                 {
@@ -117,6 +130,10 @@ const dropDownOptions = computed(() => {
             ]
         )
     }
+    options.push(...pluginCenter.getUsablePlugin(vDirs, vFiles).map(v => ({
+        label: `插件:${v.name}`,
+        key: `plugin:${v.key}`
+    })))
     return options
 })
 
@@ -130,6 +147,15 @@ const handleDropdownSelect = (key: string) => {
         emit('delete')
     } else if (key === 'select') {
         emit('onSelected')
+    } else if (key.startsWith('plugin:')) {
+        const items = [...props.selectedItem]
+        if (!selected.value) {
+            items.push(props.item)
+        }
+        const vDirs = items.filter(v => v.type === 'directory')
+        const vFiles = items.filter(v => v.type === 'file')
+        const plugin = key.split(':')[1]
+        pluginCenter.usePlugin(plugin, vDirs, vFiles)
     }
 }
 
@@ -305,10 +331,13 @@ onMounted(() => {
             background-color: #d2d2d2;
         }
     }
+
     .item-main-selected {
         background-color: rgba(0, 128, 207, 0.32);
+
         &:hover {
-            background-color: rgba(0, 128, 207, 0.64);;
+            background-color: rgba(0, 128, 207, 0.64);
+            ;
         }
     }
 }

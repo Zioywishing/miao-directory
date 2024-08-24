@@ -43,14 +43,14 @@
                 <n-scrollbar>
                     <transition-group name="dirItem">
                         <miaoDirectoryItem v-for="dir in showData_directory" :item="dir" :key="dir.uid"
-                            :color="props.color" :selected="selectedItem.value.includes(dir)"
+                            :color="props.color" :selectedItem="selectedItem.value"
                             @delete="handleItemDelete(dir)" @click="handleItemClick(dir)"
                             @drag-start="handleItemDragStart" @rename="handleItemRename(dir)"
                             @on-selected="handleItemSelect(dir)" />
                     </transition-group>
                     <transition-group name="dirItem">
                         <miaoDirectoryItem v-for="file in showData_files" :item="file" :key="file.uid"
-                            :color="props.color" :selected="selectedItem.value.includes(file)"
+                            :color="props.color" :selectedItem="selectedItem.value"
                             @click="handleItemClick(file)" @download="handleItemDownload(file)"
                             @delete="handleItemDelete(file)" @drag-start="handleItemDragStart"
                             @rename="handleItemRename(file)" @on-selected="handleItemSelect(file)" />
@@ -159,23 +159,18 @@ class SelectedItem {
 // 已选择的item，用于多选功能
 const selectedItem = reactive(new SelectedItem())
 
-const currentObjects = defineModel<VirtualDirectory[]>('currentObjects', {
+const currentDirectorys = defineModel<VirtualDirectory[]>('currentDirectorys', {
     required: true
 })
 
 // 目前展示的Dir
 const currentDirectory = computed(() => {
-    return currentObjects.value[0]
+    return currentDirectorys.value[0]
 })
 
 // 当前组件在views中的序号
 const index = computed(() => {
-    for (let i in views) {
-        if (views[i].uid === props.id) {
-            return parseInt(i)
-        }
-    }
-    return 0
+    return views.getIndex(props.id)
 })
 
 // 用于展示的数据，后续会增加排序等操作
@@ -208,7 +203,7 @@ const setCurrentDirectory = async (virtualDirectory: VirtualDirectory) => {
     } else {
         virtualDirectory.update()
     }
-    currentObjects.value[0] = virtualDirectory
+    currentDirectorys.value[0] = virtualDirectory
 }
 
 const reload = () => {

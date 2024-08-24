@@ -1,4 +1,4 @@
-import { shallowRef } from "vue";
+import { reactive, shallowRef } from "vue";
 import VirtualDirectory, { VirtualFile } from "./VirtualDirectory";
 import generateId from "@/hooks/generateId";
 
@@ -13,7 +13,7 @@ const getRandomWebSafeColor = (() => {
 })();
 
 export default class VirtualPage {
-	constructor(component: any, initObjects?:{ directorys?: VirtualDirectory[], files?: VirtualFile[]}) {
+	constructor(component: any, initObjects?: { directorys?: VirtualDirectory[]; files?: VirtualFile[] }) {
 		this.component = shallowRef(component);
 		this.currentDirectorys = initObjects?.directorys ?? [];
 		this.currentFiles = initObjects?.files ?? [];
@@ -43,7 +43,7 @@ export default class VirtualPage {
 		if (this._title) {
 			return this._title;
 		}
-		return this.currentDirectorys[0].name;
+		return this?.currentDirectorys[0]?.name ?? this?.currentFiles[0]?.name ?? "未命名标签";
 	}
 
 	setTitle(title: string) {
@@ -59,5 +59,65 @@ export default class VirtualPage {
 	// 事实上也不应该用得到，因为更新应该是响应式的
 	refresh() {
 		this.refreshKey = Math.random();
+	}
+}
+
+export class VirtualPages {
+	constructor() {
+		this._views = reactive<VirtualPage[]>([]);
+	}
+	_views: VirtualPage[];
+
+	get length() {
+		return this._views.length;
+	}
+
+	/**
+	 * 查询一个页面位于_views中的次序
+	 * @param {any} id 要查询的页面的id
+	 * @returns {any}
+	 */
+	getIndex(id: number) {
+		for (let i in this._views) {
+			if (this._views[i].uid === id) {
+				return parseInt(i);
+			}
+		}
+		return -1;
+	}
+	/**
+	 * 根据id得到view
+	 * @param {any} id 要查询的页面的id
+	 */
+	getView(id: number) {
+		for (let v of this._views) {
+			if (v.uid === id) {
+				return v;
+			}
+		}
+		return undefined;
+	}
+
+	/**
+	 * 推入一个新的页面
+	 */
+	push(component: any, currentDirectorys?: VirtualDirectory[], currentFiles?: VirtualFile[], index?: number) {
+		index ?? (index = this.length);
+		this._views.splice(
+			index,
+			0,
+			reactive<VirtualPage>(
+				new VirtualPage(component, {
+					directorys: [...(currentDirectorys ?? [])],
+					files: [...(currentFiles ?? [])]
+				})
+			)
+		);
+	}
+	/**
+	 * 根据次序删除一个页面
+	 */
+	deleteView(index: number) {
+		this._views.splice(index, 1);
 	}
 }

@@ -1,3 +1,4 @@
+import config from "@/config";
 import generateId from "@/hooks/generateId";
 import useMiaoFetchApi from "@/hooks/useMiaoFetchApi";
 // import { debounce } from "lodash";
@@ -22,6 +23,10 @@ export class VirtualFile {
 	uid: number;
 	get path() {
 		return `${this.parent.path}${this.name}`;
+	}
+
+	get url() {
+		return `${config.api.get}${this.parent.path}${this.name}`
 	}
 }
 

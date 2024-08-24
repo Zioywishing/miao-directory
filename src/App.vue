@@ -9,12 +9,12 @@ import {
     EllipsisVertical,
     QrCodeOutline
 } from '@vicons/ionicons5'
-import miaoDirectory from './views/miaoDirectory.vue'
-import VirtualPage from './class/VirtualPage'
+import miaoDirectory from '@/views/miaoDirectory.vue'
 import VirtualDirectory, { VirtualFile } from './class/VirtualDirectory'
 import MiaoMask from './components/miaoMask.vue'
 import config from './config'
 import useVirtualPages from './hooks/useVirtualPages'
+import init from './hooks/init'
 
 const { baseUrl } = config
 
@@ -46,21 +46,11 @@ const createView = (
     currentFiles?: VirtualFile[],
     index?: number
 ) => {
-    index ?? (index = views.length)
-    views.splice(
-        index,
-        0,
-        reactive<VirtualPage>(
-            new VirtualPage(component, {
-                directorys: [...(currentDirectorys ?? [])],
-                files: [...(currentFiles ?? [])]
-            })
-        )
-    )
+    views.push(component, currentDirectorys, currentFiles, index)
 }
 
 const deleteView = (index: number) => {
-    views.splice(index, 1)
+    views.deleteView(index)
     if (views.length === 0) {
         createView(miaoDirectory, [rootDirectory])
     }
@@ -68,14 +58,14 @@ const deleteView = (index: number) => {
 
 // 点击标题是隐藏其他标签或显示其他标签，还挺好用的
 const handleClickTitle = (index: number) => {
-    let count = views.filter((v) => v.visible).length
-    let op = !views[index].visible || count > 1 ? 'hideOthers' : 'showOthers'
+    let count = views._views.filter((v) => v.visible).length
+    let op = !views._views[index].visible || count > 1 ? 'hideOthers' : 'showOthers'
     let _index = 0
-    while (_index < views.length) {
+    while (_index < views._views.length) {
         if (_index !== index) {
-            views[_index].visible = op === 'hideOthers' ? false : true
+            views._views[_index].visible = op === 'hideOthers' ? false : true
         } else {
-            views[_index].visible = true
+            views._views[_index].visible = true
         }
         _index += 1
     }
@@ -113,6 +103,7 @@ const handleMenuSelect = (key: string) => {
 }
 
 onMounted(() => {
+    init()
     createView(miaoDirectory, [rootDirectory])
 })
 </script>
@@ -125,7 +116,7 @@ onMounted(() => {
                     <transition-group name="tab">
                         <div
                             class="tab"
-                            v-for="(view, index) of views"
+                            v-for="(view, index) of views._views"
                             :key="view.uid">
                             <span
                                 class="tab-title"
@@ -189,12 +180,13 @@ onMounted(() => {
             <transition-group name="page">
                 <div
                     class="view-container-item"
-                    v-for="(view, index) of views"
+                    v-for="(view, index) of views._views"
                     v-show="view.visible"
                     :key="view.uid">
                     <component
                         :is="view.component"
-                        v-model:current-objects="view.currentDirectorys"
+                        v-model:current-directorys="view.currentDirectorys"
+                        v-model:current-files="view.currentFiles"
                         :id="view.uid"
                         :color="view.color"
                         @exit="deleteView(index)"></component>
