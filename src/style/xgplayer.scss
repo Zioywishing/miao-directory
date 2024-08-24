@@ -545,7 +545,7 @@
 }
 .xgplayer .xg-options-list li:hover,
 .xgplayer .xg-options-list li.selected {
-	color: red;
+	color: #13c16d;
 	opacity: 1;
 }
 .xgplayer .xg-options-list li:nth-child(1) {
@@ -622,7 +622,7 @@
 		color: #fffc;
 	}
 	.xgplayer-mobile .xg-options-list li.selected {
-		color: red;
+		color: #13c16d;
 	}
 }
 .xgplayer xg-thumbnail {
@@ -1093,7 +1093,7 @@
 	line-height: 24px;
 }
 .xgplayer xg-trigger .time-preview .xg-cur {
-	color: red;
+	color: #13c16d;
 }
 .xgplayer xg-trigger .time-preview .xg-separator {
 	font-size: 14px;
@@ -1118,7 +1118,7 @@
 .xgplayer xg-trigger .time-preview .xg-bar .xg-curbar {
 	width: 0;
 	height: 100%;
-	background-color: red;
+	background-color: #13c16d;
 }
 .xgplayer xg-trigger .time-preview .xg-bar.hide {
 	display: none;
@@ -1147,7 +1147,7 @@
 	text-align: center;
 }
 .xgplayer xg-trigger .xg-top-note i {
-	color: red;
+	color: #13c16d;
 	margin: 0 5px;
 }
 .xgplayer xg-trigger .xg-playbackrate {
@@ -1208,13 +1208,13 @@
 		color: #fff;
 	}
 	.xgplayer-mobile xg-trigger .time-preview span.xg-cur {
-		color: red;
+		color: #13c16d;
 	}
 	.xgplayer-mobile xg-trigger .time-preview .xg-bar {
 		background-color: #ffffff4d;
 	}
 	.xgplayer-mobile xg-trigger .time-preview .xg-bar.xg-curbar {
-		background-color: red;
+		background-color: #13c16d;
 	}
 }
 @keyframes loadingRotate {
@@ -1645,7 +1645,7 @@ xg-loading-inner {
 .xgplayer .xgplayer-drag {
 	bottom: 0;
 	left: 0;
-	background: linear-gradient(-90deg, #5dc1ff 0%, #13c16d 100%);
+	background: linear-gradient(180deg, #5dc1ff 0%, #13c16d 100%);
 	max-height: 76px;
 }
 .xgplayer .xgplayer-drag:after {
@@ -1810,7 +1810,7 @@ xg-loading-inner {
 .xgplayer .xgplayer-prompt .highlight {
 	display: inline-block;
 	margin-left: 6px;
-	color: red;
+	color: #13c16d;
 	cursor: pointer;
 }
 .xgplayer.xgplayer-is-error .xgplayer-prompt.show {

@@ -43,18 +43,20 @@
                 <n-scrollbar>
                     <transition-group name="dirItem">
                         <miaoDirectoryItem v-for="dir in showData_directory" :item="dir" :key="dir.uid"
-                            :color="props.color" :selectedItem="selectedItem.value"
-                            @delete="handleItemDelete(dir)" @click="handleItemClick(dir)"
-                            @drag-start="handleItemDragStart" @rename="handleItemRename(dir)"
-                            @on-selected="handleItemSelect(dir)" />
+                            :color="props.color" :selectedItem="selectedItem.value" @delete="handleItemDelete(dir)"
+                            @click="handleItemClick(dir)" @drag-start="handleItemDragStart"
+                            @rename="handleItemRename(dir)" @on-selected="handleItemSelect(dir)" />
                     </transition-group>
                     <transition-group name="dirItem">
                         <miaoDirectoryItem v-for="file in showData_files" :item="file" :key="file.uid"
-                            :color="props.color" :selectedItem="selectedItem.value"
-                            @click="handleItemClick(file)" @download="handleItemDownload(file)"
-                            @delete="handleItemDelete(file)" @drag-start="handleItemDragStart"
-                            @rename="handleItemRename(file)" @on-selected="handleItemSelect(file)" />
+                            :color="props.color" :selectedItem="selectedItem.value" @click="handleItemClick(file)"
+                            @download="handleItemDownload(file)" @delete="handleItemDelete(file)"
+                            @drag-start="handleItemDragStart" @rename="handleItemRename(file)"
+                            @on-selected="handleItemSelect(file)" />
                     </transition-group>
+                    <!-- <n-virtual-list :item="showData_all" :item-size="50">
+
+                    </n-virtual-list> -->
                 </n-scrollbar>
             </div>
             <div class="container-bottom" :style="{
@@ -186,6 +188,13 @@ const showData_files = computed<VirtualFile[]>(() => {
         : []
     return data
 })
+// const showData_all = computed<(VirtualDirectory | VirtualFile)[]>(() => {
+//     const data = currentDirectory.value?.directorys
+//         ? [...currentDirectory.value?.directorys]
+//         : []
+//     data.push(...currentDirectory.value?.files)
+//     return data
+// })
 
 // 用于监听拖拽文件事件
 const rootDomRef = ref<HTMLDivElement>()

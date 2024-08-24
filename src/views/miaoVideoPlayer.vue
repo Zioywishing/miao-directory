@@ -10,7 +10,7 @@
 <script lang="ts" setup>
 import { VirtualFile } from '@/class/VirtualDirectory';
 import miaoDropHandler from '@/components/miaoDropHandler.vue';
-import { onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import useViretualPages from '@/hooks/useVirtualPages';
 import XGPlayer from 'xgplayer'
 import '@/style/xgplayer.scss'
@@ -29,13 +29,13 @@ const view = views.getView(props.id)
 const videoPath = ref<string>('');
 const xgPlayer = ref()
 
+let _player: XGPlayer
 const setVideo = (() => {
-    let player: any
     return (url: string) => {
-        if (player) {
-            player.src = url
+        if (_player) {
+            _player.src = url
         } else {
-            player = new XGPlayer({
+            _player = new XGPlayer({
                 el: xgPlayer.value,
                 url,
                 width: '100%',
@@ -74,6 +74,10 @@ onMounted(() => {
         setVideo(currentFiles.value[0].url)
     }
 });
+
+onBeforeUnmount(() => {
+    _player.destroy()
+})
 </script>
 
 <style scoped lang="scss">
