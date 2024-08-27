@@ -29,6 +29,9 @@ importers:
       xgplayer:
         specifier: ^3.0.20
         version: 3.0.20(core-js@3.38.1)
+      xgplayer-subtitles:
+        specifier: ^3.0.20
+        version: 3.0.20(core-js@3.38.1)
     devDependencies:
       '@types/lodash':
         specifier: ^4.17.7

@@ -17,6 +17,13 @@ export default function init() {
 		if (vFiles.length === 0) {
 			return false;
 		}
-		return vFiles.length === 1 && vFiles[0].name.endsWith("mp4");
+		for(let i of vFiles) {
+			for(let s of ['mp4', 'm3u8', 'hls']) {
+				if(i.name.endsWith(s)) {
+					return true
+				}
+			}
+		}
+		return false
 	});
 }
