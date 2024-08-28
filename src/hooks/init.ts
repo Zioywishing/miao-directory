@@ -42,16 +42,22 @@ export default function init() {
         'miaoIframe',
         '框架',
         MiaoIframe,
-        (vDirs, vFiles) => {
+        () => {
             return false
         }
     )
     pluginCenter.registerComponent(
         'miaoPDF',
-        'PDF',
+        'PDF浏览',
         MiaoPDF,
         (vDirs, vFiles) => {
-            return true
+            if (vDirs.length !== 0) {
+                return false
+            }
+            if (vFiles.length !== 1) {
+                return false
+            }
+            return vFiles[0].name.endsWith('pdf')
         }
     )
 }

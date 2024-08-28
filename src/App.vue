@@ -332,6 +332,7 @@ $tag-width: 170px;
         .view-container-item {
             flex: 1;
             height: 100%;
+            min-width: 0;
         }
 
         &::-webkit-scrollbar {
