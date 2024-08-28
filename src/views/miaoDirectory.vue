@@ -457,6 +457,7 @@ $bottom-bar-height: 60px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-width: 170px;
 
     .container-top {
         height: $top-height;

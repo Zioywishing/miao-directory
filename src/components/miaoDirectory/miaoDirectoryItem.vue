@@ -7,7 +7,7 @@
                 <div class="item-main-info">
                     <div class="item-main-info-name">
                         <Icon class="item-main-info-name-icon" v-if="clientWidth <= 250"></Icon>
-                        <n-ellipsis style="max-width: 140px;">{{ name }}</n-ellipsis>
+                        <n-ellipsis style="max-width: 80%;">{{ name }}</n-ellipsis>
                     </div>
                     <div class="item-main-info-date" v-if="time">
                         {{ time }}
@@ -249,6 +249,7 @@ onMounted(() => {
     .item-main {
         position: relative;
         width: 100%;
+        min-width: 200px;
         height: 95%;
         background-color: rgb(255, 255, 255);
         border-radius: 7px;
@@ -258,14 +259,16 @@ onMounted(() => {
 
         .item-main-front {
             height: 100%;
-            width: 10px;
+            min-width: 10px;
             border-radius: 7px 0 0 7px;
             background-color: rgb(0, 0, 0);
         }
 
         .item-main-icon {
+            min-width: 30px;
             margin-left: 10px;
-            height: 80%;
+            height: 30px;
+            width: 30px;
             color: #00403e;
             transition: color 0.15s ease-out;
         }
@@ -273,6 +276,7 @@ onMounted(() => {
         .item-main-info {
             margin-left: 10px;
             height: 100%;
+            width: calc( 100% - 10px );
             display: flex;
             flex-direction: column;
 

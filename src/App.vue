@@ -120,6 +120,7 @@ onMounted(() => {
                             :key="view.uid">
                             <span
                                 class="tab-title"
+                                :title="view.title"
                                 @click="handleClickTitle(index)">
                                 {{
                                     view.title.length > 5 && 0
@@ -332,7 +333,7 @@ $tag-width: 170px;
         .view-container-item {
             flex: 1;
             height: 100%;
-            min-width: 0;
+            min-width: 200px;
         }
 
         &::-webkit-scrollbar {

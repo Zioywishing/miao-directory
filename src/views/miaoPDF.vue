@@ -8,9 +8,13 @@
             <div class="miao-container-topBar-btn" @click="() => handleShrink(10)" title="快速放大">++</div>
         </div>
         <NScrollbar>
-            <div ref="pdfEl" class="miao-container-pdf" :style="{ margin: `0 ${pdfMargin}px` }"></div>
+            <div class="miao-container-pdf" :style="{alignItems: pdfMargin < 0 ? 'baseline' : 'center'}">
+                <div ref="pdfEl" class="miao-container-pdf-content" :style="{ width: `calc( 100% - ${pdfMargin}px)`}">
+                </div>
+            </div>
         </NScrollbar>
-        <div class="miao-container-loading" v-if="isLoading">加载中，加载进度：{{ loadingPercent === -1 ? '缓存中' : `${canvasList.length}/${pdfPageCount}` }}</div>
+        <div class="miao-container-loading" v-if="isLoading">{{ loadingPercent === -1 ? '缓存中' :
+            `渲染进度：${canvasList.length}/${pdfPageCount}` }}</div>
     </div>
 </template>
 
@@ -44,9 +48,9 @@ const handleZoom = (index?: number) => {
 
 const handleShrink = (index?: number) => {
     const _index = index ?? 1
-    if (pdfMargin.value - 10 * _index <= 0) {
-        return pdfMargin.value = 0
-    }
+    // if (pdfMargin.value - 10 * _index <= 0) {
+    //     return pdfMargin.value = 0
+    // }
     pdfMargin.value -= 10 * _index
 }
 
@@ -55,7 +59,7 @@ const handleResetMargin = () => {
 }
 
 const loadingPercent = computed(() => {
-    if(pdfPageCount.value === -1) {
+    if (pdfPageCount.value === -1) {
         return -1
     }
     return canvasList.length / pdfPageCount.value
@@ -100,7 +104,7 @@ onMounted(async () => {
     width: 100%;
     height: 100%;
     background-color: rgb(53, 53, 53);
-    overflow-y: hidden;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -136,22 +140,12 @@ onMounted(async () => {
 
     .miao-container-pdf {
         min-width: 0;
-        max-width: 100%;
-        max-height: 100%;
+        width: 100%;
         display: flex;
         flex-direction: column;
-
-        .page {
+        .miao-container-pdf-content {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            transform: scale(0.5);
-        }
-
-        canvas {
-            width: 100%;
-            height: 100%;
-            border-bottom: 1px solid black;
+            flex-direction: column;
         }
     }
 
@@ -161,12 +155,12 @@ onMounted(async () => {
         background-color: aliceblue;
         border: 1px solid black;
         height: 40px;
-        width: 400px;
+        width: 200px;
         border-radius: 10px;
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 20px;
+        font-size: 15px;
         letter-spacing: 5px;
         user-select: none;
     }
