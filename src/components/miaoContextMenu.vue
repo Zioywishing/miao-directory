@@ -1,8 +1,7 @@
 <!-- 基于naiveui的下拉菜单实现的自定义下拉菜单 -->
 <!-- 支持长按和右键呼出下拉菜单 -->
 <template>
-    <div class="main" @contextmenu="handleContextMenu" @mouseleave="handleMainMouseLeave" @touchstart="handleTouchStart"
-     @touchend="handleTouchEnd">
+    <div class="main" @contextmenu="handleContextMenu" @mouseleave="handleMainMouseLeave">
         <slot></slot>
     </div>
     <n-dropdown placement="bottom-start" trigger="manual" :x="x" :y="y" :options="props.options"

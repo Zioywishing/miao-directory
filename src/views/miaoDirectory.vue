@@ -322,7 +322,7 @@ const handleItemDragStart = async (
     const items = uniq([item, ...selectedItem.value])
     dataBus.set('dragData_vFiles', items.filter(v => v.type === 'file'))
     dataBus.set('dragData_vDirectory', items.filter(v => v.type === 'directory'))
-    selectedItem.clear()
+    // selectedItem.clear()
 }
 
 const handleDropFiles = async (files: File[]) => {
@@ -606,4 +606,5 @@ $bottom-bar-height: 60px;
 //             position: absolute;
 //         }
 //     }
-// }</style>
+// }
+</style>
