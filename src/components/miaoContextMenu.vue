@@ -27,7 +27,7 @@ const x = ref(0)
 const y = ref(0)
 const showContextMenu = ref(0)
 // 长按计时器
-let timer_touch: string | number | NodeJS.Timeout | undefined
+// let timer_touch: string | number | NodeJS.Timeout | undefined
 
 const onClickoutside = async () => {
     showContextMenu.value = 0
@@ -57,25 +57,25 @@ const handleContextMenu = (e: MouseEvent) => {
     })
 }
 
-const handleTouchStart = (e: TouchEvent) => {
-    if(props.touchTimeOut === undefined) {
-        return
-    }
-    timer_touch ?? clearTimeout(timer_touch)
-    timer_touch = setTimeout(() => {
-        showContextMenu.value = 1
-        x.value = e.targetTouches[0].clientX
-        y.value = e.targetTouches[0].clientY
-    }, props.touchTimeOut)
-}
+// const handleTouchStart = (e: TouchEvent) => {
+//     if(props.touchTimeOut === undefined) {
+//         return
+//     }
+//     timer_touch ?? clearTimeout(timer_touch)
+//     timer_touch = setTimeout(() => {
+//         showContextMenu.value = 1
+//         x.value = e.targetTouches[0].clientX
+//         y.value = e.targetTouches[0].clientY
+//     }, props.touchTimeOut)
+// }
 
-const handleTouchEnd = () => {
-    if(timer_touch) {
-        clearTimeout(timer_touch)
-        timer_touch = undefined
-    }
+// const handleTouchEnd = () => {
+//     if(timer_touch) {
+//         clearTimeout(timer_touch)
+//         timer_touch = undefined
+//     }
 
-}
+// }
 
 </script>
 
