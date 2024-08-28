@@ -99,7 +99,6 @@ const { setVideo } = (() => {
                 width: '100%',
                 height: '100%',
                 volume: 1,
-                fluid: true,
                 pip: true,
                 videoFillMode: 'contain',
                 autoplay: true,
