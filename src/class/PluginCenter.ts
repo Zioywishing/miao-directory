@@ -20,7 +20,6 @@ export default class PluginCenter {
 
     register(key: string, plugin: plugin) {
         this.pluginsMap[key] = plugin
-        console.log(this.pluginsMap)
     }
 
     /**
@@ -29,7 +28,7 @@ export default class PluginCenter {
     registerComponent(
         key: string,
         name: string,
-        getComponent: () => any,
+        getComponent: () => Promise<any>,
         filter: (
             VDirectorys: VirtualDirectory[],
             VFiles: VirtualFile[]

@@ -77,12 +77,13 @@ const miaoFetchApi = {
         // const { baseUrl, api } = Config
         const url = vFile.url
         const retry = option?.retry ?? 0
+        const axiosOption = option?.axiosOption ?? {}
 
         const { miaoFetch } = useMiaoFetch({
             retry
         })
         const response = await miaoFetch({
-            url
+            url, ...axiosOption
         })
         return response.data
     },

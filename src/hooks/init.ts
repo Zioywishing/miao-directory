@@ -1,4 +1,4 @@
-// import MiaoDirectory from '@/views/miaoDirectory.vue'
+import MiaoDirectory from '@/views/miaoDirectory.vue'
 import usePluginCenter from './usePluginCenter'
 
 export default function init() {
@@ -6,7 +6,7 @@ export default function init() {
     pluginCenter.registerComponent(
         'miaoDirectory',
         '文件夹',
-        async() => (await import('@/views/miaoDirectory.vue')).default,
+        async () => MiaoDirectory,
         (vDirs, vFiles) => {
             if (vFiles.length) {
                 return false
@@ -74,7 +74,23 @@ export default function init() {
             if (vFiles.length !== 1) {
                 return false
             }
-            for (let end of ['js', 'ts', 'py', 'html', 'css']) {
+            for (let end of [
+                'js',
+                'ts',
+                'jsx',
+                'tsx',
+                'py',
+                'html',
+                'css',
+                'scss',
+                'go',
+                'json',
+                'md',
+                'yaml',
+                'txt',
+                'xml',
+                'vue',
+            ]) {
                 if (vFiles[0].name.endsWith(end)) {
                     return true
                 }

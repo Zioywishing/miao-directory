@@ -1,8 +1,10 @@
+import { AxiosRequestConfig } from "axios";
 import { directory, file } from "./type";
 
 export type miaoFetchConfig = {
-	retry?: number;
-};
+    retry?: number
+    axiosOption?: AxiosRequestConfig<any>
+}
 
 export type getOption = {} & miaoFetchConfig;
 
