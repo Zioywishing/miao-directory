@@ -98,4 +98,21 @@ export default function init() {
             return false
         }
     )
+	pluginCenter.registerComponent(
+		"miaoImages",
+		"图片浏览",
+		async () => (await import("@/views/miaoImages.vue")).default,
+		(vDirs, vFiles) => {
+			if (vDirs.length === 0 && vFiles.length === 0) {
+				return false;
+			}
+			miao: for (let vf of vFiles)
+				for (let end of [".xbm", ".tif", "pjp", ".svgz", "jpg", "jpeg", "ico", "tiff", ".gif", "svg", ".jfif", ".webp", ".png", ".bmp", "pjpeg", ".avif"]) {
+					if (vf.name.endsWith(end)) {
+						continue miao;
+					}
+				}
+			return true;
+		}
+	);
 }
