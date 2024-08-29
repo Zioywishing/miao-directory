@@ -1,15 +1,12 @@
 import MiaoDirectory from '@/views/miaoDirectory.vue'
 import usePluginCenter from './usePluginCenter'
-import MiaoVideoPlayer from '@/views/miaoVideoPlayer.vue'
-import MiaoIframe from '@/views/miaoIframe.vue'
-import MiaoPDF from '@/views/miaoPDF.vue'
 
 export default function init() {
     const pluginCenter = usePluginCenter()
     pluginCenter.registerComponent(
         'miaoDirectory',
         '文件夹',
-        MiaoDirectory,
+        async () => MiaoDirectory,
         (vDirs, vFiles) => {
             if (vFiles.length) {
                 return false
@@ -20,7 +17,7 @@ export default function init() {
     pluginCenter.registerComponent(
         'miaoVideoPlayer',
         '视频',
-        MiaoVideoPlayer,
+        async () => (await import('@/views/miaoVideoPlayer.vue')).default,
         (vDirs, vFiles) => {
             if (vDirs.length !== 0) {
                 return false
@@ -41,15 +38,21 @@ export default function init() {
     pluginCenter.registerComponent(
         'miaoIframe',
         '框架',
-        MiaoIframe,
-        () => {
-            return false
+        async () => (await import('@/views/miaoIframe.vue')).default,
+        (vDirs, vFiles) => {
+            if (vDirs.length !== 0) {
+                return false
+            }
+            if (vFiles.length !== 1) {
+                return false
+            }
+            return vFiles[0].name.endsWith('html')
         }
     )
     pluginCenter.registerComponent(
         'miaoPDF',
         'PDF浏览',
-        MiaoPDF,
+        async () => (await import('@/views/miaoPDF.vue')).default,
         (vDirs, vFiles) => {
             if (vDirs.length !== 0) {
                 return false
@@ -58,6 +61,41 @@ export default function init() {
                 return false
             }
             return vFiles[0].name.endsWith('pdf')
+        }
+    )
+    pluginCenter.registerComponent(
+        'miaoCodeMirror',
+        '代码编辑',
+        async () => (await import('@/views/miaoCodeMirror.vue')).default,
+        (vDirs, vFiles) => {
+            if (vDirs.length !== 0) {
+                return false
+            }
+            if (vFiles.length !== 1) {
+                return false
+            }
+            for (let end of [
+                'js',
+                'ts',
+                'jsx',
+                'tsx',
+                'py',
+                'html',
+                'css',
+                'scss',
+                'go',
+                'json',
+                'md',
+                'yaml',
+                'txt',
+                'xml',
+                'vue',
+            ]) {
+                if (vFiles[0].name.endsWith(end)) {
+                    return true
+                }
+            }
+            return false
         }
     )
 }

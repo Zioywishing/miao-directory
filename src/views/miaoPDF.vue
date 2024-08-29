@@ -13,7 +13,7 @@
                 </div>
             </div>
         </NScrollbar>
-        <div class="miao-container-loading" v-if="isLoading">{{ loadingPercent === -1 ? '缓存中' :
+        <div class="miao-container-loading" v-if="isLoading">{{ loadingPercent === -1 ? '加载插件中' :
             `渲染进度：${canvasList.length}/${pdfPageCount}` }}</div>
     </div>
 </template>
@@ -103,7 +103,7 @@ onMounted(async () => {
 .miao-container {
     width: 100%;
     height: 100%;
-    background-color: rgb(53, 53, 53);
+    background-color: rgb(201, 201, 201);
     overflow: hidden;
     display: flex;
     flex-direction: column;
