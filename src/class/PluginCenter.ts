@@ -6,8 +6,8 @@ type plugin = {
     name: string
     // 判断是否可以使用这个组件
     // 使用组件即调用下面的func
-    filter: (VDirectorys: VirtualDirectory[], VFiles: VirtualFile[]) => boolean
-    func: (VDirectorys: VirtualDirectory[], VFiles: VirtualFile[]) => void
+    filter: (VDirectories: VirtualDirectory[], VFiles: VirtualFile[]) => boolean
+    func: (VDirectories: VirtualDirectory[], VFiles: VirtualFile[]) => void
 }
 
 export default class PluginCenter {
@@ -30,7 +30,7 @@ export default class PluginCenter {
         name: string,
         getComponent: () => Promise<any>,
         filter: (
-            VDirectorys: VirtualDirectory[],
+            VDirectories: VirtualDirectory[],
             VFiles: VirtualFile[]
         ) => boolean
     ): void {
@@ -40,22 +40,22 @@ export default class PluginCenter {
             name,
             filter,
             func: async (
-                VDirectorys: VirtualDirectory[],
+                VDirectories: VirtualDirectory[],
                 VFiles: VirtualFile[]
             ) => {
-                if (filter(VDirectorys, VFiles) === false) {
+                if (filter(VDirectories, VFiles) === false) {
                     return
                 }
                 if (_component === undefined) _component = await getComponent()
-                views.push(_component, VDirectorys, VFiles)
+                views.push(_component, VDirectories, VFiles)
             }
         })
     }
 
-    getUsablePlugin(VDirectorys: VirtualDirectory[], VFiles: VirtualFile[]) {
+    getUsablePlugin(VDirectories: VirtualDirectory[], VFiles: VirtualFile[]) {
         const usableList = []
         for (let key of Object.keys(this.pluginsMap)) {
-            if (this.pluginsMap[key].filter(VDirectorys, VFiles)) {
+            if (this.pluginsMap[key].filter(VDirectories, VFiles)) {
                 usableList.push(key)
             }
         }
@@ -67,9 +67,9 @@ export default class PluginCenter {
 
     usePlugin(
         key: string,
-        VDirectorys: VirtualDirectory[],
+        VDirectories: VirtualDirectory[],
         VFiles: VirtualFile[]
     ) {
-        this.pluginsMap[key].func(VDirectorys, VFiles)
+        this.pluginsMap[key].func(VDirectories, VFiles)
     }
 }

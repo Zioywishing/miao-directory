@@ -42,11 +42,11 @@ const rootDirectory = reactive(
 // component就是一个vue组件，类似于miaoDirectory
 const createView = (
     component: any,
-    currentDirectorys?: VirtualDirectory[],
+    currentDirectories?: VirtualDirectory[],
     currentFiles?: VirtualFile[],
     index?: number
 ) => {
-    views.push(component, currentDirectorys, currentFiles, index)
+    views.push(component, currentDirectories, currentFiles, index)
 }
 
 const deleteView = (index: number) => {
@@ -147,7 +147,7 @@ onMounted(() => {
                                     @click="
                                         createView(
                                             view.component,
-                                            view.currentDirectorys,
+                                            view.currentDirectories,
                                             view.currentFiles,
                                             index + 1
                                         )
@@ -186,7 +186,7 @@ onMounted(() => {
                     :key="view.uid">
                     <component
                         :is="view.component"
-                        v-model:current-directorys="view.currentDirectorys"
+                        v-model:current-directories="view.currentDirectories"
                         v-model:current-files="view.currentFiles"
                         :id="view.uid"
                         :color="view.color"

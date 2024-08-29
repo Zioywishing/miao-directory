@@ -154,20 +154,20 @@ class SelectedItem {
                 return false
             }
             // @ts-ignore
-            return [...currentDirectory.value?.directorys, ...currentDirectory.value?.files].includes(v)
+            return [...currentDirectory.value?.directories, ...currentDirectory.value?.files].includes(v)
         })
     }
 }
 // 已选择的item，用于多选功能
 const selectedItem = reactive(new SelectedItem())
 
-const currentDirectorys = defineModel<VirtualDirectory[]>('currentDirectorys', {
+const currentDirectories = defineModel<VirtualDirectory[]>('currentDirectories', {
     required: true
 })
 
 // 目前展示的Dir
 const currentDirectory = computed(() => {
-    return currentDirectorys.value[0]
+    return currentDirectories.value[0]
 })
 
 // 当前组件在views中的序号
@@ -177,8 +177,8 @@ const index = computed(() => {
 
 // 用于展示的数据，后续会增加排序等操作
 const showData_directory = computed<VirtualDirectory[]>(() => {
-    const data = currentDirectory.value?.directorys
-        ? [...currentDirectory.value?.directorys]
+    const data = currentDirectory.value?.directories
+        ? [...currentDirectory.value?.directories]
         : []
     return data
 })
@@ -189,8 +189,8 @@ const showData_files = computed<VirtualFile[]>(() => {
     return data
 })
 // const showData_all = computed<(VirtualDirectory | VirtualFile)[]>(() => {
-//     const data = currentDirectory.value?.directorys
-//         ? [...currentDirectory.value?.directorys]
+//     const data = currentDirectory.value?.directories
+//         ? [...currentDirectory.value?.directories]
 //         : []
 //     data.push(...currentDirectory.value?.files)
 //     return data
@@ -206,13 +206,13 @@ const setCurrentDirectory = async (virtualDirectory: VirtualDirectory) => {
     // 若没有缓存数据则同步刷新，有缓存数据则异步刷新
     if (
         virtualDirectory.files === undefined ||
-        virtualDirectory.directorys === undefined
+        virtualDirectory.directories === undefined
     ) {
         await virtualDirectory.update()
     } else {
         virtualDirectory.update()
     }
-    currentDirectorys.value[0] = virtualDirectory
+    currentDirectories.value[0] = virtualDirectory
 }
 
 const reload = () => {

@@ -13,9 +13,9 @@ const getRandomWebSafeColor = (() => {
 })();
 
 export default class VirtualPage {
-	constructor(component: any, initObjects?: { directorys?: VirtualDirectory[]; files?: VirtualFile[] }) {
+	constructor(component: any, initObjects?: { directories?: VirtualDirectory[]; files?: VirtualFile[] }) {
 		this.component = shallowRef(component);
-		this.currentDirectorys = initObjects?.directorys ?? [];
+		this.currentDirectories = initObjects?.directories ?? [];
 		this.currentFiles = initObjects?.files ?? [];
 		this.visible = true;
 		this.uid = generateId();
@@ -27,7 +27,7 @@ export default class VirtualPage {
 	// 是否可见
 	visible: boolean;
 	// 当前正在使用的文件夹
-	currentDirectorys: VirtualDirectory[];
+	currentDirectories: VirtualDirectory[];
 	// 当前正在使用的文件
 	currentFiles: VirtualFile[];
 	// 区分每一个页面的唯一id
@@ -43,7 +43,7 @@ export default class VirtualPage {
 		if (this._title) {
 			return this._title;
 		}
-		return this?.currentDirectorys[0]?.name ?? this?.currentFiles[0]?.name ?? "未命名标签";
+		return this?.currentDirectories[0]?.name ?? this?.currentFiles[0]?.name ?? "未命名标签";
 	}
 
 	setTitle(title: string) {
@@ -101,14 +101,14 @@ export class VirtualPages {
 	/**
 	 * 推入一个新的页面
 	 */
-	push(component: any, currentDirectorys?: VirtualDirectory[], currentFiles?: VirtualFile[], index?: number) {
+	push(component: any, currentDirectories?: VirtualDirectory[], currentFiles?: VirtualFile[], index?: number) {
 		index ?? (index = this.length);
 		this._views.splice(
 			index,
 			0,
 			reactive<VirtualPage>(
 				new VirtualPage(component, {
-					directorys: [...(currentDirectorys ?? [])],
+					directories: [...(currentDirectories ?? [])],
 					files: [...(currentFiles ?? [])]
 				})
 			)

@@ -43,7 +43,7 @@ class VirtualDirectory {
 	// 子文件
 	files?: VirtualFile[];
 	// 子目录
-	directorys?: VirtualDirectory[];
+	directories?: VirtualDirectory[];
 	// 没啥意义，标注一下就是了
 	type: "directory";
 	// 文件夹创建时间等杂项属性
@@ -98,9 +98,9 @@ class VirtualDirectory {
 
 	updateContent(content: (file | directory)[]) {
 		this.files = this.files ?? [];
-		this.directorys = this.directorys ?? [];
+		this.directories = this.directories ?? [];
 		const fileNames: string[] = this.files.map(v => v.name);
-		const dirNames: string[] = this.directorys.map(v => v.name);
+		const dirNames: string[] = this.directories.map(v => v.name);
 		const itemNames: string[] = content.map(v => v.name);
 		// 删去远程端已不存在的文件与文件夹
 		const _delete = (target: (VirtualFile | VirtualDirectory)[]) => {
@@ -114,7 +114,7 @@ class VirtualDirectory {
 			}
 		};
 		_delete(this.files);
-		_delete(this.directorys);
+		_delete(this.directories);
 		// 加入新的文件与文件夹
 		for (let item of content) {
 			if (item.type === "file") {
@@ -123,7 +123,7 @@ class VirtualDirectory {
 				}
 			} else if (item.type === "directory") {
 				if (!dirNames.includes(item.name)) {
-					this.directorys.push(new VirtualDirectory(item, this));
+					this.directories.push(new VirtualDirectory(item, this));
 				}
 			}
 		}
@@ -131,7 +131,7 @@ class VirtualDirectory {
 
 	hasChild(item: VirtualDirectory | VirtualFile): boolean {
 		if (item.type === "directory") {
-			return this.directorys?.includes(item) ?? false;
+			return this.directories?.includes(item) ?? false;
 		} else {
 			return this.files?.includes(item) ?? false;
 		}

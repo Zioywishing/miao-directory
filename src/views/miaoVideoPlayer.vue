@@ -10,7 +10,7 @@
 import { VirtualFile } from '@/class/VirtualDirectory'
 import miaoDropHandler from '@/components/miaoDropHandler.vue'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-// import useViretualPages from '@/hooks/useVirtualPages';
+// import useVirtualPages from '@/hooks/useVirtualPages';
 import XGPlayer from 'xgplayer'
 import '@/style/xgplayer.scss'
 import TextTrack from 'xgplayer/es/plugins/track'
@@ -26,7 +26,7 @@ const currentFiles = defineModel<VirtualFile[]>('currentFiles', {
     required: true
 })
 
-// const views = useViretualPages()
+// const views = useVirtualPages()
 // const view = views.getView(props.id)
 
 // const videoPath = ref<string>('');
