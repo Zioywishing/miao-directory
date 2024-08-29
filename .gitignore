@@ -25,3 +25,5 @@ dist-ssr
 .vscode
 serve
 miao-directory.exe
+miao-directory-amd64-linux
+miao-directory-amd64-win.exe
