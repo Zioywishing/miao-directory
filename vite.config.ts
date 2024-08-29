@@ -64,14 +64,11 @@ export default defineConfig({
             output: {
                 // 配置输出为单文件
                 // inlineDynamicImports: true,
-                // manualChunks(id) {
-                //     if (id.includes('node_modules')) {
-                //         return 'vendor'
-                //     }
-                //     if (id.includes('@codemirror')) {
-                //         return 'codemirror'
-                //     }
-                // },
+                manualChunks(id) {
+                    if (id.includes('@codemirror')) {
+                        return id.split('@')[1].replace('+', '-')
+                    }
+                }
                 // entryFileNames: 'bundle.js',
                 // format: 'iife', // 立即执行函数格式
                 // name: 'MyBundle'
