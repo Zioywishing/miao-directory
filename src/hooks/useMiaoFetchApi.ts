@@ -68,8 +68,28 @@ const miaoFetchApi = {
     },
 
     /**
+     * 获取对应文件夹下的数据
+     */
+    async getFile(
+        vFile: VirtualFile,
+        option?: getOption
+    ): Promise<getResponse> {
+        // const { baseUrl, api } = Config
+        const url = vFile.url
+        const retry = option?.retry ?? 0
+
+        const { miaoFetch } = useMiaoFetch({
+            retry
+        })
+        const response = await miaoFetch({
+            url
+        })
+        return response.data
+    },
+
+    /**
      * 上传单个文件到对应文件夹, 后续要将data类型改成buffer以支持分片上传
-		 * 正常上传文件请使用uploadQueue
+     * 正常上传文件请使用uploadQueue
      */
     upload(data: File, targetVDir: VirtualDirectory, option?: uploadOption) {
         const { baseUrl, api } = Config

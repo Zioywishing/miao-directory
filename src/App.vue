@@ -327,7 +327,7 @@ $tag-width: 170px;
         display: flex;
         // flex-direction: column;
         height: calc(100% - $controller-height);
-        overflow-y: overlay;
+        overflow-y: hidden;
         overflow-x: overlay;
 
         .view-container-item {
