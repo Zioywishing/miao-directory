@@ -21,6 +21,8 @@ var webFS embed.FS
 var port = ":17705"
 
 func main() {
+	// gin.SetMode(gin.ReleaseMode)
+
 	fsOperateEventCenter := fsOperateEventCenter.NewFsOperateEventCenter()
 
 	router := gin.Default()
