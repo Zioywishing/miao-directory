@@ -41,9 +41,6 @@ importers:
       '@codemirror/lang-yaml':
         specifier: ^6.1.1
         version: 6.1.1(@codemirror/view@6.33.0)
-      '@uiw/codemirror-theme-vscode':
-        specifier: ^4.23.0
-        version: 4.23.0(@codemirror/language@6.10.2)(@codemirror/state@6.4.1)(@codemirror/view@6.33.0)
       '@vicons/ionicons5':
         specifier: ^0.12.0
         version: 0.12.0
@@ -495,16 +492,6 @@ packages:
   '@types/pdfjs-dist@2.10.378':
     resolution: {integrity: sha512-TRdIPqdsvKmPla44kVy4jv5Nt5vjMfVjbIEke1CRULIrwKNRC4lIiZvNYDJvbUMNCFPNIUcOKhXTyMJrX18IMA==}
     deprecated: This is a stub types definition. pdfjs-dist provides its own type definitions, so you do not need this installed.
-
-  '@uiw/codemirror-theme-vscode@4.23.0':
-    resolution: {integrity: sha512-zl1FD7U1b58tqlF216jYv2okvVkTe+FP1ztqO/DF129bcH99QjszkakshyfxQEvvF4ys3zyzqZ7vU3VYBir8tg==}
-
-  '@uiw/codemirror-themes@4.23.0':
-    resolution: {integrity: sha512-9fiji9xooZyBQozR1i6iTr56YP7j/Dr/VgsNWbqf5Szv+g+4WM1iZuiDGwNXmFMWX8gbkDzp6ASE21VCPSofWw==}
-    peerDependencies:
-      '@codemirror/language': '>=6.0.0'
-      '@codemirror/state': '>=6.0.0'
-      '@codemirror/view': '>=6.0.0'
 
   '@vicons/ionicons5@0.12.0':
     resolution: {integrity: sha512-Iy1EUVRpX0WWxeu1VIReR1zsZLMc4fqpt223czR+Rpnrwu7pt46nbnC2ycO7ItI/uqDLJxnbcMC7FujKs9IfFA==}
@@ -1595,20 +1582,6 @@ snapshots:
     transitivePeerDependencies:
       - encoding
       - supports-color
-
-  '@uiw/codemirror-theme-vscode@4.23.0(@codemirror/language@6.10.2)(@codemirror/state@6.4.1)(@codemirror/view@6.33.0)':
-    dependencies:
-      '@uiw/codemirror-themes': 4.23.0(@codemirror/language@6.10.2)(@codemirror/state@6.4.1)(@codemirror/view@6.33.0)
-    transitivePeerDependencies:
-      - '@codemirror/language'
-      - '@codemirror/state'
-      - '@codemirror/view'
-
-  '@uiw/codemirror-themes@4.23.0(@codemirror/language@6.10.2)(@codemirror/state@6.4.1)(@codemirror/view@6.33.0)':
-    dependencies:
-      '@codemirror/language': 6.10.2
-      '@codemirror/state': 6.4.1
-      '@codemirror/view': 6.33.0
 
   '@vicons/ionicons5@0.12.0': {}
 

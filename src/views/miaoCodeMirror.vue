@@ -1,18 +1,12 @@
 <template>
-    <div
-        class="codemirror-container"
-        ref="rootRef"
-        :class="`codemirror-container-${theme}`">
+    <div class="codemirror-container" ref="rootRef" :class="`codemirror-container-${theme}`">
         <div class="codemirror-container-top">
-            <button @click="handleSave">保存</button>
-            <button @click="switchTheme">切换主题</button>
+            <div class="codemirror-container-btn codemirror-container-btn-save" @click="handleSave">保存</div>
+            <div class="codemirror-container-btn codemirror-container-btn-save" @click="handleReset">恢复到上次保存</div>
         </div>
-        <!-- <NScrollbar :key="_key"> -->
-            <codemirror
-                v-model="codeData"
-                :extensions="extensions"
-                :style="{ height: '100%' }" />
-        <!-- </NScrollbar> -->
+        <NScrollbar>
+            <codemirror v-model="codeData" :extensions="extensions" :style="{ height: '100%' }" />
+        </NScrollbar>
     </div>
 </template>
 
@@ -22,7 +16,6 @@ import useMiaoFetchApi from '@/hooks/useMiaoFetchApi'
 import { onMounted, ref } from 'vue'
 import { Codemirror } from 'vue-codemirror'
 import { NScrollbar } from 'naive-ui'
-import { vscodeDark, vscodeLight } from '@uiw/codemirror-theme-vscode'
 
 const miaoFetchApi = useMiaoFetchApi()
 
@@ -32,7 +25,7 @@ const currentFiles = defineModel<VirtualFile[]>('currentFiles', {
 
 const vFile = ref<VirtualFile>()
 const rootRef = ref<HTMLDivElement>()
-const _key = ref(Math.random())
+// const _key = ref(Math.random())
 const codeData = ref<string>()
 // 第一次点击保存时自动备份data，暂时懒得做
 const bakData = ref<string>()
@@ -54,17 +47,21 @@ const handleSave = async () => {
     false && miaoFetchApi.upload(file_bak, parentDir)
 }
 
-const switchTheme = async () => {
-    if (!vFile.value) {
-        return
-    }
-    theme.value = theme.value === 'dark' ? 'light' : 'dark'
-    extensions.value = [
-        ...(await getLangExtensions(vFile.value?.name)),
-        theme.value === 'dark' ? vscodeDark : vscodeLight
-    ]
-    _key.value = Math.random()
+const handleReset = async () => {
+    codeData.value = bakData.value
 }
+
+// const switchTheme = async () => {
+//     if (!vFile.value) {
+//         return
+//     }
+//     theme.value = theme.value === 'dark' ? 'light' : 'dark'
+//     extensions.value = [
+//         ...(await getLangExtensions(vFile.value?.name)),
+//         // theme.value === 'dark' ?
+//     ]
+//     _key.value = Math.random()
+// }
 
 const getLangExtensions = async (fileName: string) => {
     const ext = fileName.split('.').pop()?.toLocaleLowerCase()
@@ -74,7 +71,7 @@ const getLangExtensions = async (fileName: string) => {
         case 'ts':
         case 'tsx':
             const { javascript } = await import('@codemirror/lang-javascript')
-            return [javascript()]
+            return [javascript({ jsx: ext.substring(2, 3) === 'x', typescript: ext.substring(0, 2) === 'js', })]
             break
         case 'css':
         case 'scss':
@@ -127,7 +124,7 @@ onMounted(async () => {
         })
     ).toString()
     bakData.value = codeData.value
-    extensions.value = [...(await getLangExtensions(fileName)), vscodeLight]
+    extensions.value = [...(await getLangExtensions(fileName))]
 
     rootRef.value?.addEventListener('keydown', (event) => {
         if (event.ctrlKey && event.key === 's') {
@@ -142,13 +139,33 @@ onMounted(async () => {
 .codemirror-container {
     width: 100%;
     height: 100%;
-    &-top {
-        background-color: aqua;
+
+    .codemirror-container-top {
+        display: flex;
+        border-bottom: 1px solid #000;
+    }
+
+    .codemirror-container-btn {
+        height: 25px;
+        padding: 0 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
+        background-color: none;
+        transition: background-color 0.25s;
+
+        &:hover {
+            background-color: #e8e8e8;
+        }
     }
 }
+
 .codemirror-container-dark {
     background-color: rgb(30, 30, 30);
 }
+
 .codemirror-container-light {
     background-color: rgb(255, 255, 255);
 }
