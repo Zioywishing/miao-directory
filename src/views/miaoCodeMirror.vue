@@ -26,7 +26,7 @@ const rootRef = ref<HTMLDivElement>()
 const codeData = ref<string>()
 // 第一次点击保存时自动备份data，暂时懒得做
 const bakData = ref<string>()
-const extensions = ref<unknown[]>([])
+const extensions = ref<any[]>([])
 
 const handleSave = async () => {
     if (bakData.value === codeData.value) {
