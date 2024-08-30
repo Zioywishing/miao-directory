@@ -40,19 +40,24 @@
                 backgroundColor:
                     index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)'
             }">
-                <n-scrollbar>
+                <n-scrollbar ref="scrollbarRef">
                     <transition-group name="dirItem">
-                        <miaoDirectoryItem v-for="dir in showData_directory" :item="dir" :key="dir.uid"
-                            :color="props.color" :selectedItem="selectedItem.value" @delete="handleItemDelete(dir)"
-                            @click="handleItemClick(dir)" @drag-start="handleItemDragStart"
-                            @rename="handleItemRename(dir)" @on-selected="handleItemSelect(dir)" />
+                        <miao-lazy-div v-for="(dir, index) in showData_directory" :key="dir.uid" :show="index < 20"
+                            min-height="50px">
+                            <miaoDirectoryItem :item="dir" :color="props.color" :selectedItem="selectedItem.value"
+                                @delete="handleItemDelete(dir)" @click="handleItemClick(dir)"
+                                @drag-start="handleItemDragStart" @rename="handleItemRename(dir)"
+                                @on-selected="handleItemSelect(dir)" />
+                        </miao-lazy-div>
                     </transition-group>
                     <transition-group name="dirItem">
-                        <miaoDirectoryItem v-for="file in showData_files" :item="file" :key="file.uid"
-                            :color="props.color" :selectedItem="selectedItem.value" @click="handleItemClick(file)"
-                            @download="handleItemDownload(file)" @delete="handleItemDelete(file)"
-                            @drag-start="handleItemDragStart" @rename="handleItemRename(file)"
-                            @on-selected="handleItemSelect(file)" />
+                        <miao-lazy-div v-for="(file, index) in showData_files" :key="file.uid" :show="index < 20"
+                            min-height="50px">
+                            <miaoDirectoryItem :item="file" :color="props.color" :selectedItem="selectedItem.value"
+                                @click="handleItemClick(file)" @download="handleItemDownload(file)"
+                                @delete="handleItemDelete(file)" @drag-start="handleItemDragStart"
+                                @rename="handleItemRename(file)" @on-selected="handleItemSelect(file)" />
+                        </miao-lazy-div>
                     </transition-group>
                     <!-- <n-virtual-list :item="showData_all" :item-size="50">
 
@@ -93,10 +98,11 @@
 <script setup lang="ts">
 import { NBreadcrumbItem, NBreadcrumb, NIcon, NScrollbar } from 'naive-ui'
 import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 import Config from '@/config'
 import miaoMask from '@/components/miaoMask.vue'
 import miaoDirectoryItem from '@/components/miaoDirectory/miaoDirectoryItem.vue'
+import miaoLazyDiv from '@/components/miaoLazyDiv.vue'
 import miaoPopupInput from '@/components/miaoPopupInput.vue'
 import miaoDropHandler from '@/components/miaoDropHandler.vue'
 import useMiaoFetchApi from '@/hooks/useMiaoFetchApi'
@@ -130,6 +136,9 @@ const emit = defineEmits<{
 }>()
 
 const popupInput = ref()
+
+const scrollbarRef = ref()
+
 // 是否显示模态框
 const showModel = ref(0)
 
@@ -212,7 +221,14 @@ const setCurrentDirectory = async (virtualDirectory: VirtualDirectory) => {
     } else {
         virtualDirectory.update()
     }
+    currentDirectories.value[0] !== virtualDirectory && selectedItem.clear()
     currentDirectories.value[0] = virtualDirectory
+    nextTick(() => {
+        scrollbarRef.value.scrollTo({
+            top: 0,
+            behavior: "instant"
+        })
+    })
 }
 
 const reload = () => {
@@ -607,5 +623,4 @@ $bottom-bar-height: 60px;
 //             position: absolute;
 //         }
 //     }
-// }
-</style>
+// }</style>
