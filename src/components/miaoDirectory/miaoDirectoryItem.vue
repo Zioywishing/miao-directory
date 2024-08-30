@@ -177,22 +177,22 @@ const Icon = computed(() => {
                 return Disc
             } else if (
                 [
-                    '.xbm',
-                    '.tif',
+                    'xbm',
+                    'tif',
                     'pjp',
-                    '.svgz',
+                    'svgz',
                     'jpg',
                     'jpeg',
                     'ico',
                     'tiff',
-                    '.gif',
+                    'gif',
                     'svg',
-                    '.jfif',
-                    '.webp',
-                    '.png',
-                    '.bmp',
+                    'jfif',
+                    'webp',
+                    'png',
+                    'bmp',
                     'pjpeg',
-                    '.avif'
+                    'avif'
                 ].includes(aft)
             ) {
                 return Image
