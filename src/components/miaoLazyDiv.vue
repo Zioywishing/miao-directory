@@ -1,3 +1,5 @@
+<!-- 只适合用于渲染过程较为复杂的组件，不然可能得不偿失
+     这么泛用的组件，性能差点也能理解 -->
 <template>
     <div class="miao-lazy" ref="miaoLazyRoot" :style="!show ? { minHeight, minWidth } : {}">
         <slot v-if="show" />
@@ -5,13 +7,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 const props = defineProps({
-    show: {
+    disableLazy: {
         type: Boolean,
         default: false,
     },
+    // 仅在内容未加载时生效，用于占位
     minHeight: {
         type: String,
         default: 'none',
@@ -24,26 +27,69 @@ const props = defineProps({
 
 const miaoLazyRoot = ref<HTMLDivElement>()
 
-const show = ref<boolean>(props.show === true)
+const show = ref<boolean>(props.disableLazy)
+
+const isVisible = (dom: HTMLDivElement) => {
+    const offset = dom.getBoundingClientRect().top
+    return offset > 0 && offset < 2000
+}
+
+const { showSlot, hideSlot, clearTimer } = (() => {
+    let timer: any
+    let timerInterval: any
+    const clearTimer = () => {
+        timer && clearTimeout(timer)
+        timerInterval && clearInterval(timerInterval)
+        timer = undefined
+        timerInterval = undefined
+    }
+    const hideSlot = () => {
+        clearTimer()
+        show.value = false
+    }
+    const showSlot = () => {
+        if (show.value === true) {
+            return
+        }
+        clearTimer()
+        // timer = setTimeout(() => {
+        if (!miaoLazyRoot.value || isVisible(miaoLazyRoot.value) === false) {
+            return
+        }
+        show.value = true
+        timerInterval = setInterval(() => {
+            if (show.value === false || miaoLazyRoot.value === undefined) {
+                return
+            }
+            if (isVisible(miaoLazyRoot.value) === false) {
+                hideSlot()
+            }
+        }, 1000)
+        // })
+    }
+    return { showSlot, hideSlot, clearTimer }
+})()
 
 onMounted(() => {
     if (show.value === false) {
         let options = {
-            root: null, // 默认为视窗
-            rootMargin: '0px', // 视窗的外边距
-            threshold: 0.1 // 目标元素可见比例达到 10% 时触发回调
+            threshold: 0
         };
 
         let observer: IntersectionObserver | undefined = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting) {
-                show.value = true
+                showSlot()
                 // miaoLazyRoot.value && observer?.unobserve(miaoLazyRoot.value)
                 // observer = undefined
             } else {
-                show.value = false
+                hideSlot()
             }
         }, options);
         miaoLazyRoot.value && observer.observe(miaoLazyRoot.value);
     }
+})
+
+onBeforeUnmount(() => {
+    clearTimer()
 })
 </script>

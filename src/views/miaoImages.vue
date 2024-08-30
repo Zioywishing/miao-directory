@@ -1,30 +1,33 @@
 <template>
-    <div class="miaoImage" ref="rootRef">
-        <n-scrollbar ref="NScrollbarRef">
-            <div class="miaoImage-container">
-                <div class="miaoImage-container-row" v-for="(src, index) in imageSrcList" :key="index">
-                    <img :src="src" class="miaoImage-container-row-image" loading="lazy"
-                        :class="activeImageIndex === index ? 'miaoImage-container-row-image-active' : ''"
-                        @click="activeImageIndex = index" draggable="false" />
+    <miao-drop-handler @on-virtual-directory="handleDrop" @on-virtual-files="handleDrop">
+        <div class="miaoImage" ref="rootRef">
+            <n-scrollbar ref="NScrollbarRef">
+                <div class="miaoImage-container">
+                    <div class="miaoImage-container-row" v-for="(src, index) in imageSrcList" :key="index">
+                        <img :src="src" class="miaoImage-container-row-image" loading="lazy"
+                            :class="activeImageIndex === index ? 'miaoImage-container-row-image-active' : ''"
+                            @click="activeImageIndex = index" />
+                    </div>
                 </div>
-            </div>
-        </n-scrollbar>
-        <miao-mask :show="activeImageIndex !== -1" @click="activeImageIndex = -1" class="miaoImage-mask">
-            <ChevronBack class="miaoImage-mask-btn miaoImage-mask-btn-back" @click="handleActiveImageIndexBack" />
-            <img :src="imageSrcList[activeImageIndex]" class="miaoImage-mask-active" @click="e => e.stopPropagation()"
-                draggable="false">
-            <ChevronForward class="miaoImage-mask-btn miaoImage-mask-btn-forward"
-                @click="handleActiveImageIndexForward" />
-        </miao-mask>
-    </div>
+            </n-scrollbar>
+            <miao-mask :show="activeImageIndex !== -1" @click="activeImageIndex = -1" class="miaoImage-mask">
+                <ChevronBack class="miaoImage-mask-btn miaoImage-mask-btn-back" @click="handleActiveImageIndexBack" />
+                <img :src="imageSrcList[activeImageIndex]" class="miaoImage-mask-active"
+                    @click="e => e.stopPropagation()" draggable="false">
+                <ChevronForward class="miaoImage-mask-btn miaoImage-mask-btn-forward"
+                    @click="handleActiveImageIndexForward" />
+            </miao-mask>
+        </div>
+    </miao-drop-handler>
 </template>
 
 <script setup lang="ts">
+import miaoMask from '@/components/miaoMask.vue';
+import miaoDropHandler from '@/components/miaoDropHandler.vue';
 import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory'
 import { uniq } from 'lodash';
 import { nextTick, onMounted, ref } from 'vue'
 import { NScrollbar } from 'naive-ui';
-import miaoMask from '@/components/miaoMask.vue';
 import { ChevronBack, ChevronForward } from '@vicons/ionicons5'
 
 const imageSuffixList = [
@@ -80,6 +83,19 @@ const handleActiveImageIndexForward = (e: any) => {
     e.stopPropagation()
     activeImageIndex.value = (activeImageIndex.value + 1 + imageSrcList.value.length) % imageSrcList.value.length
     nextTick(scrollToActiveImage)
+}
+
+const handleDrop = (vItems: (VirtualFile | VirtualDirectory)[]) => {
+    if (vItems[0].type === 'directory') {
+        // @ts-ignore
+        currentDirectories.value = [...currentDirectories.value, ...vItems]
+    } else {
+        // @ts-ignore
+        currentFiles.value = [...currentFiles, ...vItems]
+    }
+    vItems.forEach(v => {
+        updateImageSrcList(v)
+    })
 }
 
 const updateImageSrcList = async (source: VirtualFile | VirtualDirectory) => {

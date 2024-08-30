@@ -42,8 +42,8 @@
             }">
                 <n-scrollbar ref="scrollbarRef">
                     <transition-group name="dirItem">
-                        <miao-lazy-div v-for="(dir, index) in showData_directory" :key="dir.uid" :show="index < 20"
-                            min-height="50px">
+                        <miao-lazy-div v-for="(dir, index) in showData_directory" :key="dir.uid"
+                            :disableLazy="index < 20" min-height="50px">
                             <miaoDirectoryItem :item="dir" :color="props.color" :selectedItem="selectedItem.value"
                                 @delete="handleItemDelete(dir)" @click="handleItemClick(dir)"
                                 @drag-start="handleItemDragStart" @rename="handleItemRename(dir)"
@@ -51,7 +51,7 @@
                         </miao-lazy-div>
                     </transition-group>
                     <transition-group name="dirItem">
-                        <miao-lazy-div v-for="(file, index) in showData_files" :key="file.uid" :show="index < 20"
+                        <miao-lazy-div v-for="(file, index) in showData_files" :key="file.uid" :disableLazy="index < 20"
                             min-height="50px">
                             <miaoDirectoryItem :item="file" :color="props.color" :selectedItem="selectedItem.value"
                                 @click="handleItemClick(file)" @download="handleItemDownload(file)"
@@ -158,12 +158,13 @@ class SelectedItem {
     }
     // 保证内容仍然存在于dir中且各个元素不重复
     get value() {
+        const _filterList = [...(currentDirectory.value?.directories ?? []), ...(currentDirectory.value?.files ?? [])]
         return uniq(this._selectedItem).filter(v => {
             if (currentDirectory.value === undefined) {
                 return false
             }
             // @ts-ignore
-            return [...currentDirectory.value?.directories, ...currentDirectory.value?.files].includes(v)
+            return _filterList.includes(v)
         })
     }
 }
@@ -221,14 +222,16 @@ const setCurrentDirectory = async (virtualDirectory: VirtualDirectory) => {
     } else {
         virtualDirectory.update()
     }
-    currentDirectories.value[0] !== virtualDirectory && selectedItem.clear()
-    currentDirectories.value[0] = virtualDirectory
-    nextTick(() => {
-        scrollbarRef.value.scrollTo({
-            top: 0,
-            behavior: "instant"
+    if (currentDirectories.value[0] !== virtualDirectory) {
+        selectedItem.clear()
+        nextTick(() => {
+            scrollbarRef.value.scrollTo({
+                top: 0,
+                behavior: "instant"
+            })
         })
-    })
+    }
+    currentDirectories.value[0] = virtualDirectory
 }
 
 const reload = () => {
