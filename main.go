@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 
 	"miao-directory/api"
@@ -42,9 +43,11 @@ func main() {
 		c.Redirect(http.StatusMovedPermanently, "/web/")
 	})
 
-	// Serve static files from the embedded filesystem
+	// Serve static files from the embedded filesystem with gzip compression
 	staticFS := http.FS(webFS)
-	router.NoRoute(func(c *gin.Context) {
+	staticGroup := router.Group("/web")
+	staticGroup.Use(gzip.Gzip(gzip.DefaultCompression))
+	staticGroup.GET("/*filepath", func(c *gin.Context) {
 		http.FileServer(staticFS).ServeHTTP(c.Writer, c.Request)
 	})
 
