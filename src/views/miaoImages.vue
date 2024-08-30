@@ -66,9 +66,8 @@ const activeImageIndex = ref(-1)
 
 const scrollToActiveImage = () => {
     const dom = rootRef.value?.querySelector('.miaoImage-container-row-image-active')
-    console.log({ dom })
     NScrollbarRef.value.scrollTo({
-        top: dom?.offsetTop - 30 ?? 0,
+        top: dom.offsetTop - 30,
         behavior: "smooth"
     })
 }
