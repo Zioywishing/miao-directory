@@ -30,6 +30,7 @@ import { NScrollbar } from 'naive-ui'
 import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory'
 import miaoDirectoryItem from '@/components/miaoDirectory/miaoDirectoryItem.vue'
 import miaoLazyDiv from '@/components/miaoLazyDiv.vue'
+import { ref } from 'vue';
 
 const props = defineProps<{
     color: string
@@ -47,6 +48,10 @@ const emit = defineEmits<{
     'item-rename': [item: VirtualDirectory | VirtualFile]
     'item-select': [item: VirtualDirectory | VirtualFile]
 }>()
+
+const scrollbarRef = ref()
+
+defineExpose({ scrollTo: (...args: any) => scrollbarRef.value.scrollTo(...args) });
 
 const handleItemClick = (item: VirtualDirectory | VirtualFile) => {
     emit('item-click', item)

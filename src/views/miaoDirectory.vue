@@ -8,7 +8,7 @@
         @set-current-directory="setCurrentDirectory" @search="handleSearch" @menu-select="handleTopBarMenuSelect" />
 
       <!-- 文件和文件夹列表 -->
-      <miao-directory-items :color="props.color" :showData_directory="showData_directory"
+      <miao-directory-items ref='miaoDirectoryItemRef' :color="props.color" :showData_directory="showData_directory"
         :showData_files="showData_files" :selected-item="selectedItem.value" :index="index"
         @item-click="handleItemClick" @item-download="handleItemDownload" @item-delete="handleItemDelete"
         @item-drag-start="handleItemDragStart" @item-rename="handleItemRename" @item-select="handleItemSelect" />
@@ -66,14 +66,12 @@ const emit = defineEmits<{
 }>()
 
 const popupInput = ref()
-
 // 是否显示模态框
 const showModel = ref(0)
-
 const searchText = ref<string>('')
-
 const showDirs = ref<boolean>(true)
 const showFiles = ref<boolean>(true)
+const miaoDirectoryItemRef = ref()
 
 class SelectedItem {
   constructor() {
@@ -211,11 +209,10 @@ const setCurrentDirectory = async (virtualDirectory: VirtualDirectory) => {
     selectedItem.clear()
     handleSearchReset()
     nextTick(() => {
-      // @ts-ignore
-      const el = document.querySelector(
-        `.miao-virtual-page-container-item-${props.id} .n-scrollbar > .n-scrollbar-rail > .n-scrollbar-track`
-      )
-      el && (el.scrollTop = 0)
+      miaoDirectoryItemRef.value.scrollTo({
+            top: 0,
+            behavior: "instant"
+        })
     })
   }
   currentDirectories.value[0] = virtualDirectory

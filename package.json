@@ -7,7 +7,7 @@
         "dev": "vite",
         "dev:host": "vite --host 0.0.0.0",
         "build": "vue-tsc -b && vite build",
-        "build:auto": "pnpm run build && rm -rf ./serve/web/* && cp -r ./dist/* ./serve/web/ && cd ./serve && go build && mv ./miao-directory.exe ../",
+        "build:auto": "pnpm run build && rm -rf ./serve/web/* && cp -r ./dist/* ./serve/web/ && cd ./serve && go env -w GOOS=windows && go build -o ../miao-directory.exe",
         "build:auto:release": "pnpm run build && rm -rf ./serve/web/* && cp -r ./dist/* ./serve/web/ && cd ./serve && go env -w GOOS=windows GOARCH=amd64 && go build -o ../miao-directory-amd64-win.exe && go env -w GOOS=linux GOARCH=amd64 && go build -o ../miao-directory-amd64-linux",
         "preview": "vite preview"
     },
