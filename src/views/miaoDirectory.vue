@@ -14,7 +14,7 @@
         @item-drag-start="handleItemDragStart" @item-rename="handleItemRename" @item-select="handleItemSelect" />
 
       <!-- 底部工具栏 -->
-      <miao-directory-bottom :index="index" @add-new-item="handleAddNewItem"
+      <miao-directory-bottom :index="index" @add-new-item="handleAddNewItem" v-if="false"
         @pick-files-upload="handlePickFilesUpload" />
 
       <miao-mask v-model:show="showModel"></miao-mask>
@@ -44,8 +44,10 @@ import MiaoDropHandler from '@/components/miaoDropHandler.vue'
 import { NIcon } from 'naive-ui'
 import {
   CloseOutline, SearchOutline, FilterOutline, CheckmarkDoneOutline,
-  DocumentText,
-  FileTray
+  DocumentText, ExtensionPuzzleOutline,
+  FileTray,
+  AddOutline,
+  CloudUploadOutline
 } from '@vicons/ionicons5'
 import usePluginCenter from '@/hooks/usePluginCenter'
 
@@ -146,6 +148,16 @@ const showData_files = computed<VirtualFile[]>(() => {
 const topBarMenuOption = computed(() => {
   return [
     {
+      label: '新建',
+      key: 'create',
+      icon: renderIcon(AddOutline)
+    },
+    {
+      label: '上传',
+      key: 'upload',
+      icon: renderIcon(CloudUploadOutline)
+    },
+    {
       label: '搜索',
       key: 'search',
       icon: renderIcon(SearchOutline)
@@ -177,10 +189,17 @@ const topBarMenuOption = computed(() => {
       ],
       icon: renderIcon(FilterOutline)
     },
-    ...pluginCenter.getUsablePlugin([currentDirectories.value[0]], []).map(v => ({
-      label: `插件:${v.name}`,
-      key: `plugin:${v.key}`
-    })),
+    {
+      label: '插件',
+      key: 'plugin',
+      children: [
+        ...pluginCenter.getUsablePlugin([currentDirectories.value[0]], []).map(v => ({
+          label: `${v.name}`,
+          key: `plugin:${v.key}`
+        })),
+      ],
+      icon: renderIcon(ExtensionPuzzleOutline)
+    },
     {
       label: '关闭',
       key: 'close',
@@ -242,6 +261,10 @@ const handleTopBarMenuSelect = (key: string) => {
     emit('exit')
   } else if (key === 'search') {
     handleSearch()
+  } else if (key === 'upload') {
+    handlePickFilesUpload()
+  } else if (key === 'create') {
+    handleAddNewItem()
   } else if (key === 'searchReset') {
     handleSearchReset()
   } else if (key === 'selectedItemReset') {
