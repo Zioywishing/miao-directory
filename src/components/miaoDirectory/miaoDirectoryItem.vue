@@ -250,7 +250,6 @@ onMounted(() => {
     .item-main {
         position: relative;
         width: 100%;
-        min-width: 200px;
         height: 95%;
         background-color: rgb(255, 255, 255);
         border-radius: 7px;
