@@ -98,14 +98,17 @@ const handleDrop = (vItems: (VirtualFile | VirtualDirectory)[]) => {
 }
 
 const updateImageSrcList = async (source: VirtualFile | VirtualDirectory) => {
-    let srcList: string[]
+    let newSrcList: string[]
     if (source.type === 'directory') {
         await source.update()
-        srcList = source.files?.filter(v => imageSuffixList.includes(v.name.split('.').pop() ?? '')).map(v => v.url) ?? []
+        newSrcList = source.files?.filter(v => imageSuffixList.includes(v.name.split('.').pop() ?? '')).map(v => v.url) ?? []
     } else {
-        srcList = [source.url]
+        if (!imageSuffixList.includes(source.name.split('.').pop() ?? '')) {
+            return
+        }
+        newSrcList = [source.url]
     }
-    imageSrcList.value = uniq([...imageSrcList.value, ...srcList])
+    imageSrcList.value = uniq([...imageSrcList.value, ...newSrcList])
 }
 
 onMounted(() => {

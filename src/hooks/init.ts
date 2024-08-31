@@ -106,13 +106,16 @@ export default function init() {
 			if (vDirs.length === 0 && vFiles.length === 0) {
 				return false;
 			}
-			miao: for (let vf of vFiles)
-				for (let end of [".xbm", ".tif", "pjp", ".svgz", "jpg", "jpeg", "ico", "tiff", ".gif", "svg", ".jfif", ".webp", ".png", ".bmp", "pjpeg", ".avif"]) {
+            if( vDirs.length ) {
+                return true
+            }
+			for (let vf of vFiles)
+				for (let end of ["xbm", "tif", "pjp", "svgz", "jpg", "jpeg", "ico", "tiff", "gif", "svg", "jfif", "webp", "png", ".bmp", "pjpeg", "avif"]) {
 					if (vf.name.endsWith(end)) {
-						continue miao;
+						return true
 					}
 				}
-			return true;
+			return false;
 		}
 	);
 }

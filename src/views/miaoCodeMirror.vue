@@ -4,9 +4,11 @@
             <div class="codemirror-container-btn codemirror-container-btn-save" @click="handleSave">保存</div>
             <div class="codemirror-container-btn codemirror-container-btn-save" @click="handleReset">恢复到上次保存</div>
         </div>
-        <NScrollbar>
-            <codemirror v-model="codeData" :extensions="extensions" :style="{ height: '100%' }" />
-        </NScrollbar>
+        <div class="codemirror-container-main">
+            <NScrollbar style="max-height: calc( 100% );">
+                <codemirror v-model="codeData" :extensions="extensions" />
+            </NScrollbar>
+        </div>
     </div>
 </template>
 
@@ -139,8 +141,10 @@ onMounted(async () => {
 .codemirror-container {
     width: 100%;
     height: 100%;
+    overflow-y: hidden;
 
     .codemirror-container-top {
+        height: 25px;
         display: flex;
         border-bottom: 1px solid #000;
     }
@@ -159,6 +163,11 @@ onMounted(async () => {
         &:hover {
             background-color: #e8e8e8;
         }
+    }
+
+    .codemirror-container-main {
+        height: calc( 100% - 25px );
+        position: relative;
     }
 }
 
