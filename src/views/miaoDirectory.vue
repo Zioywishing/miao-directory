@@ -65,7 +65,7 @@ const emit = defineEmits<{
   exit: []
 }>()
 
-const popupInput = ref()
+const popupInput = ref<InstanceType<typeof MiaoPopupInput>>()
 // 是否显示模态框
 const showModel = ref(0)
 const searchText = ref<string>('')
@@ -210,9 +210,9 @@ const setCurrentDirectory = async (virtualDirectory: VirtualDirectory) => {
     handleSearchReset()
     nextTick(() => {
       miaoDirectoryItemRef.value.scrollTo({
-            top: 0,
-            behavior: "instant"
-        })
+        top: 0,
+        behavior: "instant"
+      })
     })
   }
   currentDirectories.value[0] = virtualDirectory
@@ -302,9 +302,8 @@ const handleItemDelete = async (_item: VirtualDirectory | VirtualFile) => {
 }
 
 const handleItemRename = async (item: VirtualDirectory | VirtualFile) => {
-  const popupRes = await popupInput.value.popup({
+  const popupRes = await popupInput.value?.popup({
     title: '重命名',
-    showInput: true,
     inputValue: item.name,
     inputProps: {
       placeholder: item.name,
@@ -322,10 +321,13 @@ const handleItemRename = async (item: VirtualDirectory | VirtualFile) => {
       },
     ],
   })
-  if (popupRes.key === false) {
+  if (popupRes?.key === false) {
     return
   }
-  const newName = popupRes.text
+  const newName = popupRes?.text
+  if (!newName) {
+    return
+  }
   const { response } = miaoFetchApi.rename(item, newName, {
     retry: 5,
   })
@@ -362,7 +364,7 @@ const handleDropVDirectory = async (vDirs: VirtualDirectory[]) => {
     if (currentDirectory.value.getParents.includes(vDir)) {
       return
     }
-    if(vDir.parent === currentDirectory.value) {
+    if (vDir.parent === currentDirectory.value) {
       return
     }
   }
@@ -413,9 +415,8 @@ const handlePickFilesUpload = async () => {
 }
 
 const handleAddNewItem = async () => {
-  const popupRes = await popupInput.value.popup({
+  const popupRes = await popupInput.value?.popup({
     title: '新建文件/文件夹',
-    showInput: true,
     inputProps: {
       placeholder: '',
     },
@@ -438,12 +439,16 @@ const handleAddNewItem = async () => {
     ],
   })
   // todo: 上传前如重名文件夹等等的错误提前检查
-  if (popupRes.key === 'cancel' || popupRes.text === '') {
+  if (popupRes?.key === 'cancel' || popupRes?.text === '') {
     return
   }
   const _currDir = currentDirectory.value
-  const name = popupRes.text
-  const opType: 'file' | 'dir' = popupRes.key
+  const name = popupRes?.text
+  if (!name) {
+    return
+  }
+  // @ts-ignore
+  const opType: 'file' | 'dir' = popupRes?.key
   if (opType === 'dir') {
     const res = await miaoFetchApi.mkdir(currentDirectory.value, name)
     if (res.message === 'success') {
@@ -467,9 +472,8 @@ const handleItemSelect = (item: VirtualDirectory | VirtualFile) => {
 }
 
 const handleSearch = async () => {
-  const popupRes = await popupInput.value.popup({
+  const popupRes = await popupInput.value?.popup({
     title: '搜索当前文件夹',
-    showInput: true,
     inputValue: searchText.value,
     inputProps: {
       placeholder: '',
@@ -492,7 +496,9 @@ const handleSearch = async () => {
       },
     ],
   })
-  console.log(popupRes)
+  if (!popupRes) {
+    return
+  }
   if (popupRes.key === 'search') {
     searchText.value = popupRes.text
   } else if (popupRes.key === 'reset') {

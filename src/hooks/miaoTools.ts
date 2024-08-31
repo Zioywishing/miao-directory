@@ -43,5 +43,5 @@ export const filePicker = (() => {
 })();
 
 export default {
-	filePicker
+	filePicker,
 };

@@ -1,18 +1,21 @@
 <template>
-    <div class="codemirror-container" ref="rootRef" :class="`codemirror-container-${theme}`">
-        <div class="codemirror-container-top">
-            <div class="codemirror-container-btn codemirror-container-btn-save" @click="handleSave">保存</div>
-            <div class="codemirror-container-btn codemirror-container-btn-save" @click="handleReset">恢复到上次保存</div>
+    <miao-message-provider ref="miaoMessage">
+        <div class="codemirror-container" ref="rootRef" :class="`codemirror-container-${theme}`">
+            <div class="codemirror-container-top">
+                <div class="codemirror-container-btn codemirror-container-btn-save" @click="handleSave">保存</div>
+                <div class="codemirror-container-btn codemirror-container-btn-save" @click="handleReset">恢复到上次保存</div>
+            </div>
+            <div class="codemirror-container-main">
+                <NScrollbar style="max-height: calc( 100% );">
+                    <codemirror v-model="codeData" :extensions="extensions" />
+                </NScrollbar>
+            </div>
         </div>
-        <div class="codemirror-container-main">
-            <NScrollbar style="max-height: calc( 100% );">
-                <codemirror v-model="codeData" :extensions="extensions" />
-            </NScrollbar>
-        </div>
-    </div>
+    </miao-message-provider>
 </template>
 
 <script setup lang="ts">
+import miaoMessageProvider from '@/components/miaoMessageProvider.vue'
 import { VirtualFile } from '@/class/VirtualDirectory'
 import useMiaoFetchApi from '@/hooks/useMiaoFetchApi'
 import { onMounted, ref } from 'vue'
@@ -25,6 +28,7 @@ const currentFiles = defineModel<VirtualFile[]>('currentFiles', {
     required: true
 })
 
+const miaoMessage = ref<InstanceType<typeof miaoMessageProvider>>()
 const vFile = ref<VirtualFile>()
 const rootRef = ref<HTMLDivElement>()
 // const _key = ref(Math.random())
@@ -36,6 +40,10 @@ const theme = ref<'light' | 'dark'>('light')
 
 const handleSave = async () => {
     if (bakData.value === codeData.value || !vFile.value) {
+        miaoMessage.value?.message('内容未改动', {
+            timeout: 3000,
+            type: 'info'
+        })
         return
     }
     const parentDir = vFile.value?.parent
@@ -45,8 +53,14 @@ const handleSave = async () => {
     )
     const file = new File([new Blob([codeData.value ?? ''])], vFile.value.name)
     bakData.value = codeData.value
-    miaoFetchApi.upload(file, parentDir)
+    const { response } = miaoFetchApi.upload(file, parentDir)
     false && miaoFetchApi.upload(file_bak, parentDir)
+    await response
+    miaoMessage.value?.message('保存成功', {
+        timeout: 5000,
+        type: 'success'
+    })
+
 }
 
 const handleReset = async () => {
@@ -166,7 +180,7 @@ onMounted(async () => {
     }
 
     .codemirror-container-main {
-        height: calc( 100% - 25px );
+        height: calc(100% - 25px);
         position: relative;
     }
 }
