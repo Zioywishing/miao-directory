@@ -1,9 +1,5 @@
 <template>
-    <div
-        class="container"
-        @dragover="handleDragOver"
-        @dragleave="handleDragLeave"
-        @drop="handleDrop">
+    <div class="container" @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop">
         <slot></slot>
         <miao-mask v-model:show="showMask"></miao-mask>
     </div>
@@ -63,8 +59,11 @@ const removeDirectory = async (files: File[]) => {
 }
 
 const handleDragOver = async (event: DragEvent) => {
-    showMask.value += 1
     event.preventDefault()
+    if (showMask.value === 1) {
+        return
+    }
+    showMask.value = 1
 }
 
 const handleDragLeave = async () => {

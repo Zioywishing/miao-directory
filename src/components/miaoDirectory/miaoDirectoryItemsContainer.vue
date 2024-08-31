@@ -3,15 +3,13 @@
         backgroundColor:
             index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)'
     }">
-        <n-scrollbar ref="scrollbarRef">
-            <miao-lazy-div v-for="(dir, index) in showData_directory" :key="dir.uid" :disableLazy="index < 20"
-                min-height="50px">
+        <n-scrollbar ref="scrollbarRef" style="max-height: 100%;">
+            <miao-lazy-div v-for="(dir, index) in showData_directory" :key="dir.uid" min-height="50px">
                 <miaoDirectoryItem :item="dir" :color="props.color" :selectedItem="selectedItem"
                     @delete="handleItemDelete(dir)" @click="handleItemClick(dir)" @drag-start="handleItemDragStart"
                     @rename="handleItemRename(dir)" @on-selected="handleItemSelect(dir)" />
             </miao-lazy-div>
-            <miao-lazy-div v-for="(file, index) in showData_files" :key="file.uid" :disableLazy="index < 20"
-                min-height="50px">
+            <miao-lazy-div v-for="(file) in showData_files" :key="file.uid" min-height="50px">
                 <miaoDirectoryItem :item="file" :color="props.color" :selectedItem="selectedItem"
                     @click="handleItemClick(file)" @download="handleItemDownload(file)" @delete="handleItemDelete(file)"
                     @drag-start="handleItemDragStart" @rename="handleItemRename(file)"
@@ -77,6 +75,7 @@ const handleItemSelect = (item: VirtualDirectory | VirtualFile) => {
 <style scoped lang="scss">
 .miao-directory-container-items {
     width: 100%;
-    height: calc(100% - 30px - 60px);
+    flex: 1;
+    min-height: 0;
 }
 </style>

@@ -7,7 +7,7 @@
                 <div class="item-main-info">
                     <div class="item-main-info-name">
                         <Icon class="item-main-info-name-icon" v-if="clientWidth <= 250"></Icon>
-                        <n-ellipsis style="max-width: 80%;">{{ name }}</n-ellipsis>
+                        <n-ellipsis :style="{ maxWidth: clientWidth > 250 ? '80%' : '75%' }">{{ name }}</n-ellipsis>
                     </div>
                     <div class="item-main-info-date" v-if="time">
                         {{ time }}
@@ -238,7 +238,7 @@ onMounted(() => {
 .miao-item {
     cursor: pointer;
     width: calc(100% - 20px);
-    min-width: 170px;
+    // min-width: 170px;
     // aspect-ratio: 66/9;
     height: 50px;
     position: relative;
@@ -276,7 +276,7 @@ onMounted(() => {
         .item-main-info {
             margin-left: 10px;
             height: 100%;
-            width: calc( 100% - 10px );
+            width: calc(100% - 10px);
             display: flex;
             flex-direction: column;
 
