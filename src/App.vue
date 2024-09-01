@@ -114,7 +114,7 @@ onMounted(() => {
             <n-scrollbar x-scrollable>
                 <div class="tabs-container">
                     <transition-group name="tab">
-                        <div class="tab" v-for="(view, index) of views._views" :key="view.uid">
+                        <div class="tab" v-for="(view, index) of views._views" :key="view.id">
                             <span class="tab-title" :title="view.title" @click="handleClickTitle(index)">
                                 {{
                                     view.title.length > 5 && 0
@@ -159,9 +159,9 @@ onMounted(() => {
         <div class="view-container">
             <transition-group name="page">
                 <div class="view-container-item" v-for="(view, index) of views._views" v-show="view.visible"
-                    :key="view.uid">
+                    :key="view.id">
                     <component :is="view.component" v-model:current-directories="view.currentDirectories"
-                        v-model:current-files="view.currentFiles" :id="view.uid" :color="view.color"
+                        v-model:current-files="view.currentFiles" :id="view.id" :color="view.color"
                         @exit="deleteView(index)"></component>
                 </div>
             </transition-group>

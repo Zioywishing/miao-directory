@@ -55,7 +55,7 @@ const { setVideo } = (() => {
                         // console.log(srtToVtt(response.data))
                         const url = setUrl(new Blob([srtToVtt(response.data)]))
                         _list.push({
-                            id: i.uid,
+                            id: i.id,
                             url,
                             // 这个language会覆盖id的设置，导致无法切换字幕
                             // language: 'zh-cn',
@@ -66,7 +66,7 @@ const { setVideo } = (() => {
                         // console.log(assToVtt(response.data))
                         const url = setUrl(new Blob([assToVtt(response.data)]))
                         _list.push({
-                            id: i.uid,
+                            id: i.id,
                             url,
                             text: i.name
                         })
@@ -75,13 +75,13 @@ const { setVideo } = (() => {
                         // console.log(ssaToVtt(response.data))
                         const url = setUrl(new Blob([ssaToVtt(response.data)]))
                         _list.push({
-                            id: i.uid,
+                            id: i.id,
                             url,
                             text: i.name
                         })
                     } else {
                         _list.push({
-                            id: i.uid,
+                            id: i.id,
                             url: i.url,
                             text: i.name
                         })

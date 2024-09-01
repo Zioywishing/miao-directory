@@ -1,6 +1,6 @@
 <template>
     <div class="miao-item" draggable="true" ref="itemRef" @dragstart="handleDragStart">
-        <miaoContextMenu :options="dropDownOptions" :touch-time-out="500" @select="handleDropdownSelect">
+        <miaoContextMenu :options="dropDownOptions ?? []" :touch-time-out="500" @select="handleDropdownSelect">
             <div class="item-main" :class="selected ? 'item-main-selected' : ''" ref="mainRef">
                 <div class="item-main-front" :style="{ backgroundColor: props.color }"></div>
                 <Icon class="item-main-icon" v-show="clientWidth > 250"></Icon>
@@ -13,19 +13,12 @@
                         {{ time }}
                     </div>
                 </div>
-                <!-- 菜单现在通过右键/长按呼出 -->
-                <!-- <n-dropdown trigger="click" :options="dropDownOptions" @select="handleDropdownSelect">
-                    <div class="item-main-option" @click="(e) => e.stopPropagation()">
-                        <EllipsisVertical class="item-main-option-icon" />
-                    </div>
-                </n-dropdown> -->
             </div>
         </miaoContextMenu>
     </div>
 </template>
 
 <script setup lang="ts">
-import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory'
 import miaoContextMenu from '../miaoContextMenu.vue'
 import {
     DocumentText,
@@ -39,32 +32,36 @@ import {
     PlayCircle,
     Disc
 } from '@vicons/ionicons5'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import dateFormatter from '@/hooks/dateFormatter'
 import { NEllipsis } from 'naive-ui'
-import usePluginCenter from '@/hooks/usePluginCenter'
+import { DropdownOption } from 'naive-ui/es/dropdown';
 // import useMiaoFetchApi from '@/hooks/useMiaoFetchApi'
 
 // const miaoFetchApi = useMiaoFetchApi()
 
 const props = defineProps<{
-    item: VirtualDirectory | VirtualFile
+    item: {
+        name: string,
+        type: 'directory' | 'file'
+        stats: {
+            mtimeMs: number
+        }
+    }
     name?: string
     color: string
-    selectedItem: (VirtualDirectory | VirtualFile)[]
+    dropDownOptions?: DropdownOption[]
+    selected?: boolean
 }>()
 
 const emit = defineEmits<{
     download: []
     delete: []
     rename: []
-    dragStart: [event: DragEvent, item: VirtualDirectory | VirtualFile]
+    dragStart: [event: DragEvent]
     onSelected: []
+    plugin: [plugin: string]
 }>()
-
-const pluginCenter = usePluginCenter()
-
-const itemType = ref<'file' | 'directory'>(props.item.type)
 
 const mainRef = ref<HTMLDivElement>()
 
@@ -73,68 +70,17 @@ const clientWidth = ref<number>(666)
 
 const name = props.name ?? props.item.name
 
-const selected = computed(() => {
-    return props.selectedItem.includes(props.item)
-})
+const observer = new ResizeObserver(entries => {
+    for (let entry of entries) {
+        clientWidth.value = entry.contentRect.width;
+    }
+});
 
 const time = computed(() => {
     return dateFormatter(
         new Date(props.item.stats.mtimeMs),
         'yyyy-MM-dd hh:mm:ss'
     )
-})
-
-const dropDownOptions = computed(() => {
-    const items = [...props.selectedItem]
-    if (!selected.value) {
-        items.push(props.item)
-    }
-    const vDirs = items.filter(v => v.type === 'directory')
-    const vFiles = items.filter(v => v.type === 'file')
-    const options = [
-        {
-            label: '重命名',
-            key: 'rename'
-        },
-        {
-            label: '删除',
-            key: 'delete'
-        },
-    ]
-    if (itemType.value === 'file') {
-        options.push(
-            ...[
-                {
-                    label: '下载',
-                    key: 'download'
-                }
-            ]
-        )
-    }
-    if (selected.value === false) {
-        options.push(
-            ...[
-                {
-                    label: '多选:选择',
-                    key: 'select'
-                }
-            ]
-        )
-    } else {
-        options.push(
-            ...[
-                {
-                    label: '多选:取消',
-                    key: 'select'
-                }
-            ]
-        )
-    }
-    options.push(...pluginCenter.getUsablePlugin(vDirs, vFiles).map(v => ({
-        label: `插件:${v.name}`,
-        key: `plugin:${v.key}`
-    })))
-    return options
 })
 
 // 是不是可以直接在这里面实现？
@@ -149,14 +95,8 @@ const handleDropdownSelect = (key: string) => {
     } else if (key === 'select') {
         emit('onSelected')
     } else if (key.startsWith('plugin:')) {
-        const items = [...props.selectedItem]
-        if (!selected.value) {
-            items.push(props.item)
-        }
-        const vDirs = items.filter(v => v.type === 'directory')
-        const vFiles = items.filter(v => v.type === 'file')
         const plugin = key.split(':')[1]
-        pluginCenter.usePlugin(plugin, vDirs, vFiles)
+        emit('plugin', plugin)
     }
 }
 
@@ -218,18 +158,19 @@ const Icon = computed(() => {
 const itemRef = ref()
 
 const handleDragStart = (event: DragEvent) => {
-    emit('dragStart', event, props.item)
+    emit('dragStart', event)
     // dataBus.set('dragData', [props.item])
 }
 
 onMounted(() => {
-    const observer = new ResizeObserver(entries => {
-        for (let entry of entries) {
-            clientWidth.value = entry.contentRect.width;
-        }
-    });
     if (mainRef.value) {
         observer.observe(mainRef.value);
+    }
+})
+
+onBeforeUnmount(() => {
+    if (mainRef.value) {
+        observer.unobserve(mainRef.value);
     }
 })
 </script>

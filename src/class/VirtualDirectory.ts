@@ -13,14 +13,14 @@ export class VirtualFile {
 		this.stats = info.stats;
 		this.parent = parent;
 		this.type = "file";
-		this.uid = generateId();
+		this.id = generateId();
 	}
 	name: string;
 	type: "file";
 	size: number;
 	stats: stats;
 	parent: VirtualDirectory;
-	uid: number;
+	id: number;
 	get path() {
 		return `${this.parent.path}${this.name}`;
 	}
@@ -36,7 +36,7 @@ class VirtualDirectory {
 		this.type = "directory";
 		this.stats = info.stats;
 		this.parent = parent ?? undefined;
-		this.uid = generateId();
+		this.id = generateId();
 	}
 	// 文件夹名
 	name: string;
@@ -51,7 +51,7 @@ class VirtualDirectory {
 	// 父文件夹
 	parent?: VirtualDirectory;
 
-	uid: number;
+	id: number;
 
 	/**
 	 * 获取相对于根目录的路径的层数

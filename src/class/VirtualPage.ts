@@ -18,7 +18,7 @@ export default class VirtualPage {
 		this.currentDirectories = initObjects?.directories ?? [];
 		this.currentFiles = initObjects?.files ?? [];
 		this.visible = true;
-		this.uid = generateId();
+		this.id = generateId();
 		this.refreshKey = Math.random();
 		this.color = getRandomWebSafeColor();
 	}
@@ -31,7 +31,7 @@ export default class VirtualPage {
 	// 当前正在使用的文件
 	currentFiles: VirtualFile[];
 	// 区分每一个页面的唯一id
-	uid: number;
+	id: number;
 	// 当refreshKey改变时需要刷新页面，目前还没接入刷新
 	refreshKey: number;
 	// 为了区分，每个虚拟页面都会分配一个color，这个color会体现在tab上
@@ -79,7 +79,7 @@ export class VirtualPages {
 	 */
 	getIndex(id: number) {
 		for (let i in this._views) {
-			if (this._views[i].uid === id) {
+			if (this._views[i].id === id) {
 				return parseInt(i);
 			}
 		}
@@ -91,7 +91,7 @@ export class VirtualPages {
 	 */
 	getView(id: number) {
 		for (let v of this._views) {
-			if (v.uid === id) {
+			if (v.id === id) {
 				return v;
 			}
 		}
