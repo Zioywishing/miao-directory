@@ -1,24 +1,35 @@
 import MiaoDirectory from '@/views/miaoDirectory.vue'
 import usePluginCenter from './usePluginCenter'
+import {
+    DocumentText,
+    FileTray,
+    Image,
+    LogoChrome,
+    CodeOutline,
+    PlayCircle,
+} from '@vicons/ionicons5'
 
 export default function init() {
     const pluginCenter = usePluginCenter()
-    pluginCenter.registerComponent(
-        'miaoDirectory',
-        '文件夹',
-        async () => MiaoDirectory,
-        (vDirs, vFiles) => {
+    pluginCenter.registerComponent({
+        key: 'miaoDirectory',
+        name: '文件夹',
+        icon: FileTray,
+        getComponent: async () => MiaoDirectory,
+        filter: (vDirs, vFiles) => {
             if (vFiles.length) {
                 return false
             }
             return vDirs.length === 1
         }
-    )
-    pluginCenter.registerComponent(
-        'miaoVideoPlayer',
-        '视频',
-        async () => (await import('@/views/miaoVideoPlayer.vue')).default,
-        (vDirs, vFiles) => {
+    })
+    pluginCenter.registerComponent({
+        key: 'miaoVideoPlayer',
+        name: '视频',
+        icon: PlayCircle,
+        getComponent: async () =>
+            (await import('@/views/miaoVideoPlayer.vue')).default,
+        filter: (vDirs, vFiles) => {
             if (vDirs.length !== 0) {
                 return false
             }
@@ -34,12 +45,15 @@ export default function init() {
             }
             return false
         }
-    )
-    pluginCenter.registerComponent(
-        'miaoIframe',
-        '框架',
-        async () => (await import('@/views/miaoIframe.vue')).default,
-        (vDirs, vFiles) => {
+    })
+
+    pluginCenter.registerComponent({
+        key: 'miaoIframe',
+        name: '框架',
+        icon: LogoChrome,
+        getComponent: async () =>
+            (await import('@/views/miaoIframe.vue')).default,
+        filter: (vDirs, vFiles) => {
             if (vDirs.length !== 0) {
                 return false
             }
@@ -48,12 +62,14 @@ export default function init() {
             }
             return vFiles[0].name.endsWith('html')
         }
-    )
-    pluginCenter.registerComponent(
-        'miaoPDF',
-        'PDF浏览',
-        async () => (await import('@/views/miaoPDF.vue')).default,
-        (vDirs, vFiles) => {
+    })
+
+    pluginCenter.registerComponent({
+        key: 'miaoPDF',
+        name: 'PDF浏览',
+        icon: DocumentText,
+        getComponent: async () => (await import('@/views/miaoPDF.vue')).default,
+        filter: (vDirs, vFiles) => {
             if (vDirs.length !== 0) {
                 return false
             }
@@ -62,12 +78,15 @@ export default function init() {
             }
             return vFiles[0].name.endsWith('pdf')
         }
-    )
-    pluginCenter.registerComponent(
-        'miaoCodeMirror',
-        '代码编辑',
-        async () => (await import('@/views/miaoCodeMirror.vue')).default,
-        (vDirs, vFiles) => {
+    })
+
+    pluginCenter.registerComponent({
+        key: 'miaoCodeMirror',
+        name: '代码编辑',
+        icon: CodeOutline,
+        getComponent: async () =>
+            (await import('@/views/miaoCodeMirror.vue')).default,
+        filter: (vDirs, vFiles) => {
             if (vDirs.length !== 0) {
                 return false
             }
@@ -89,7 +108,7 @@ export default function init() {
                 'yaml',
                 'txt',
                 'xml',
-                'vue',
+                'vue'
             ]) {
                 if (vFiles[0].name.endsWith(end)) {
                     return true
@@ -97,25 +116,45 @@ export default function init() {
             }
             return false
         }
-    )
-	pluginCenter.registerComponent(
-		"miaoImages",
-		"图片浏览",
-		async () => (await import("@/views/miaoImages.vue")).default,
-		(vDirs, vFiles) => {
-			if (vDirs.length === 0 && vFiles.length === 0) {
-				return false;
-			}
-            if( vDirs.length ) {
+    })
+
+    pluginCenter.registerComponent({
+        key: 'miaoImages',
+        name: '图片浏览',
+        icon: Image,
+        getComponent: async () =>
+            (await import('@/views/miaoImages.vue')).default,
+        filter: (vDirs, vFiles) => {
+            if (vDirs.length === 0 && vFiles.length === 0) {
+                return false
+            }
+            if (vDirs.length) {
                 return true
             }
-			for (let vf of vFiles)
-				for (let end of ["xbm", "tif", "pjp", "svgz", "jpg", "jpeg", "ico", "tiff", "gif", "svg", "jfif", "webp", "png", ".bmp", "pjpeg", "avif"]) {
-					if (vf.name.endsWith(end)) {
-						return true
-					}
-				}
-			return false;
-		}
-	);
+            for (let vf of vFiles)
+                for (let end of [
+                    'xbm',
+                    'tif',
+                    'pjp',
+                    'svgz',
+                    'jpg',
+                    'jpeg',
+                    'ico',
+                    'tiff',
+                    'gif',
+                    'svg',
+                    'jfif',
+                    'webp',
+                    'png',
+                    '.bmp',
+                    'pjpeg',
+                    'avif'
+                ]) {
+                    if (vf.name.endsWith(end)) {
+                        return true
+                    }
+                }
+            return false
+        }
+    })
 }

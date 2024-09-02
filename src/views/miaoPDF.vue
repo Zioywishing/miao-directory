@@ -1,43 +1,73 @@
 <template>
-    <div class="miao-container">
-        <div class="miao-container-topBar">
-            <div class="miao-container-topBar-btn" @click="() => handleZoom(10)" title="快速缩小">--</div>
-            <div class="miao-container-topBar-btn" @click="() => handleZoom()" title="缩小">-</div>
-            <div class="miao-container-topBar-btn" @click="() => handleResetMargin()" title="还原">还原缩放</div>
-            <div class="miao-container-topBar-btn" @click="() => handleShrink()" title="放大">+</div>
-            <div class="miao-container-topBar-btn" @click="() => handleShrink(10)" title="快速放大">++</div>
-        </div>
-        <NScrollbar>
-            <div class="miao-container-pdf" :style="{alignItems: pdfMargin < 0 ? 'baseline' : 'center'}">
-                <div ref="pdfEl" class="miao-container-pdf-content" :style="{ width: `calc( 100% - ${pdfMargin}px)`}">
+    <miao-message-provider ref="miaoMessageRef">
+        <div class="miao-container">
+            <div class="miao-container-topBar">
+                <div
+                    class="miao-container-topBar-btn"
+                    @click="() => handleZoom(10)"
+                    title="快速缩小">
+                    --
+                </div>
+                <div
+                    class="miao-container-topBar-btn"
+                    @click="() => handleZoom()"
+                    title="缩小">
+                    -
+                </div>
+                <div
+                    class="miao-container-topBar-btn"
+                    @click="() => handleResetMargin()"
+                    title="还原">
+                    还原缩放
+                </div>
+                <div
+                    class="miao-container-topBar-btn"
+                    @click="() => handleShrink()"
+                    title="放大">
+                    +
+                </div>
+                <div
+                    class="miao-container-topBar-btn"
+                    @click="() => handleShrink(10)"
+                    title="快速放大">
+                    ++
                 </div>
             </div>
-        </NScrollbar>
-        <div class="miao-container-loading" v-if="isLoading">{{ loadingPercent === -1 ? '加载插件中' :
-            `渲染进度：${canvasList.length}/${pdfPageCount}` }}</div>
-    </div>
+            <NScrollbar>
+                <div
+                    class="miao-container-pdf"
+                    :style="{
+                        alignItems: pdfMargin < 0 ? 'baseline' : 'center'
+                    }">
+                    <div
+                        ref="pdfEl"
+                        class="miao-container-pdf-content"
+                        :style="{
+                            width: `calc( 100% - ${pdfMargin}px)`
+                        }"></div>
+                </div>
+            </NScrollbar>
+        </div>
+    </miao-message-provider>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, shallowReactive } from 'vue'
+import miaoMessageProvider from '@/components/miaoMessageProvider.vue'
+import { onMounted, ref, shallowReactive } from 'vue'
 import PdfjsWorker from 'pdfjs-dist/build/pdf.worker.mjs?worker'
 import { VirtualFile } from '@/class/VirtualDirectory'
-import { NScrollbar } from 'naive-ui';
+import { NScrollbar } from 'naive-ui'
 
 const currentFiles = defineModel<VirtualFile[]>('currentFiles', {
     required: true
 })
 
 const pdfEl = ref<HTMLDivElement>()
-
+const miaoMessageRef = ref<InstanceType<typeof miaoMessageProvider>>()
 // 通过margin来实现缩小功能
 const pdfMargin = ref<number>(0)
 
 const pdfPageCount = ref<number>(-1)
-
-const isLoading = computed(() => {
-    return canvasList.length !== pdfPageCount.value
-})
 
 const canvasList = shallowReactive<HTMLCanvasElement[]>([])
 
@@ -58,14 +88,11 @@ const handleResetMargin = () => {
     pdfMargin.value = 0
 }
 
-const loadingPercent = computed(() => {
-    if (pdfPageCount.value === -1) {
-        return -1
-    }
-    return canvasList.length / pdfPageCount.value
-})
-
 onMounted(async () => {
+    const setLoadingMessage = miaoMessageRef.value?.message('加载PDF插件中', {
+        type: 'info',
+        timeout: -1
+    })
     const pdfSrc = currentFiles.value[0].url
     // @ts-ignore
     const PDFJS = await import('pdfjs-dist/build/pdf.mjs')
@@ -79,6 +106,7 @@ onMounted(async () => {
     pdfPageCount.value = pdf.numPages
     // 循环渲染每一页
     for (let i = 1; i <= pdf.numPages; i++) {
+        setLoadingMessage && setLoadingMessage(`渲染进度：${i}/${pdf.numPages}`)
         const page = await pdf.getPage(i)
         let pixelRatio = 3
         let viewport = page.getViewport({ scale: 1 })
@@ -96,6 +124,11 @@ onMounted(async () => {
         }
         await page.render(renderContext).promise // 一页一页的渲染
     }
+    setLoadingMessage &&
+        setLoadingMessage(`渲染PDF完成`, {
+            type: 'success',
+            timeout: 3456
+        })
 })
 </script>
 

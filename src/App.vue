@@ -59,7 +59,8 @@ const deleteView = (index: number) => {
 // 点击标题是隐藏其他标签或显示其他标签，还挺好用的
 const handleClickTitle = (index: number) => {
     let count = views._views.filter((v) => v.visible).length
-    let op = !views._views[index].visible || count > 1 ? 'hideOthers' : 'showOthers'
+    let op =
+        !views._views[index].visible || count > 1 ? 'hideOthers' : 'showOthers'
     let _index = 0
     while (_index < views._views.length) {
         if (_index !== index) {
@@ -114,31 +115,49 @@ onMounted(() => {
             <n-scrollbar x-scrollable>
                 <div class="tabs-container">
                     <transition-group name="tab">
-                        <div class="tab" v-for="(view, index) of views._views" :key="view.id">
-                            <span class="tab-title" :title="view.title" @click="handleClickTitle(index)">
+                        <div
+                            class="tab"
+                            v-for="(view, index) of views._views"
+                            :key="view.id">
+                            <span
+                                class="tab-title"
+                                :title="view.title"
+                                @click="handleClickTitle(index)">
                                 {{
                                     view.title.length > 5 && 0
                                         ? `${view.title.substring(0, 5)}...`
                                         : view.title
                                 }}
                             </span>
-                            <div class="tab-point" :style="{ backgroundColor: view.color }"></div>
+                            <div
+                                class="tab-point"
+                                :style="{ backgroundColor: view.color }"></div>
                             <div class="tab-control">
-                                <n-icon class="tag-control-icon icon" @click="view.switchShow()">
-                                    <EyeOutline v-show="view.visible" class="icon-inner" />
-                                    <EyeOffOutline v-show="!view.visible" class="icon-inner" />
+                                <n-icon
+                                    class="tag-control-icon icon"
+                                    @click="view.switchShow()">
+                                    <EyeOutline
+                                        v-show="view.visible"
+                                        class="icon-inner" />
+                                    <EyeOffOutline
+                                        v-show="!view.visible"
+                                        class="icon-inner" />
                                 </n-icon>
-                                <n-icon class="tag-control-icon icon" @click="
-                                    createView(
-                                        view.component,
-                                        view.currentDirectories,
-                                        view.currentFiles,
-                                        index + 1
-                                    )
+                                <n-icon
+                                    class="tag-control-icon icon"
+                                    @click="
+                                        createView(
+                                            view.component,
+                                            view.currentDirectories,
+                                            view.currentFiles,
+                                            index + 1
+                                        )
                                     ">
                                     <CopyOutline />
                                 </n-icon>
-                                <n-icon class="tag-control-icon icon" @click="deleteView(index)">
+                                <n-icon
+                                    class="tag-control-icon icon"
+                                    @click="deleteView(index)">
                                     <CloseOutline class="icon-inner" />
                                 </n-icon>
                             </div>
@@ -148,7 +167,10 @@ onMounted(() => {
             </n-scrollbar>
             <div class="view-controller-menu">
                 <div class="view-controller-menu-item">
-                    <n-dropdown trigger="click" :options="openMenuOption" @select="handleMenuSelect">
+                    <n-dropdown
+                        trigger="click"
+                        :options="openMenuOption"
+                        @select="handleMenuSelect">
                         <n-icon class="icon">
                             <EllipsisVertical class="icon-inner" />
                         </n-icon>
@@ -158,10 +180,19 @@ onMounted(() => {
         </div>
         <div class="view-container">
             <transition-group name="page">
-                <div class="view-container-item" v-for="(view, index) of views._views" v-show="view.visible"
+                <div
+                    class="view-container-item"
+                    v-for="(view, index) of views._views"
+                    v-show="view.visible"
                     :key="view.id">
-                    <component :is="view.component" v-model:current-directories="view.currentDirectories"
-                        v-model:current-files="view.currentFiles" :id="view.id" :color="view.color"
+                    <component
+                        :is="view.component"
+                        v-model:current-directories="view.currentDirectories"
+                        v-model:current-files="view.currentFiles"
+                        :id="view.id"
+                        :color="view.color"
+                        :view="view"
+                        :views="views"
                         @exit="deleteView(index)"></component>
                 </div>
             </transition-group>
@@ -169,8 +200,10 @@ onMounted(() => {
     </div>
     <!-- 模态框展示，用来显示分享二维码，设置菜单之类的东西 -->
     <MiaoMask v-model:show="showModal" @click="showModal = false">
-        <component @click="(e: any) => e.stopPropagation()" :is="modalData?.component" v-bind="modalData?.props">
-        </component>
+        <component
+            @click="(e: any) => e.stopPropagation()"
+            :is="modalData?.component"
+            v-bind="modalData?.props"></component>
     </MiaoMask>
 </template>
 
@@ -334,7 +367,6 @@ $tag-width: 170px;
 .view {
     .view-controller {
         .tabs-container {
-
             .tab-move,
             .tab-enter-active {
                 transition: all 0.2s ease;

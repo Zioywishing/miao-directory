@@ -1,13 +1,29 @@
 import useVirtualPages from '@/hooks/useVirtualPages'
 import VirtualDirectory, { VirtualFile } from './VirtualDirectory'
+import { ShallowRef, shallowRef } from 'vue'
 
-type plugin = {
+export enum PluginGroup {
+    default = 'default',
+    mainMenu = 'mainMenu'
+}
+
+type Plugin = {
     // 用于显示的名字
     name: string
-    // 判断是否可以使用这个组件
+    // 代表插件的icon
+    icon?: ShallowRef<any>
+    // 是否禁用插件
+    disable: boolean
+    // 插件所属的group，用于区分插件使用的场合
+    group: PluginGroup[]
+    // 判断在未禁用时是否可以使用这个组件
     // 使用组件即调用下面的func
     filter: (VDirectories: VirtualDirectory[], VFiles: VirtualFile[]) => boolean
-    func: (VDirectories: VirtualDirectory[], VFiles: VirtualFile[]) => void
+    func: (
+        VDirectories: VirtualDirectory[],
+        VFiles: VirtualFile[],
+        ...args: any[]
+    ) => void
 }
 
 export default class PluginCenter {
@@ -15,30 +31,43 @@ export default class PluginCenter {
         this.pluginsMap = {}
     }
     pluginsMap: {
-        [key: string]: plugin
+        [key: string]: Plugin
     }
 
-    register(key: string, plugin: plugin) {
+    register(key: string, plugin: Plugin) {
         this.pluginsMap[key] = plugin
     }
 
     /**
      * 便捷地注册一个组件为插件，触发时直接用新页面打开
      */
-    registerComponent(
-        key: string,
-        name: string,
-        getComponent: () => Promise<any>,
+    registerComponent(option: {
+        key: string
+        name: string
+        icon?: any
+        getComponent: () => Promise<any>
+        group?: PluginGroup[]
         filter: (
             VDirectories: VirtualDirectory[],
             VFiles: VirtualFile[]
         ) => boolean
-    ): void {
+    }): void {
+        const {
+            key,
+            name,
+            getComponent,
+            icon,
+            filter,
+            group = [PluginGroup.default]
+        } = option
         let _component: any
         const views = useVirtualPages()
         this.register(key, {
             name,
             filter,
+            icon: shallowRef(icon),
+            group,
+            disable: false,
             func: async (
                 VDirectories: VirtualDirectory[],
                 VFiles: VirtualFile[]
@@ -52,10 +81,22 @@ export default class PluginCenter {
         })
     }
 
-    getUsablePlugin(VDirectories: VirtualDirectory[], VFiles: VirtualFile[]) {
+    getUsablePlugin(
+        VDirectories: VirtualDirectory[],
+        VFiles: VirtualFile[],
+        option?: {
+            group?: PluginGroup[]
+        }
+    ) {
+        const { group = [PluginGroup.default] } = option ?? {}
         const usableList = []
         for (let key of Object.keys(this.pluginsMap)) {
-            if (this.pluginsMap[key].filter(VDirectories, VFiles)) {
+            const _plugin = this.pluginsMap[key]
+            if (
+                !_plugin.disable &&
+                _plugin.group.filter((v) => group.includes(v)).length > 0 &&
+                _plugin.filter(VDirectories, VFiles)
+            ) {
                 usableList.push(key)
             }
         }
@@ -67,9 +108,10 @@ export default class PluginCenter {
 
     usePlugin(
         key: string,
-        VDirectories: VirtualDirectory[],
-        VFiles: VirtualFile[]
+        VDirectories?: VirtualDirectory[],
+        VFiles?: VirtualFile[],
+        ...args: any[]
     ) {
-        this.pluginsMap[key].func(VDirectories, VFiles)
+        this.pluginsMap[key].func(VDirectories ?? [], VFiles ?? [], ...args)
     }
 }

@@ -1,33 +1,61 @@
 <template>
-    <miao-drop-handler @on-virtual-directory="handleDrop" @on-virtual-files="handleDrop">
+    <miao-drop-handler
+        @on-virtual-directory="handleDrop"
+        @on-virtual-files="handleDrop">
         <div class="miaoImage" ref="rootRef">
             <n-scrollbar ref="NScrollbarRef">
-                <div class="miaoImage-container">
-                    <div class="miaoImage-container-row" v-for="(src, index) in imageSrcList" :key="index">
-                        <img :src="src" class="miaoImage-container-row-image" loading="lazy"
-                            :class="activeImageIndex === index ? 'miaoImage-container-row-image-active' : ''"
-                            @click="activeImageIndex = index" />
+                <div
+                    class="miaoImage-container"
+                    v-for="imageGroup in imageGroupList">
+                    <div class="miaoImage-container-day">
+                        <span class="miaoImage-container-day-text">
+                            {{ imageGroup.day }}
+                        </span>
+                    </div>
+                    <div
+                        class="miaoImage-container-row"
+                        v-for="vFile in imageGroup.items"
+                        :key="vFile.id">
+                        <img
+                            :src="vFile.url"
+                            class="miaoImage-container-row-image"
+                            loading="lazy"
+                            :class="
+                                activeImage === vFile
+                                    ? 'miaoImage-container-row-image-active'
+                                    : ''
+                            "
+                            @click="activeImage = vFile" />
                     </div>
                 </div>
             </n-scrollbar>
-            <miao-mask :show="activeImageIndex !== -1" @click="activeImageIndex = -1" class="miaoImage-mask">
-                <ChevronBack class="miaoImage-mask-btn miaoImage-mask-btn-back" @click="handleActiveImageIndexBack" />
-                <img :src="imageSrcList[activeImageIndex]" class="miaoImage-mask-active"
-                    @click="e => e.stopPropagation()" draggable="false">
-                <ChevronForward class="miaoImage-mask-btn miaoImage-mask-btn-forward"
-                    @click="handleActiveImageIndexForward" />
+            <miao-mask
+                :show="activeImage !== undefined"
+                @click="activeImage = undefined"
+                class="miaoImage-mask">
+                <ChevronBack
+                    class="miaoImage-mask-btn miaoImage-mask-btn-back"
+                    @click="handleActiveImageBack" />
+                <img
+                    :src="activeImage?.url"
+                    class="miaoImage-mask-active"
+                    @click="(e) => e.stopPropagation()"
+                    draggable="false" />
+                <ChevronForward
+                    class="miaoImage-mask-btn miaoImage-mask-btn-forward"
+                    @click="handleActiveImageForward" />
             </miao-mask>
         </div>
     </miao-drop-handler>
 </template>
 
 <script setup lang="ts">
-import miaoMask from '@/components/miaoMask.vue';
-import miaoDropHandler from '@/components/miaoDropHandler.vue';
+import miaoMask from '@/components/miaoMask.vue'
+import miaoDropHandler from '@/components/miaoDropHandler.vue'
 import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory'
-import { uniq } from 'lodash';
-import { nextTick, onMounted, ref } from 'vue'
-import { NScrollbar } from 'naive-ui';
+import { uniq } from 'lodash'
+import { computed, nextTick, onMounted, ref } from 'vue'
+import { NScrollbar } from 'naive-ui'
 import { ChevronBack, ChevronForward } from '@vicons/ionicons5'
 
 const imageSuffixList = [
@@ -49,38 +77,95 @@ const imageSuffixList = [
     'avif'
 ]
 
-const currentDirectories = defineModel<VirtualDirectory[]>('currentDirectories', {
-    required: true
-})
+const currentDirectories = defineModel<VirtualDirectory[]>(
+    'currentDirectories',
+    {
+        required: true
+    }
+)
 const currentFiles = defineModel<VirtualFile[]>('currentFiles', {
     required: true
 })
 
-
 const NScrollbarRef = ref()
 const rootRef = ref<any>()
 
-const imageSrcList = ref<string[]>([])
+const imageFileList = ref<VirtualFile[]>([])
 
-const activeImageIndex = ref(-1)
+const imageGroupList = computed(() => {
+    return groupByDay(imageFileList.value)
+})
+const activeImage = ref<VirtualFile>()
+
+const groupByDay = (array: VirtualFile[]) => {
+    const result = []
+    let currentDay = null
+    let currentGroup: VirtualFile[] = []
+
+    for (const item of array) {
+        const date = new Date(item.stats.mtimeMs)
+        const day = `${date.getFullYear()}年 ${String(
+            date.getMonth() + 1
+        ).padStart(2, '0')}月 ${String(date.getDate()).padStart(2, '0')}日`
+
+        if (day !== currentDay) {
+            if (currentGroup.length > 0) {
+                result.push({
+                    day: currentDay,
+                    items: currentGroup
+                })
+            }
+            currentDay = day
+            currentGroup = [item]
+        } else {
+            currentGroup.push(item)
+        }
+    }
+    if (currentGroup.length > 0) {
+        result.push({
+            day: currentDay,
+            items: currentGroup
+        })
+    }
+
+    return result
+}
 
 const scrollToActiveImage = () => {
-    const dom = rootRef.value?.querySelector('.miaoImage-container-row-image-active')
+    const dom = rootRef.value?.querySelector(
+        '.miaoImage-container-row-image-active'
+    )
     NScrollbarRef.value.scrollTo({
         top: dom.offsetTop - 30,
-        behavior: "smooth"
+        behavior: 'smooth'
     })
 }
 
-const handleActiveImageIndexBack = (e: any) => {
+const handleActiveImageBack = (e: any) => {
     e.stopPropagation()
-    activeImageIndex.value = (activeImageIndex.value - 1 + imageSrcList.value.length) % imageSrcList.value.length
+    if (!activeImage.value) {
+        return
+    }
+    const index = imageFileList.value.indexOf(activeImage.value)
+    activeImage.value =
+        imageFileList.value[
+            (index - 1 + imageFileList.value.length) %
+                imageFileList.value.length
+        ]
     nextTick(scrollToActiveImage)
 }
 
-const handleActiveImageIndexForward = (e: any) => {
+const handleActiveImageForward = (e: any) => {
     e.stopPropagation()
-    activeImageIndex.value = (activeImageIndex.value + 1 + imageSrcList.value.length) % imageSrcList.value.length
+    if (!activeImage.value) {
+        return
+    }
+    const index = imageFileList.value.indexOf(activeImage.value)
+    activeImage.value =
+        imageFileList.value[
+            (index + 1 + imageFileList.value.length) %
+                imageFileList.value.length
+        ]
     nextTick(scrollToActiveImage)
 }
 
@@ -92,27 +177,43 @@ const handleDrop = (vItems: (VirtualFile | VirtualDirectory)[]) => {
         // @ts-ignore
         currentFiles.value = [...currentFiles, ...vItems]
     }
-    vItems.forEach(v => {
+    vItems.forEach((v) => {
         updateImageSrcList(v)
     })
 }
 
 const updateImageSrcList = async (source: VirtualFile | VirtualDirectory) => {
     let newSrcList: string[]
+    let newFileList: VirtualFile[]
     if (source.type === 'directory') {
         await source.update()
-        newSrcList = source.files?.filter(v => imageSuffixList.includes(v.name.split('.').pop() ?? '')).map(v => v.url) ?? []
+        newFileList = [
+            ...(source.files?.filter((v) =>
+                imageSuffixList.includes(v.name.split('.').pop() ?? '')
+            ) ?? [])
+        ]
+        newSrcList =
+            source.files
+                ?.filter((v) =>
+                    imageSuffixList.includes(v.name.split('.').pop() ?? '')
+                )
+                .map((v) => v.url) ?? []
     } else {
         if (!imageSuffixList.includes(source.name.split('.').pop() ?? '')) {
             return
         }
+        newFileList = [source]
         newSrcList = [source.url]
     }
-    imageSrcList.value = uniq([...imageSrcList.value, ...newSrcList])
+    imageFileList.value = uniq([...imageFileList.value, ...newFileList]).sort(
+        (a, b) => a.stats.mtimeMs - b.stats.mtimeMs
+    )
 }
 
 onMounted(() => {
-    [...currentDirectories.value, ...currentFiles.value].forEach(updateImageSrcList)
+    ;[...currentFiles.value, ...currentDirectories.value].forEach(
+        updateImageSrcList
+    )
 })
 </script>
 
@@ -129,6 +230,17 @@ onMounted(() => {
         width: 100%;
         display: flex;
         flex-wrap: wrap;
+        margin-bottom: 20px;
+        margin-top: 20px;
+        .miaoImage-container-day {
+            width: 100%;
+            .miaoImage-container-day-text {
+                margin-left: 40px;
+                font-size: 20px;
+                user-select: none;
+                letter-spacing: 1px;
+            }
+        }
 
         .miaoImage-container-row {
             display: flex;

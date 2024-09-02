@@ -1,13 +1,13 @@
 ## TODO list:
 
-| 计划 | 状态 | 
+| 计划 | 状态 |
 |---|---|
 | 拆分miaoDirectory | ✅ |
 | 完善视频插件 | ✅ |
 | 完善PDF插件 | ✅ |
 | 完善Code插件 | ✅ |
 | 实现miaoDirectory的搜索功能 | ✅ |
-| plugin增加些选项，icon之类的 | ❌ |
+| plugin增加些属性，icon, disable, group之类的 | ❌ |
 | 完善miaoDirectory的搜索功能 | ❌ |
 | 实现miaoDirectory的排序功能 | ❌ |
 | 完善图片浏览插件 | ❌ |
