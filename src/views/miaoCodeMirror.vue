@@ -136,7 +136,12 @@ onMounted(async () => {
     const fileName = currentFiles.value[0].name
     codeData.value = (
         await miaoFetchApi.getFile(currentFiles.value[0], {
-            axiosOption: { responseType: 'text' }
+            axiosOption: {
+                responseType: 'text',
+                headers: {
+                    'Cache-Control': 'no-cache'
+                }
+            }
         })
     ).toString()
     bakData.value = codeData.value
