@@ -1,5 +1,5 @@
 <template>
-    <div class="iframe-container">
+    <div class="miao-markdown-container-miaomiaomiao">
         <iframe
             :src="iframeSrc"
             frameborder="0"
@@ -23,7 +23,7 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.iframe-container {
+.miao-markdown-container-miaomiaomiao {
     width: 100%;
     height: 100%;
     .iframe-container-iframe {

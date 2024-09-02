@@ -1,57 +1,44 @@
 <template>
-    <miao-drop-handler
-        @on-virtual-directory="handleDrop"
-        @on-virtual-files="handleDrop">
-        <div class="miaoImage" ref="rootRef">
-            <n-scrollbar ref="NScrollbarRef">
-                <div
-                    class="miaoImage-container"
-                    v-for="imageGroup in imageGroupList">
-                    <div class="miaoImage-container-day">
-                        <span class="miaoImage-container-day-text">
-                            {{ imageGroup.day }}
-                        </span>
+    <miao-drop-handler @on-virtual-directory="handleDrop" @on-virtual-files="handleDrop">
+        <miao-message-provider ref="miaoMessageRef">
+            <div class="miaoImage" ref="rootRef">
+                <n-scrollbar ref="NScrollbarRef">
+                    <div class="miaoImage-container" v-for="imageGroup in imageGroupList">
+                        <div class="miaoImage-container-day">
+                            <!-- <div class="miaoImage-container-divide miaoImage-container-divide-before">
+                            <div class="miaoImage-container-divide-line"></div>
+                        </div> -->
+                            <span class="miaoImage-container-day-text">
+                                {{ imageGroup.day }}
+                            </span>
+                            <!-- <div class="miaoImage-container-divide">
+                            <div class="miaoImage-container-divide-line"></div>
+                        </div> -->
+                        </div>
+                        <div class="miaoImage-container-row" v-for="vFile in imageGroup.items" :key="vFile.id">
+                            <img :src="vFile.url" class="miaoImage-container-row-image" loading="lazy" :class="activeImage === vFile
+                                ? 'miaoImage-container-row-image-active'
+                                : ''
+                                " @click="activeImage = vFile" />
+                        </div>
                     </div>
-                    <div
-                        class="miaoImage-container-row"
-                        v-for="vFile in imageGroup.items"
-                        :key="vFile.id">
-                        <img
-                            :src="vFile.url"
-                            class="miaoImage-container-row-image"
-                            loading="lazy"
-                            :class="
-                                activeImage === vFile
-                                    ? 'miaoImage-container-row-image-active'
-                                    : ''
-                            "
-                            @click="activeImage = vFile" />
-                    </div>
-                </div>
-            </n-scrollbar>
-            <miao-mask
-                :show="activeImage !== undefined"
-                @click="activeImage = undefined"
-                class="miaoImage-mask">
-                <ChevronBack
-                    class="miaoImage-mask-btn miaoImage-mask-btn-back"
-                    @click="handleActiveImageBack" />
-                <img
-                    :src="activeImage?.url"
-                    class="miaoImage-mask-active"
-                    @click="(e) => e.stopPropagation()"
-                    draggable="false" />
-                <ChevronForward
-                    class="miaoImage-mask-btn miaoImage-mask-btn-forward"
-                    @click="handleActiveImageForward" />
-            </miao-mask>
-        </div>
+                </n-scrollbar>
+                <miao-mask :show="activeImage !== undefined" @click="activeImage = undefined" class="miaoImage-mask">
+                    <ChevronBack class="miaoImage-mask-btn miaoImage-mask-btn-back" @click="handleActiveImageBack" />
+                    <img :src="activeImage?.url" class="miaoImage-mask-active" @click="(e) => e.stopPropagation()"
+                        draggable="false" />
+                    <ChevronForward class="miaoImage-mask-btn miaoImage-mask-btn-forward"
+                        @click="handleActiveImageForward" />
+                </miao-mask>
+            </div>
+        </miao-message-provider>
     </miao-drop-handler>
 </template>
 
 <script setup lang="ts">
 import miaoMask from '@/components/miaoMask.vue'
 import miaoDropHandler from '@/components/miaoDropHandler.vue'
+import miaoMessageProvider from '@/components/miaoMessageProvider.vue'
 import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory'
 import { uniq } from 'lodash'
 import { computed, nextTick, onMounted, ref } from 'vue'
@@ -89,6 +76,7 @@ const currentFiles = defineModel<VirtualFile[]>('currentFiles', {
 
 const NScrollbarRef = ref()
 const rootRef = ref<any>()
+const miaoMessageRef = ref<InstanceType<typeof miaoMessageProvider>>()
 
 const imageFileList = ref<VirtualFile[]>([])
 
@@ -149,8 +137,8 @@ const handleActiveImageBack = (e: any) => {
     const index = imageFileList.value.indexOf(activeImage.value)
     activeImage.value =
         imageFileList.value[
-            (index - 1 + imageFileList.value.length) %
-                imageFileList.value.length
+        (index - 1 + imageFileList.value.length) %
+        imageFileList.value.length
         ]
     nextTick(scrollToActiveImage)
 }
@@ -163,57 +151,63 @@ const handleActiveImageForward = (e: any) => {
     const index = imageFileList.value.indexOf(activeImage.value)
     activeImage.value =
         imageFileList.value[
-            (index + 1 + imageFileList.value.length) %
-                imageFileList.value.length
+        (index + 1 + imageFileList.value.length) %
+        imageFileList.value.length
         ]
     nextTick(scrollToActiveImage)
 }
 
-const handleDrop = (vItems: (VirtualFile | VirtualDirectory)[]) => {
+const handleDrop = async (vItems: (VirtualFile | VirtualDirectory)[]) => {
+    const length_before = imageFileList.value.length
     if (vItems[0].type === 'directory') {
         // @ts-ignore
         currentDirectories.value = [...currentDirectories.value, ...vItems]
+        for (const i of vItems) {
+            // @ts-ignore
+            await updateImageSrcList(i)
+        }
     } else {
         // @ts-ignore
         currentFiles.value = [...currentFiles, ...vItems]
+        // @ts-ignore
+        await updateImageSrcList(vItems)
     }
-    vItems.forEach((v) => {
-        updateImageSrcList(v)
+    miaoMessageRef.value?.message(length_before === imageFileList.value.length ? '未发现任何可添加图片' : `导入${imageFileList.value.length - length_before}张图片`, {
+        type: length_before === imageFileList.value.length ? 'info' : 'success'
+        , timeout: 5000
     })
 }
 
-const updateImageSrcList = async (source: VirtualFile | VirtualDirectory) => {
-    let newSrcList: string[]
+const updateImageSrcList = async (source: VirtualFile[] | VirtualDirectory) => {
     let newFileList: VirtualFile[]
-    if (source.type === 'directory') {
+    if ('type' in source) {
         await source.update()
         newFileList = [
             ...(source.files?.filter((v) =>
                 imageSuffixList.includes(v.name.split('.').pop() ?? '')
             ) ?? [])
         ]
-        newSrcList =
-            source.files
-                ?.filter((v) =>
-                    imageSuffixList.includes(v.name.split('.').pop() ?? '')
-                )
-                .map((v) => v.url) ?? []
     } else {
-        if (!imageSuffixList.includes(source.name.split('.').pop() ?? '')) {
-            return
-        }
-        newFileList = [source]
-        newSrcList = [source.url]
+        newFileList = [
+            ...(source.filter((v) =>
+                imageSuffixList.includes(v.name.split('.').pop() ?? '')
+            ) ?? [])
+        ]
     }
     imageFileList.value = uniq([...imageFileList.value, ...newFileList]).sort(
-        (a, b) => a.stats.mtimeMs - b.stats.mtimeMs
+        (a, b) => - a.stats.mtimeMs + b.stats.mtimeMs
     )
 }
 
-onMounted(() => {
-    ;[...currentFiles.value, ...currentDirectories.value].forEach(
-        updateImageSrcList
-    )
+onMounted(async () => {
+    const length_before = imageFileList.value.length;
+    for (const i of [currentFiles.value, ...currentDirectories.value]) {
+        await updateImageSrcList(i)
+    }
+    miaoMessageRef.value?.message(length_before === imageFileList.value.length ? '未发现任何新增图片' : `导入${imageFileList.value.length - length_before}张图片`, {
+        type: length_before === imageFileList.value.length ? 'info' : 'success'
+        , timeout: 5000
+    })
 })
 </script>
 
@@ -232,13 +226,38 @@ onMounted(() => {
         flex-wrap: wrap;
         margin-bottom: 20px;
         margin-top: 20px;
+
         .miaoImage-container-day {
             width: 100%;
+            display: flex;
+            align-items: center;
+            position: relative;
+            margin: 0 20px;
+
+            .miaoImage-container-divide {
+                flex: 1;
+                height: 100%;
+                position: relative;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .miaoImage-container-divide-line {
+                height: 3px;
+                width: 100%;
+                border-radius: 5px;
+                background-color: rgb(244 244 244);
+            }
+
+            .miaoImage-container-divide-before {
+                flex: 0.1;
+            }
+
             .miaoImage-container-day-text {
-                margin-left: 40px;
-                font-size: 20px;
+                margin: 0 0 0 10px;
+                font-size: 15px;
                 user-select: none;
-                letter-spacing: 1px;
             }
         }
 

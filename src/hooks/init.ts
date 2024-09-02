@@ -157,4 +157,21 @@ export default function init() {
             return false
         }
     })
+
+    
+    pluginCenter.registerComponent({
+        key: 'miaoMarkdown',
+        name: 'markdown浏览',
+        icon: DocumentText,
+        getComponent: async () => (await import('@/views/miaoMarkdown.vue')).default,
+        filter: (vDirs, vFiles) => {
+            if (vDirs.length !== 0) {
+                return false
+            }
+            if (vFiles.length !== 1) {
+                return false
+            }
+            return vFiles[0].name.endsWith('md')
+        }
+    })
 }
