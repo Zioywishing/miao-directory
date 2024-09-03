@@ -1,4 +1,4 @@
-const idList: number[] = [];
+const idList: number[] = []
 
 /**
  * 生成一个唯一的id
@@ -6,11 +6,11 @@ const idList: number[] = [];
  * @returns {number}
  */
 export default function generateId(length?: number) {
-	length || (length = 16);
-	let id;
-	while (!id || idList.includes(id)) {
-		id = Math.ceil(Math.random() * 10 ** 16);
-	}
-	idList.push(id)
+    length || (length = 16)
+    let id
+    while (!id || idList.includes(id)) {
+        id = Math.ceil(Math.random() * 10 ** 16)
+    }
+    idList.push(id)
     return id
 }

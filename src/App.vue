@@ -373,6 +373,7 @@ $tag-width: 170px;
             }
 
             .tab-leave-active {
+                opacity: 0;
                 transition: none;
             }
 
