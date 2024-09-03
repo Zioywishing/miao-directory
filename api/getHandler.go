@@ -65,6 +65,23 @@ func GetHandler(c *gin.Context) {
 			}
 			http.ServeContent(c.Writer, c.Request, "index.html", time.Now(), f)
 		} else {
+			// if c.Query("import") != "" {
+			// 	c.Writer.Header().Set("Content-Type", "application/javascript")
+			// }
+			ext := filepath.Ext(decodedPath)
+			switch ext {
+			case ".js":
+			case ".cjs":
+				c.Writer.Header().Set("Content-Type", "application/javascript")
+			case ".css":
+				c.Writer.Header().Set("Content-Type", "text/css")
+			case ".html":
+				c.Writer.Header().Set("Content-Type", "text/html")
+			case ".json":
+				c.Writer.Header().Set("Content-Type", "application/json")
+			default:
+				c.Writer.Header().Set("Content-Type", "application/octet-stream")
+			}
 			c.File(decodedPath)
 		}
 	}
