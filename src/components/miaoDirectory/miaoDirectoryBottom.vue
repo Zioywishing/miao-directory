@@ -10,7 +10,7 @@
               index % 2 === 0
                 ? 'rgb(0 0 0)'
                 : 'rgb(255 255 255)'
-          }" @click="$emit('add-new-item')" />
+          }" @click="emit('add-new-item')" />
         </div>
       </div>
       <div class="container-bottom-item">
@@ -20,24 +20,24 @@
               index % 2 === 0
                 ? 'rgb(0 0 0)'
                 : 'rgb(255 255 255)'
-          }" @click="$emit('pick-files-upload')" />
+          }" @click="emit('pick-files-upload')" />
         </div>
       </div>
     </div>
   </template>
-  
+
   <script setup lang="ts">
   import { AddOutline, CloudUploadOutline } from '@vicons/ionicons5'
   defineProps<{
     index: number
   }>()
-  
+
   const emit = defineEmits<{
     'add-new-item': []
     'pick-files-upload': []
   }>()
   </script>
-  
+
   <style scoped lang="scss">
   .miao-directory-container-bottom {
     height: 60px;
@@ -48,14 +48,14 @@
     user-select: none;
     box-shadow: 0px 1px 10px #888888;
     z-index: 2;
-  
+
     .container-bottom-item {
       height: 40px;
       width: 40px;
       display: flex;
       justify-content: center;
       align-items: center;
-  
+
       .container-bottom-item-icon {
         svg {
           width: 30px;
@@ -64,7 +64,7 @@
           transition: height 0.3s ease;
           cursor: pointer;
         }
-  
+
         &:hover {
           svg {
             width: 40px;
