@@ -59,21 +59,16 @@ export default defineConfig({
     build: {
         rollupOptions: {
             input: {
-                main: resolve(__dirname, 'index.html')
+                main: '/src/index.ts'
             },
-            output: {
-                // 配置输出为单文件
-                // inlineDynamicImports: true,
-                // manualChunks(id) {
-                //     加了会有bug
-                //     if (id.includes('@codemirror')) {
-                //         return id.split('@')[1].replace('+', '-')
-                //     }
-                // }
-                // entryFileNames: 'bundle.js',
-                // format: 'iife', // 立即执行函数格式
-                // name: 'MyBundle'
-            }
+            // output: {
+            //     entryFileNames: (chunkInfo) => {
+            //         if (chunkInfo.name === 'main') {
+            //             return 'main.js'
+            //         }
+            //         return '[name].[hash].js'
+            //     }
+            // }
         }
     }
 })

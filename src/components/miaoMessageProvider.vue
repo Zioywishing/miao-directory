@@ -43,7 +43,7 @@ const rootRef = ref<HTMLDivElement>()
 const maxMessageWidth = ref<number>(-1)
 
 const messageList = computed(() => {
-    return Object.keys(messageMap).filter(v => messageMap[v] !== undefined).map(v => ({
+    return Object.keys(messageMap).map(v => ({
         id: v,
         ...messageMap[v],
     }))
@@ -54,7 +54,7 @@ const message = (content: string, options?: MessageOptions) => {
     if (timeout > 0) {
         messageMap[id]?.timer && clearTimeout(messageMap[id]?.timer)
         timer = setTimeout(() => {
-            messageMap[id] = undefined
+            delete messageMap[id]
         }, timeout)
     }
     messageMap[id] = {
