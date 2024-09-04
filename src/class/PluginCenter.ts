@@ -14,6 +14,8 @@ export interface registerComponentOption {
     getComponent: () => Promise<any>
     group?: PluginGroup[]
     filter: (VDirectories: VirtualDirectory[], VFiles: VirtualFile[]) => boolean
+    disable?: boolean
+    exitConfirm?: boolean
 }
 
 type Plugin = {
@@ -57,7 +59,9 @@ export default class PluginCenter {
             getComponent,
             icon,
             filter,
-            group = [PluginGroup.default]
+            group = [PluginGroup.default],
+            disable = false,
+            exitConfirm = false
         } = option
         let _component: any
         const views = useVirtualPages()
@@ -66,7 +70,7 @@ export default class PluginCenter {
             filter,
             icon: shallowRef(icon),
             group,
-            disable: false,
+            disable,
             func: async (
                 VDirectories: VirtualDirectory[],
                 VFiles: VirtualFile[]
@@ -75,7 +79,11 @@ export default class PluginCenter {
                     return
                 }
                 if (_component === undefined) _component = await getComponent()
-                views.push(_component, VDirectories, VFiles)
+                views.push(_component, VDirectories, VFiles, {
+                    VirtualPageOption: {
+                        exitConfirm
+                    }
+                })
             }
         })
     }

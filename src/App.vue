@@ -9,7 +9,6 @@ import {
     EllipsisVertical,
     QrCodeOutline
 } from '@vicons/ionicons5'
-// import miaoDirectory from '@/plugins/miaoDirectory/miaoDirectory.vue'
 import VirtualDirectory, { VirtualFile } from './class/VirtualDirectory'
 import MiaoMask from './components/miaoMask.vue'
 import config from './config'
@@ -48,7 +47,7 @@ const createView = (
     currentFiles?: VirtualFile[],
     index?: number
 ) => {
-    views.push(component, currentDirectories, currentFiles, index)
+    views.push(component, currentDirectories, currentFiles, { index })
 }
 
 const deleteView = (index: number) => {
