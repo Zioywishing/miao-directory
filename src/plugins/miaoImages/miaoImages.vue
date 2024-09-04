@@ -62,7 +62,7 @@
 <script setup lang="ts">
 import miaoMask from '@/components/miaoMask.vue'
 import miaoDropHandler from '@/components/miaoDropHandler.vue'
-import miaoMessageProvider from '@/components/miaoMessageProvider.vue'
+import miaoMessageProvider from '@/components/miaoAlertTipProvider.vue'
 import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory'
 import { uniq } from 'lodash'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
@@ -199,7 +199,7 @@ const handleDrop = async (vItems: (VirtualFile | VirtualDirectory)[]) => {
         // @ts-ignore
         await updateImageSrcList(vItems)
     }
-    miaoMessageRef.value?.message(
+    miaoMessageRef.value?.alertTip(
         length_before === imageFileList.value.length
             ? '未发现任何可添加图片'
             : `导入${imageFileList.value.length - length_before}张图片`,
@@ -247,7 +247,7 @@ onMounted(async () => {
     for (const i of [currentFiles.value, ...currentDirectories.value]) {
         await updateImageSrcList(i)
     }
-    miaoMessageRef.value?.message(
+    miaoMessageRef.value?.alertTip(
         length_before === imageFileList.value.length
             ? '未发现任何新增图片'
             : `导入${imageFileList.value.length - length_before}张图片`,

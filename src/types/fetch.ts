@@ -8,12 +8,20 @@ export type miaoFetchConfig = {
 
 export type getOption = {} & miaoFetchConfig;
 
+export type getFileOption = {
+	/**
+	 * 下载进度回调函数
+	 * @param {any} percent 进度百分比，float类型, 0-1
+	 */
+	onProcess?: (percent: number) => void;
+} & miaoFetchConfig;
+
 export type getResponse = (file | directory)[];
 
 export type uploadOption = {
 	/**
 	 * 上传进度回调函数
-	 * @param {any} percent 进度百分比，float类型
+	 * @param {any} percent 进度百分比，float类型, 0-1
 	 */
 	onProcess?: (percent: number) => void;
 	/**

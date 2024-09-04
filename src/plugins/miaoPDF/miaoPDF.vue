@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import miaoMessageProvider from '@/components/miaoMessageProvider.vue'
+import miaoMessageProvider from '@/components/miaoAlertTipProvider.vue'
 import { onMounted, ref, shallowReactive } from 'vue'
 import PdfjsWorker from 'pdfjs-dist/build/pdf.worker.mjs?worker'
 import { VirtualFile } from '@/class/VirtualDirectory'
@@ -89,7 +89,7 @@ const handleResetMargin = () => {
 }
 
 onMounted(async () => {
-    const setLoadingMessage = miaoMessageRef.value?.message('加载PDF插件中', {
+    const setLoadingMessage = miaoMessageRef.value?.alertTip('加载PDF插件中', {
         type: 'info',
         timeout: -1
     })

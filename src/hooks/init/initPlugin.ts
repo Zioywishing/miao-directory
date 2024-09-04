@@ -1,16 +1,23 @@
+import usePluginCenter, { initPluginCenter } from "@/hooks/usePluginCenter";
+import { registerComponentOption } from "@/class/PluginCenter";
+import { alertTipType } from "@/types/type";
 
-import usePluginCenter from '@/hooks/usePluginCenter'
-import { registerComponentOption } from '@/class/PluginCenter'
+const initPlugin = async (globalAlertTip: alertTipType) => {
+	initPluginCenter(globalAlertTip)
+	const modulesFiles = import.meta.glob("@/plugins/**/export.ts");
+	const pluginCenter = usePluginCenter();
+	const promiseArray = [];
+	for (let pluginConfig of Object.values(modulesFiles)) {
+		promiseArray.push(
+			new Promise(async resolve => {
+				const _config = pluginConfig as () => Promise<{
+					default: registerComponentOption;
+				}>;
+				resolve(pluginCenter.registerComponent((await _config()).default));
+			})
+		);
+	}
+	await Promise.all(promiseArray);
+};
 
-const initPlugin = async () => {
-    const modulesFiles = import.meta.glob('@/plugins/**/export.ts')
-    const pluginCenter = usePluginCenter()
-    for (let pluginConfig of Object.values(modulesFiles)) {
-        const _config = pluginConfig as () => Promise<{
-            default: registerComponentOption
-        }>
-        pluginCenter.registerComponent((await _config()).default)
-    }
-}
-
-export default initPlugin
+export default initPlugin;

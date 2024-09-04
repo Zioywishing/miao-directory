@@ -1,18 +1,11 @@
 <template>
     <miao-message-provider ref="miaoMessage">
-        <div
-            class="codemirror-container"
-            ref="rootRef"
-            :class="`codemirror-container-${theme}`">
+        <div class="codemirror-container" ref="rootRef" :class="`codemirror-container-${theme}`">
             <div class="codemirror-container-top">
-                <div
-                    class="codemirror-container-btn codemirror-container-btn-save"
-                    @click="handleSave">
+                <div class="codemirror-container-btn codemirror-container-btn-save" @click="handleSave">
                     保存
                 </div>
-                <div
-                    class="codemirror-container-btn codemirror-container-btn-save"
-                    @click="handleReset">
+                <div class="codemirror-container-btn codemirror-container-btn-save" @click="handleReset">
                     恢复到上次保存
                 </div>
             </div>
@@ -26,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import miaoMessageProvider from '@/components/miaoMessageProvider.vue'
+import miaoMessageProvider from '@/components/miaoAlertTipProvider.vue'
 import { VirtualFile } from '@/class/VirtualDirectory'
 import useMiaoFetchApi from '@/hooks/useMiaoFetchApi'
 import { onMounted, ref } from 'vue'
@@ -53,7 +46,7 @@ const theme = ref<'light' | 'dark'>('light')
 
 const handleSave = async () => {
     if (bakData.value === codeData.value || !vFile.value) {
-        miaoMessage.value?.message('内容未改动', {
+        miaoMessage.value?.alertTip('内容未改动', {
             timeout: 3000,
             type: 'info'
         })
@@ -69,7 +62,7 @@ const handleSave = async () => {
     const { response } = miaoFetchApi.upload(file, parentDir)
     false && miaoFetchApi.upload(file_bak, parentDir)
     await response
-    miaoMessage.value?.message('保存成功', {
+    miaoMessage.value?.alertTip('保存成功', {
         timeout: 5000,
         type: 'success'
     })
@@ -152,13 +145,13 @@ onMounted(async () => {
     vFile.value = currentFiles.value[0]
     const fileName = currentFiles.value[0].name
     codeData.value = decoder.decode(
-        await miaoFetchApi.getFile(currentFiles.value[0], {
+        await (miaoFetchApi.getFile(currentFiles.value[0], {
             axiosOption: {
                 headers: {
                     'Cache-Control': 'no-cache'
                 }
             }
-        })
+        }).response)
     )
     bakData.value = codeData.value
     extensions.value = [...(await getLangExtensions(fileName))]

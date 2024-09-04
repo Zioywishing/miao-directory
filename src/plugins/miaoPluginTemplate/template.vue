@@ -3,11 +3,11 @@
 </template>
 
 <script setup lang="ts">
-import { VirtualFile } from '@/class/VirtualDirectory'
+// import { VirtualFile } from '@/class/VirtualDirectory'
 
-const currentFiles = defineModel<VirtualFile[]>('currentFiles', {
-    required: true
-})
+// const currentFiles = defineModel<VirtualFile[]>('currentFiles', {
+//     required: true
+// })
 
 </script>
 

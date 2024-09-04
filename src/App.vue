@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, onMounted, reactive, ref, shallowRef } from 'vue'
+import { h, onMounted, provide, reactive, ref, shallowRef, useTemplateRef } from 'vue'
 import { NIcon, NScrollbar, NDropdown } from 'naive-ui'
 import {
     EyeOffOutline,
@@ -11,10 +11,12 @@ import {
 } from '@vicons/ionicons5'
 import VirtualDirectory, { VirtualFile } from './class/VirtualDirectory'
 import MiaoMask from './components/miaoMask.vue'
+import MiaoMessageProvider from './components/miaoAlertTipProvider.vue'
 import config from './config'
 import useVirtualPages from './hooks/useVirtualPages'
 import init from './hooks/init'
 import usePluginCenter from './hooks/usePluginCenter'
+import PluginCenter from './class/PluginCenter'
 
 const { baseUrl } = config
 
@@ -25,8 +27,10 @@ const modalData = shallowRef<{
     props: any
 }>()
 
+const messageProviderRef = useTemplateRef('messageProviderRef')
+
 const views = useVirtualPages()
-const pluginCenter = usePluginCenter()
+let pluginCenter: PluginCenter
 
 const rootDirectory = reactive(
     new VirtualDirectory({
@@ -105,14 +109,18 @@ const handleMenuSelect = async (key: string) => {
 }
 
 onMounted(async () => {
-    await init()
+    // @ts-ignore
+    await init(messageProviderRef.value?.alertTip)
+    pluginCenter = usePluginCenter()
     pluginCenter.usePlugin('miaoDirectory', [rootDirectory], [])
-    // createView(miaoDirectory, [rootDirectory])
 })
+
+provide('globalAlertTip', messageProviderRef.value?.alertTip)
 </script>
 
 <template>
     <div class="view">
+        <miao-message-provider ref="messageProviderRef">
         <div class="view-controller">
             <n-scrollbar x-scrollable>
                 <div class="tabs-container">
@@ -199,6 +207,7 @@ onMounted(async () => {
                 </div>
             </transition-group>
         </div>
+        </miao-message-provider>
     </div>
     <!-- 模态框展示，用来显示分享二维码，设置菜单之类的东西 -->
     <MiaoMask v-model:show="showModal" @click="showModal = false">

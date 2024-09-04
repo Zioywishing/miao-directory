@@ -28,7 +28,7 @@ const md = new MarkdownIt()
 
 onMounted(async () => {
   markdownSrc.value = currentFiles.value[0].url
-  const text = decoder.decode(await miaoFetchApi.getFile(currentFiles.value[0]))
+  const text = decoder.decode(await(miaoFetchApi.getFile(currentFiles.value[0])).response)
   renderedMarkdown.value = md.render(text)
 })
 </script>

@@ -18,12 +18,7 @@ import generateId from '@/hooks/generateId';
 import { NIcon } from 'naive-ui';
 import { computed, onMounted, ref, shallowReactive } from 'vue';
 import { InformationCircle, CheckmarkCircle, CloseCircle } from '@vicons/ionicons5'
-
-interface MessageOptions {
-    type?: 'info' | 'success' | 'error'
-    timeout?: number
-    id?: number
-}
+import { AlertTipMessageOptions } from '@/types/type';
 
 interface Message {
     icon: any,
@@ -48,7 +43,7 @@ const messageList = computed(() => {
         ...messageMap[v],
     }))
 })
-const message = (content: string, options?: MessageOptions) => {
+const alertTip = (content: string, options?: AlertTipMessageOptions) => {
     let timer: any
     const { timeout = 0, type = 'info', id = generateId() } = options ?? {}
     if (timeout > 0) {
@@ -63,10 +58,10 @@ const message = (content: string, options?: MessageOptions) => {
         content,
         timer
     }
-    return (newContent: string, newOptions?: MessageOptions) => {
+    return (newContent: string, newOptions?: AlertTipMessageOptions) => {
         newOptions = newOptions ?? {}
         newOptions.id = id
-        message(newContent, newOptions)
+        alertTip(newContent, newOptions)
     }
 }
 
@@ -86,7 +81,7 @@ onMounted(async () => {
 })
 
 
-defineExpose({ message });
+defineExpose({ alertTip });
 </script>
 
 <style scoped lang="scss">
@@ -105,6 +100,7 @@ defineExpose({ message });
         flex-direction: column;
         align-items: center;
         overflow: visible;
+        z-index: 70582140539943419;
 
         .miao-message {
             display: flex;

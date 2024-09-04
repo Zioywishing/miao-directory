@@ -3,36 +3,29 @@
         <div class="miaoCrypto-container">
             <div class="miaoCrypto-container-encrypt miaoCrypto-container-item">
                 <n-scrollbar style="max-height: 100%">
-                    <div
-                        v-for="item of workItemList"
-                        class="miaoCrypto-container-item-item">
-                        <div
-                            class="miaoCrypto-container-item-percentBar"
-                            :style="{
-                                zIndex: 0,
-                                width: item.buffer ? `100%` : `0%`,
-                                backgroundColor: 'blue'
-                            }"></div>
-                        <div
-                            class="miaoCrypto-container-item-percentBar"
-                            :style="{
-                                zIndex: 1,
-                                width: item.status === 'finish' ? `100%` : `0%`,
-                                backgroundColor: 'green'
-                            }"></div>
+                    <div v-for="item of workItemList" :key="item.id" class="miaoCrypto-container-item-item">
+                        <div class="miaoCrypto-container-item-percentBar" :style="{
+                            zIndex: 0,
+                            width: item.getBufferProgress !== -1 ? `${item.getBufferProgress * 100}%` : `0%`,
+                            backgroundColor: 'blue'
+                        }"></div>
+                        <div class="miaoCrypto-container-item-percentBar" :style="{
+                            zIndex: 1,
+                            width: item.status === 'finish' ? `100%` : `0%`,
+                            backgroundColor: 'green'
+                        }"></div>
                         <span class="miaoCrypto-container-item-content">{{ item.name }}{{ item.status }}</span>
                     </div>
                 </n-scrollbar>
             </div>
-            <div
-                class="miaoCrypto-container-decrypt miaoCrypto-container-item"></div>
+            <div class="miaoCrypto-container-decrypt miaoCrypto-container-item"></div>
         </div>
     </miao-drop-handler>
 </template>
 
 <script setup lang="ts">
 import { NScrollbar } from 'naive-ui'
-import { ref } from 'vue'
+import { onUnmounted, ref, shallowReactive } from 'vue'
 import aes_ctr_worker from './hooks/AES'
 import { VirtualFile } from '@/class/VirtualDirectory'
 import miaoDropHandler from '@/components/miaoDropHandler.vue'
@@ -44,9 +37,12 @@ import { computed } from 'vue'
 const miaoFetchApi = useMiaoFetchApi()
 
 interface workItem {
+    id: number
     status: 'wait' | 'process' | 'finish'
     buffer?: Uint8Array
     getBuffer: () => Promise<Uint8Array>
+    getBufferProgress: number
+    getBufferAbort?: () => void
     isGettingBuffer: boolean
     name: string
 }
@@ -55,14 +51,16 @@ class Work {
     constructor(func: (key: string, data: Uint8Array) => Promise<Uint8Array>) {
         this.queue = []
         this.func = func
+        this.abortLoop = false
     }
     queue: workItem[]
     func: (key: string, data: Uint8Array) => Promise<Uint8Array>
+    abortLoop: boolean
     get isBusy() {
         return this.queue.filter((v) => v.status === 'process').length > 0
     }
     async funcLoop() {
-        if (this.isBusy) {
+        if (this.isBusy || this.abortLoop) {
             return
         }
         const currentItem = this.queue.filter((v) => v.status === 'wait')[0]
@@ -78,7 +76,7 @@ class Work {
         const _list = this.queue.filter(
             (v) => v.isGettingBuffer === false && v.buffer === undefined
         )
-        if (_list.length === 0) {
+        if (_list.length === 0 || this.abortLoop) {
             return
         }
         const item = _list[0]
@@ -94,12 +92,25 @@ class Work {
     }
     pushVFiles(itemList: VirtualFile[]) {
         this.push(
-            itemList.map((v) => ({
-                name: v.name,
-                getBuffer: () => miaoFetchApi.getFile(v),
-                status: 'wait',
-                isGettingBuffer: false
-            }))
+            itemList.map((v) => {
+                const item: workItem = shallowReactive({
+                    id: Math.random(),
+                    status: 'wait',
+                    name: v.name,
+                    getBuffer: () => {
+                        const { response, abort } = miaoFetchApi.getFile(v, {
+                            onProcess(percent) {
+                                item.getBufferProgress = percent
+                            }
+                        })
+                        item.getBufferAbort = abort
+                        return response
+                    },
+                    isGettingBuffer: false,
+                    getBufferProgress: 0
+                })
+                return item
+            })
         )
     }
 }
@@ -125,6 +136,13 @@ const handleDropVirtualFiles = (vFiles: VirtualFile[]) => {
 onMounted(() => {
     encryptWork.pushVFiles(currentFiles.value)
 })
+
+onUnmounted(() => {
+    encryptWork.abortLoop = true
+    encryptWork.queue.forEach(item=>{
+        item.getBufferAbort && item.getBufferAbort()
+    })
+})
 </script>
 
 <style scoped lang="scss">
@@ -133,12 +151,14 @@ onMounted(() => {
     height: 100%;
     display: flex;
     flex-direction: column;
+
     &-item {
         max-height: 100%;
         flex: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
+
         &-item {
             margin: 10px auto;
             width: 95%;
@@ -148,12 +168,15 @@ onMounted(() => {
                 0 0 3px 1px #43434359;
             border-radius: 5px;
             position: relative;
+
             .miaoCrypto-container-item-percentBar {
                 height: 100%;
                 position: absolute;
                 top: 0;
                 left: 0;
+                border-radius: 5px;
             }
+
             .miaoCrypto-container-item-content {
                 position: relative;
                 z-index: 3
