@@ -67,12 +67,15 @@ export default class PluginCenter {
 					return;
 				}
 
-				const setAlertTip = key !== 'miaoDirectory' && this.globalAlertTip(`加载 ${name} 插件中`);
-				if (_component === undefined) _component = await getComponent();
-				setAlertTip && setAlertTip(`加载 ${name} 插件完成`, {
-					type: "success",
-					timeout: 2000
-				});
+				if (_component === undefined) {
+					const setAlertTip = key !== "miaoDirectory" && this.globalAlertTip(`加载 ${name} 插件中`);
+					_component = await getComponent();
+					setAlertTip &&
+						setAlertTip(`加载 ${name} 插件完成`, {
+							type: "success",
+							timeout: 2000
+						});
+				}
 				views.push(_component, VDirectories, VFiles, {
 					VirtualPageOption: {
 						exitConfirm
