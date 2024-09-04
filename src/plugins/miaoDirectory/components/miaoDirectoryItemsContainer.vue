@@ -45,7 +45,7 @@
 <script setup lang="ts">
 import { NScrollbar } from 'naive-ui'
 import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory'
-import miaoDirectoryItem from '@/components/miaoDirectory/miaoDirectoryItem.vue'
+import miaoDirectoryItem from './miaoDirectoryItem.vue'
 import miaoLazyDiv from '@/components/miaoLazyDiv.vue'
 import { computed, ref } from 'vue'
 import usePluginCenter from '@/hooks/usePluginCenter'

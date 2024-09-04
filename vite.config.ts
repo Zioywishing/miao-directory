@@ -59,7 +59,7 @@ export default defineConfig({
     build: {
         rollupOptions: {
             input: {
-                main: '/src/index.ts'
+                main: 'index.html'
             },
             // output: {
             //     entryFileNames: (chunkInfo) => {

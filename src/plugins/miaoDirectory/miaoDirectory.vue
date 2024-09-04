@@ -57,9 +57,9 @@ import { filePicker, renderIcon } from '@/hooks/miaoTools'
 import { uniq } from 'lodash'
 
 // 导入子组件
-import MiaoDirectoryTop from '@/components/miaoDirectory/miaoDirectoryTop.vue'
-import MiaoDirectoryItems from '@/components/miaoDirectory/miaoDirectoryItemsContainer.vue'
-import MiaoDirectoryBottom from '@/components/miaoDirectory/miaoDirectoryBottom.vue'
+import miaoDirectoryTop from './components/miaoDirectoryTop.vue'
+import MiaoDirectoryItems from './components/miaoDirectoryItemsContainer.vue'
+import MiaoDirectoryBottom from './components/miaoDirectoryBottom.vue'
 import MiaoMask from '@/components/miaoMask.vue'
 import MiaoPopupInput from '@/components/miaoPopupInput.vue'
 import MiaoDropHandler from '@/components/miaoDropHandler.vue'

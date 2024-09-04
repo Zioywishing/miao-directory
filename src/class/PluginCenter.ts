@@ -7,6 +7,15 @@ export enum PluginGroup {
     mainMenu = 'mainMenu'
 }
 
+export interface registerComponentOption {
+    key: string
+    name: string
+    icon?: any
+    getComponent: () => Promise<any>
+    group?: PluginGroup[]
+    filter: (VDirectories: VirtualDirectory[], VFiles: VirtualFile[]) => boolean
+}
+
 type Plugin = {
     // 用于显示的名字
     name: string
@@ -41,17 +50,7 @@ export default class PluginCenter {
     /**
      * 便捷地注册一个组件为插件，触发时直接用新页面打开
      */
-    registerComponent(option: {
-        key: string
-        name: string
-        icon?: any
-        getComponent: () => Promise<any>
-        group?: PluginGroup[]
-        filter: (
-            VDirectories: VirtualDirectory[],
-            VFiles: VirtualFile[]
-        ) => boolean
-    }): void {
+    registerComponent(option: registerComponentOption): void {
         const {
             key,
             name,

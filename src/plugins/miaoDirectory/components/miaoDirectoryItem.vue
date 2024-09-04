@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import miaoContextMenu from '../miaoContextMenu.vue'
+import miaoContextMenu from '@/components/miaoContextMenu.vue'
 import {
     DocumentText,
     FileTray,

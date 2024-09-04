@@ -9,12 +9,13 @@ import {
     EllipsisVertical,
     QrCodeOutline
 } from '@vicons/ionicons5'
-import miaoDirectory from '@/views/miaoDirectory.vue'
+// import miaoDirectory from '@/plugins/miaoDirectory/miaoDirectory.vue'
 import VirtualDirectory, { VirtualFile } from './class/VirtualDirectory'
 import MiaoMask from './components/miaoMask.vue'
 import config from './config'
 import useVirtualPages from './hooks/useVirtualPages'
 import init from './hooks/init'
+import usePluginCenter from './hooks/usePluginCenter'
 
 const { baseUrl } = config
 
@@ -26,6 +27,7 @@ const modalData = shallowRef<{
 }>()
 
 const views = useVirtualPages()
+const pluginCenter = usePluginCenter()
 
 const rootDirectory = reactive(
     new VirtualDirectory({
@@ -52,7 +54,7 @@ const createView = (
 const deleteView = (index: number) => {
     views.deleteView(index)
     if (views.length === 0) {
-        createView(miaoDirectory, [rootDirectory])
+        pluginCenter.usePlugin('miaoDirectory', [rootDirectory], [])
     }
 }
 
@@ -103,9 +105,10 @@ const handleMenuSelect = async (key: string) => {
     }
 }
 
-onMounted(() => {
-    init()
-    createView(miaoDirectory, [rootDirectory])
+onMounted(async () => {
+    await init()
+    pluginCenter.usePlugin('miaoDirectory', [rootDirectory], [])
+    // createView(miaoDirectory, [rootDirectory])
 })
 </script>
 
