@@ -1,12 +1,23 @@
 <template>
     <miao-message-provider ref="miaoMessage">
-        <div class="codemirror-container" ref="rootRef" :class="`codemirror-container-${theme}`">
+        <div
+            class="codemirror-container"
+            ref="rootRef"
+            :class="`codemirror-container-${theme}`">
             <div class="codemirror-container-top">
-                <div class="codemirror-container-btn codemirror-container-btn-save" @click="handleSave">保存</div>
-                <div class="codemirror-container-btn codemirror-container-btn-save" @click="handleReset">恢复到上次保存</div>
+                <div
+                    class="codemirror-container-btn codemirror-container-btn-save"
+                    @click="handleSave">
+                    保存
+                </div>
+                <div
+                    class="codemirror-container-btn codemirror-container-btn-save"
+                    @click="handleReset">
+                    恢复到上次保存
+                </div>
             </div>
             <div class="codemirror-container-main">
-                <NScrollbar style="max-height: calc( 100% );">
+                <NScrollbar style="max-height: calc(100%)">
                     <codemirror v-model="codeData" :extensions="extensions" />
                 </NScrollbar>
             </div>
@@ -27,6 +38,8 @@ const miaoFetchApi = useMiaoFetchApi()
 const currentFiles = defineModel<VirtualFile[]>('currentFiles', {
     required: true
 })
+
+const decoder = new TextDecoder('utf-8')
 
 const miaoMessage = ref<InstanceType<typeof miaoMessageProvider>>()
 const vFile = ref<VirtualFile>()
@@ -60,7 +73,6 @@ const handleSave = async () => {
         timeout: 5000,
         type: 'success'
     })
-
 }
 
 const handleReset = async () => {
@@ -87,7 +99,12 @@ const getLangExtensions = async (fileName: string) => {
         case 'ts':
         case 'tsx':
             const { javascript } = await import('@codemirror/lang-javascript')
-            return [javascript({ jsx: ext.substring(2, 3) === 'x', typescript: ext.substring(0, 2) === 'js', })]
+            return [
+                javascript({
+                    jsx: ext.substring(2, 3) === 'x',
+                    typescript: ext.substring(0, 2) === 'js'
+                })
+            ]
             break
         case 'css':
         case 'scss':
@@ -134,16 +151,15 @@ const getLangExtensions = async (fileName: string) => {
 onMounted(async () => {
     vFile.value = currentFiles.value[0]
     const fileName = currentFiles.value[0].name
-    codeData.value = (
+    codeData.value = decoder.decode(
         await miaoFetchApi.getFile(currentFiles.value[0], {
             axiosOption: {
-                responseType: 'text',
                 headers: {
                     'Cache-Control': 'no-cache'
                 }
             }
         })
-    ).toString()
+    )
     bakData.value = codeData.value
     extensions.value = [...(await getLangExtensions(fileName))]
 

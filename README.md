@@ -7,6 +7,7 @@
 | 完善PDF插件 | ✅ |
 | 完善Code插件 | ✅ |
 | 实现miaoDirectory的搜索功能 | ✅ |
+| 重构miaoFetchApi.getFile， 增加进度 | ❌ |
 | plugin增加些属性，icon, disable, group之类的 | ❌ |
 | 完善miaoDirectory的搜索功能 | ❌ |
 | 实现miaoDirectory的排序功能 | ❌ |

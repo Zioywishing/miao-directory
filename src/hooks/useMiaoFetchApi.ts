@@ -11,14 +11,16 @@ import {
     mkdirOption
 } from '@/types/fetch'
 import Config from '@/config'
-import axios, { AxiosRequestConfig } from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 
 export const useMiaoFetch = (option?: miaoFetchConfig) => {
     const retry = option?.retry ?? 0
     const controller = new AbortController()
     let flag = true
     return {
-        miaoFetch: async (config: AxiosRequestConfig<any>) => {
+        miaoFetch: async (
+            config: AxiosRequestConfig<any>
+        ): Promise<AxiosResponse<any, any>> => {
             let counter = 0
             let response: any
             let errList = []
@@ -68,12 +70,12 @@ const miaoFetchApi = {
     },
 
     /**
-     * 获取对应文件夹下的数据
+     * 获取对应文件下的数据
      */
     async getFile(
         vFile: VirtualFile,
         option?: getOption
-    ): Promise<getResponse> {
+    ) {
         // const { baseUrl, api } = Config
         const url = vFile.url
         const retry = option?.retry ?? 0
@@ -83,9 +85,11 @@ const miaoFetchApi = {
             retry
         })
         const response = await miaoFetch({
-            url, ...axiosOption
+            url,
+            responseType: 'arraybuffer',
+            ...axiosOption
         })
-        return response.data
+        return new Uint8Array(response.data)
     },
 
     /**

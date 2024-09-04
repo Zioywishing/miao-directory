@@ -12,6 +12,9 @@ import { onMounted, ref } from 'vue'
 import MarkdownIt from 'markdown-it'
 import useMiaoFetchApi from '@/hooks/useMiaoFetchApi';
 
+
+    const decoder = new TextDecoder('utf-8');
+
 const miaoFetchApi = useMiaoFetchApi()
 
 const currentFiles = defineModel<VirtualFile[]>('currentFiles', {
@@ -25,7 +28,7 @@ const md = new MarkdownIt()
 
 onMounted(async () => {
   markdownSrc.value = currentFiles.value[0].url
-  const text = (await miaoFetchApi.getFile(currentFiles.value[0])).toString()
+  const text = decoder.decode(await miaoFetchApi.getFile(currentFiles.value[0]))
   renderedMarkdown.value = md.render(text)
 })
 </script>
