@@ -4,7 +4,7 @@
         @on-virtual-files="handleDrop">
         <miao-message-provider ref="miaoMessageRef">
             <div class="miaoImage" ref="rootRef">
-                <n-scrollbar ref="NScrollbarRef">
+                <n-scrollbar ref="NScrollbarRef" style="max-height: 100%;">
                     <div
                         class="miaoImage-container"
                         v-for="imageGroup in imageGroupList">
@@ -152,7 +152,7 @@ const scrollToActiveImage = () => {
     const dom = rootRef.value?.querySelector(
         '.miaoImage-container-row-image-active'
     )
-    NScrollbarRef.value.scrollTo({
+    dom && NScrollbarRef.value.scrollTo({
         top: dom.offsetTop - 30,
         behavior: 'smooth'
     })

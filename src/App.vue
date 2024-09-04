@@ -115,6 +115,7 @@ onMounted(async () => {
     pluginCenter.usePlugin('miaoDirectory', [rootDirectory], [])
 })
 
+// @ts-ignore
 provide('globalAlertTip', messageProviderRef.value?.alertTip)
 </script>
 
