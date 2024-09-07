@@ -16,7 +16,7 @@ import (
 	"miao-directory/fsOperateEventCenter"
 )
 
-//go:embed web/*
+//go:embed all:web/*
 var webFS embed.FS
 
 var port = ":17705"
