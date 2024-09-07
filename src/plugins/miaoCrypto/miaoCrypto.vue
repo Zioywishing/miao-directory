@@ -2,6 +2,7 @@
     <miao-drop-handler @on-virtual-files="handleDropVirtualFiles">
         <div class="miaoCrypto-container">
             <div class="miaoCrypto-container-encrypt miaoCrypto-container-item">
+
                 <n-scrollbar style="max-height: 100%">
                     <div v-for="item of workItemList" :key="item.id" class="miaoCrypto-container-item-item">
                         <div class="miaoCrypto-container-item-percentBar" :style="{
@@ -18,7 +19,7 @@
                     </div>
                 </n-scrollbar>
             </div>
-            <div class="miaoCrypto-container-decrypt miaoCrypto-container-item"></div>
+            <!-- <div class="miaoCrypto-container-decrypt miaoCrypto-container-item"></div> -->
         </div>
     </miao-drop-handler>
 </template>
@@ -38,7 +39,7 @@ const miaoFetchApi = useMiaoFetchApi()
 
 interface workItem {
     id: number
-    status: 'wait' | 'process' | 'finish'
+    status: 'wait' | 'process' | 'finish' | 'error'
     buffer?: Uint8Array
     getBuffer: () => Promise<Uint8Array>
     getBufferProgress: number
@@ -68,8 +69,12 @@ class Work {
             return
         }
         currentItem.status = 'process'
-        currentItem.buffer = await this.func(key.value, currentItem.buffer)
-        currentItem.status = 'finish'
+        try {
+            currentItem.buffer = await this.func(key.value, currentItem.buffer)
+            currentItem.status = 'finish'
+        } catch (e) {
+            currentItem.status = 'error'
+        }
         this.funcLoop()
     }
     async getBufferLoop() {
@@ -81,7 +86,11 @@ class Work {
         }
         const item = _list[0]
         item.isGettingBuffer = true
-        item.buffer = await item.getBuffer()
+        try {
+            item.buffer = await item.getBuffer()
+        } catch(e) {
+            item.status = 'error'
+        }
         item.isGettingBuffer = false
         this.funcLoop()
         this.getBufferLoop()
@@ -139,7 +148,7 @@ onMounted(() => {
 
 onUnmounted(() => {
     encryptWork.abortLoop = true
-    encryptWork.queue.forEach(item=>{
+    encryptWork.queue.forEach(item => {
         item.getBufferAbort && item.getBufferAbort()
     })
 })

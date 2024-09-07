@@ -1,6 +1,6 @@
 import usePluginCenter, { initPluginCenter } from "@/hooks/usePluginCenter";
-import { registerComponentOption } from "@/class/PluginCenter";
-import { alertTipType } from "@/types/type";
+import { Plugin, registerComponentOption } from "@/class/PluginCenter";
+import { alertTipType, PluginExportType } from "@/types/type";
 
 const initPlugin = async (globalAlertTip: alertTipType) => {
 	initPluginCenter(globalAlertTip)
@@ -11,9 +11,18 @@ const initPlugin = async (globalAlertTip: alertTipType) => {
 		promiseArray.push(
 			new Promise(async resolve => {
 				const _config = pluginConfig as () => Promise<{
-					default: registerComponentOption;
+					default: registerComponentOption | Plugin;
+					type: PluginExportType
+					key?: string
 				}>;
-				resolve(pluginCenter.registerComponent((await _config()).default));
+				const {type, key} = await _config()
+				if(type === PluginExportType.component) {
+					// @ts-ignore
+					resolve(pluginCenter.registerComponent((await _config()).default));
+				} else if (type === PluginExportType.default) {
+					// @ts-ignore
+					resolve(pluginCenter.register(key as string, (await _config()).default));
+				}
 			})
 		);
 	}

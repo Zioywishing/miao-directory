@@ -17,3 +17,7 @@ const pluginConfig: registerComponentOption = {
 }
 
 export default pluginConfig
+
+
+import { PluginExportType } from '@/types/type'
+export const type = PluginExportType.component

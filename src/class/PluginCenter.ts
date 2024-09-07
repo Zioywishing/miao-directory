@@ -1,7 +1,7 @@
 import useVirtualPages from "@/hooks/useVirtualPages";
 import VirtualDirectory, { VirtualFile } from "./VirtualDirectory";
 import { ShallowRef, shallowRef } from "vue";
-import { alertTipType } from "@/types/type";
+import { alertTipType, usePluginHooksType } from "@/types/type";
 
 export enum PluginGroup {
 	default = "default",
@@ -19,7 +19,7 @@ export interface registerComponentOption {
 	exitConfirm?: boolean;
 }
 
-type Plugin = {
+export type Plugin = {
 	// 用于显示的名字
 	name: string;
 	// 代表插件的icon
@@ -31,7 +31,12 @@ type Plugin = {
 	// 判断在未禁用时是否可以使用这个组件
 	// 使用组件即调用下面的func
 	filter: (VDirectories: VirtualDirectory[], VFiles: VirtualFile[]) => boolean;
-	func: (VDirectories: VirtualDirectory[], VFiles: VirtualFile[], ...args: any[]) => void;
+	func: (
+		VDirectories: VirtualDirectory[],
+		VFiles: VirtualFile[],
+		hooks: usePluginHooksType,
+		...args: any[]
+	) => void;
 };
 
 export default class PluginCenter {
@@ -107,6 +112,8 @@ export default class PluginCenter {
 	}
 
 	usePlugin(key: string, VDirectories?: VirtualDirectory[], VFiles?: VirtualFile[], ...args: any[]) {
-		this.pluginsMap[key].func(VDirectories ?? [], VFiles ?? [], ...args);
+		this.pluginsMap[key].func(VDirectories ?? [], VFiles ?? [], {
+			globalAlertTip: this.globalAlertTip
+		}, ...args);
 	}
 }

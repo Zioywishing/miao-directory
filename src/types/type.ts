@@ -28,3 +28,12 @@ export interface AlertTipMessageOptions {
     timeout?: number
     id?: number
 }
+
+export enum PluginExportType {
+	default = 'default',
+	component = 'component'
+}
+
+export interface usePluginHooksType {
+	globalAlertTip: alertTipType;
+}

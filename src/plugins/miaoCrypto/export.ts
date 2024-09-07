@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { registerComponentOption } from '@/class/PluginCenter'
+import { PluginExportType } from '@/types/type'
 
 const pluginConfig: registerComponentOption = {
     key: 'miaoCrypto',
@@ -16,6 +17,9 @@ const pluginConfig: registerComponentOption = {
         }
         return vFiles[0].name.endsWith('txt')
     },
+    disable: true,
 }
 
 export default pluginConfig
+
+export const type = PluginExportType.component
