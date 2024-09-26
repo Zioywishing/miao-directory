@@ -1,5 +1,6 @@
 import { registerComponentOption } from '@/class/PluginCenter'
 import { CodeOutline } from '@vicons/ionicons5'
+import { PluginExportType } from '@/types/type'
 
 const pluginConfig: registerComponentOption = {
     key: 'miaoCodeMirror',
@@ -40,3 +41,5 @@ const pluginConfig: registerComponentOption = {
 }
 
 export default pluginConfig
+
+export const type = PluginExportType.component

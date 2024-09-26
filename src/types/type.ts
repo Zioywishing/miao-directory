@@ -20,3 +20,20 @@ export type directory = {
 	stats: stats;
 	parent?: directory;
 };
+
+export type alertTipType = ((content: string, options?: AlertTipMessageOptions) => (newContent: string, newOptions?: AlertTipMessageOptions) => void) 
+
+export interface AlertTipMessageOptions {
+    type?: 'info' | 'success' | 'error'
+    timeout?: number
+    id?: number
+}
+
+export enum PluginExportType {
+	default = 'default',
+	component = 'component'
+}
+
+export interface usePluginHooksType {
+	globalAlertTip: alertTipType;
+}

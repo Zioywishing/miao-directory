@@ -6,6 +6,21 @@ import type { stats, file, directory } from "@/types/type.ts";
 
 const miaoFetchApi = useMiaoFetchApi();
 
+export interface Tree {
+	name: string;
+	type: 'directory';
+	path: string;
+	stats: stats;
+	files?: {
+		name: string;
+		type: 'file';
+		size: number;
+		stats: stats;
+		url: string;
+	}[];
+	directories?: Tree[];
+}
+
 export class VirtualFile {
 	constructor(info: file, parent: VirtualDirectory) {
 		this.name = info.name;
@@ -26,7 +41,7 @@ export class VirtualFile {
 	}
 
 	get url() {
-		return `${config.api.get}${this.parent.path}${this.name}`
+		return `${config.api.get}${this.parent.path}${this.name}`;
 	}
 }
 
@@ -94,6 +109,24 @@ class VirtualDirectory {
 			return this;
 		}
 		return this.parent.getParent(layer - 1);
+	}
+
+	get tree(): Tree {
+		return {
+			name: this.name,
+			type: this.type,
+			path: this.path,
+			stats: this.stats,
+			files:
+				this.files?.map(v => ({
+					name: v.name,
+					type: v.type,
+					size: v.size,
+					stats: v.stats,
+					url: v.url
+				})) ?? [],
+			directories: this.directories?.map(v => v.tree) ?? []
+		};
 	}
 
 	updateContent(content: (file | directory)[]) {

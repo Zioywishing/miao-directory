@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, onMounted, reactive, ref, shallowRef } from 'vue'
+import { h, onMounted, provide, reactive, ref, shallowRef, useTemplateRef } from 'vue'
 import { NIcon, NScrollbar, NDropdown } from 'naive-ui'
 import {
     EyeOffOutline,
@@ -11,10 +11,12 @@ import {
 } from '@vicons/ionicons5'
 import VirtualDirectory, { VirtualFile } from './class/VirtualDirectory'
 import MiaoMask from './components/miaoMask.vue'
+import MiaoMessageProvider from './components/miaoAlertTipProvider.vue'
 import config from './config'
 import useVirtualPages from './hooks/useVirtualPages'
 import init from './hooks/init'
 import usePluginCenter from './hooks/usePluginCenter'
+import PluginCenter from './class/PluginCenter'
 
 const { baseUrl } = config
 
@@ -25,8 +27,10 @@ const modalData = shallowRef<{
     props: any
 }>()
 
+const messageProviderRef = useTemplateRef('messageProviderRef')
+
 const views = useVirtualPages()
-const pluginCenter = usePluginCenter()
+let pluginCenter: PluginCenter
 
 const rootDirectory = reactive(
     new VirtualDirectory({
@@ -105,107 +109,83 @@ const handleMenuSelect = async (key: string) => {
 }
 
 onMounted(async () => {
-    await init()
+    // @ts-ignore
+    await init(messageProviderRef.value?.alertTip)
+    pluginCenter = usePluginCenter()
     pluginCenter.usePlugin('miaoDirectory', [rootDirectory], [])
-    // createView(miaoDirectory, [rootDirectory])
+    console.log(rootDirectory.tree)
 })
+
+// @ts-ignore
+provide('globalAlertTip', messageProviderRef.value?.alertTip)
+provide('rootDirectory', rootDirectory)
 </script>
 
 <template>
     <div class="view">
-        <div class="view-controller">
-            <n-scrollbar x-scrollable>
-                <div class="tabs-container">
-                    <transition-group name="tab">
-                        <div
-                            class="tab"
-                            v-for="(view, index) of views._views"
-                            :key="view.id">
-                            <span
-                                class="tab-title"
-                                :title="view.title"
-                                @click="handleClickTitle(index)">
-                                {{
-                                    view.title.length > 5 && 0
-                                        ? `${view.title.substring(0, 5)}...`
-                                        : view.title
-                                }}
-                            </span>
-                            <div
-                                class="tab-point"
-                                :style="{ backgroundColor: view.color }"></div>
-                            <div class="tab-control">
-                                <n-icon
-                                    class="tag-control-icon icon"
-                                    @click="view.switchShow()">
-                                    <EyeOutline
-                                        v-show="view.visible"
-                                        class="icon-inner" />
-                                    <EyeOffOutline
-                                        v-show="!view.visible"
-                                        class="icon-inner" />
-                                </n-icon>
-                                <n-icon
-                                    class="tag-control-icon icon"
-                                    @click="
+        <miao-message-provider ref="messageProviderRef">
+            <div class="view-controller">
+                <n-scrollbar x-scrollable>
+                    <div class="tabs-container">
+                        <transition-group name="tab">
+                            <div class="tab" v-for="(view, index) of views._views" :key="view.id">
+                                <span class="tab-title" :title="view.title" @click="handleClickTitle(index)">
+                                    {{
+                                        view.title.length > 5 && 0
+                                            ? `${view.title.substring(0, 5)}...`
+                                            : view.title
+                                    }}
+                                </span>
+                                <div class="tab-point" :style="{ backgroundColor: view.color }"></div>
+                                <div class="tab-control">
+                                    <n-icon class="tag-control-icon icon" @click="view.switchShow()">
+                                        <EyeOutline v-show="view.visible" class="icon-inner" />
+                                        <EyeOffOutline v-show="!view.visible" class="icon-inner" />
+                                    </n-icon>
+                                    <n-icon class="tag-control-icon icon" @click="
                                         createView(
                                             view.component,
                                             view.currentDirectories,
                                             view.currentFiles,
                                             index + 1
                                         )
-                                    ">
-                                    <CopyOutline />
-                                </n-icon>
-                                <n-icon
-                                    class="tag-control-icon icon"
-                                    @click="deleteView(index)">
-                                    <CloseOutline class="icon-inner" />
-                                </n-icon>
+                                        ">
+                                        <CopyOutline />
+                                    </n-icon>
+                                    <n-icon class="tag-control-icon icon" @click="deleteView(index)">
+                                        <CloseOutline class="icon-inner" />
+                                    </n-icon>
+                                </div>
                             </div>
-                        </div>
-                    </transition-group>
-                </div>
-            </n-scrollbar>
-            <div class="view-controller-menu">
-                <div class="view-controller-menu-item">
-                    <n-dropdown
-                        trigger="click"
-                        :options="openMenuOption"
-                        @select="handleMenuSelect">
-                        <n-icon class="icon">
-                            <EllipsisVertical class="icon-inner" />
-                        </n-icon>
-                    </n-dropdown>
+                        </transition-group>
+                    </div>
+                </n-scrollbar>
+                <div class="view-controller-menu">
+                    <div class="view-controller-menu-item">
+                        <n-dropdown trigger="click" :options="openMenuOption" @select="handleMenuSelect">
+                            <n-icon class="icon">
+                                <EllipsisVertical class="icon-inner" />
+                            </n-icon>
+                        </n-dropdown>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="view-container">
-            <transition-group name="page">
-                <div
-                    class="view-container-item"
-                    v-for="(view, index) of views._views"
-                    v-show="view.visible"
-                    :key="view.id">
-                    <component
-                        :is="view.component"
-                        v-model:current-directories="view.currentDirectories"
-                        v-model:current-files="view.currentFiles"
-                        :id="view.id"
-                        :color="view.color"
-                        :view="view"
-                        :views="views"
-                        @exit="deleteView(index)"></component>
-                </div>
-            </transition-group>
-        </div>
+            <div class="view-container">
+                <transition-group name="page">
+                    <div class="view-container-item" v-for="(view, index) of views._views" v-show="view.visible"
+                        :key="view.id">
+                        <component :is="view.component" v-model:current-directories="view.currentDirectories"
+                            v-model:current-files="view.currentFiles" :id="view.id" :color="view.color" :view="view"
+                            :views="views" @exit="deleteView(index)"></component>
+                    </div>
+                </transition-group>
+            </div>
+        </miao-message-provider>
     </div>
     <!-- 模态框展示，用来显示分享二维码，设置菜单之类的东西 -->
     <MiaoMask v-model:show="showModal" @click="showModal = false">
-        <component
-            @click="(e: any) => e.stopPropagation()"
-            :is="modalData?.component"
-            v-bind="modalData?.props"></component>
+        <component @click="(e: any) => e.stopPropagation()" :is="modalData?.component" v-bind="modalData?.props">
+        </component>
     </MiaoMask>
 </template>
 
@@ -369,6 +349,7 @@ $tag-width: 170px;
 .view {
     .view-controller {
         .tabs-container {
+
             .tab-move,
             .tab-enter-active {
                 transition: all 0.2s ease;
