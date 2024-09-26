@@ -1,21 +1,9 @@
 import { BasePlugin } from 'xgplayer'
 import './lockScreen.scss'
 
-interface LockPluginConfig {
-    lockText: string
-    unlockText: string
-}
-
 export default class LockPlugin extends BasePlugin {
     static get pluginName() {
         return 'lockPlugin'
-    }
-
-    static get defaultConfig(): LockPluginConfig {
-        return {
-            lockText: '锁定',
-            unlockText: '解锁'
-        }
     }
 
     private locked: boolean

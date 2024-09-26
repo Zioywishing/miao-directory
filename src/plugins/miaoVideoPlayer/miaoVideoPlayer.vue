@@ -10,19 +10,17 @@
 import { VirtualFile } from '@/class/VirtualDirectory'
 import miaoDropHandler from '@/components/miaoDropHandler.vue'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-// import useVirtualPages from '@/hooks/useVirtualPages';
 import XGPlayer from 'xgplayer'
 import '@/style/xgplayer.scss'
 import TextTrack from 'xgplayer/es/plugins/track'
 import 'xgplayer/es/plugins/track/index.css'
-import lockScreen from './playerPlugin/lockScreen'
+import lockScreen from './playerPlugin/lockScreen/lockScreen'
+import xgplayerVueApp from './src/XGPlayerVuePluginRoot.vue'
+import useXGPlayerVueFrame from './playerPlugin/xgplayer-vue-frame/xgplayer-vue-frame'
 import axios from 'axios'
 import { uniq } from 'lodash'
-// import config from '@/config'
 
-// const props = defineProps<{
-//     id: number
-// }>()
+
 const currentFiles = defineModel<VirtualFile[]>('currentFiles', {
     required: true
 })
@@ -37,17 +35,15 @@ let _player: XGPlayer
 const { setVideo } = (() => {
     return {
         setVideo: async (
-            videoVFile: VirtualFile,
+            videoVFiles: VirtualFile[],
             textTrackFiles?: VirtualFile[]
         ) => {
-            if(!currentFiles.value.includes(videoVFile)) {
-                currentFiles.value = [videoVFile]
-            }
-            videoVFile || (videoVFile = findVideo(currentFiles.value))
             textTrackFiles &&
                 textTrackFiles.push(...findTextTrack(currentFiles.value))
             textTrackFiles = uniq(textTrackFiles)
-            currentFiles.value = [videoVFile, ...(textTrackFiles ?? [])]
+            currentFiles.value = [...currentFiles.value, ...videoVFiles, ...(textTrackFiles ?? [])]
+            const videos = findVideo(currentFiles.value)
+            const videoVFile = videos.shift() as VirtualFile
             const _list = []
             if (textTrackFiles) {
                 for (let i of textTrackFiles) {
@@ -94,13 +90,14 @@ const { setVideo } = (() => {
             }
             _player && _player.destroy()
             _player = new XGPlayer({
-                plugins: [TextTrack, lockScreen],
+                plugins: [TextTrack, lockScreen, useXGPlayerVueFrame(xgplayerVueApp)],
                 el: xgPlayer.value,
                 url: videoVFile.url,
                 width: '100%',
                 height: '100%',
                 volume: 1,
-                pip: true,
+                loop: true,
+                // pip: true,
                 videoFillMode: 'contain',
                 autoplay: true,
                 download: true,
@@ -113,7 +110,7 @@ const { setVideo } = (() => {
                 lang: 'zh-cn',
                 playbackRate: [0.1, 0.3, 0.5, 0.75, 1, 1.5, 2, 3, 5, 10],
                 playNext: {
-                    urlList: []
+                    urlList: videos.map(v=>v.url)
                 },
                 texttrack
             })
@@ -292,7 +289,7 @@ const findVideo = (vFiles: VirtualFile[]) =>
             }
         }
         return false
-    })[0]
+    })
 
 const findTextTrack = (vFiles: VirtualFile[]) =>
     vFiles.filter((v) => {
