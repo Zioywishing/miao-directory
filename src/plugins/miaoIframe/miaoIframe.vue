@@ -27,6 +27,7 @@ const sendRootTree = () => {
 }
 
 const handleIframeMessage = (e: MessageEvent<any>) => {
+    e
     // const data = e.data;
     sendRootTree()
 }
