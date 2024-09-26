@@ -15,6 +15,7 @@ import XGPlayer from 'xgplayer'
 import '@/style/xgplayer.scss'
 import TextTrack from 'xgplayer/es/plugins/track'
 import 'xgplayer/es/plugins/track/index.css'
+import lockScreen from './playerPlugin/lockScreen'
 import axios from 'axios'
 import { uniq } from 'lodash'
 // import config from '@/config'
@@ -93,7 +94,7 @@ const { setVideo } = (() => {
             }
             _player && _player.destroy()
             _player = new XGPlayer({
-                plugins: [TextTrack],
+                plugins: [TextTrack, lockScreen],
                 el: xgPlayer.value,
                 url: videoVFile.url,
                 width: '100%',
@@ -105,7 +106,7 @@ const { setVideo } = (() => {
                 download: true,
                 screenShot: {
                     saveImg: true,
-                    quality: 0.92,
+                    quality: 1,
                     type: 'image/png',
                     format: '.png'
                 },
@@ -285,7 +286,7 @@ function ssaToVtt(ssaContent: string): string {
 
 const findVideo = (vFiles: VirtualFile[]) =>
     vFiles.filter((v) => {
-        for (let s of ['mp4', 'm3u8', 'hls']) {
+        for (let s of ['mp4', 'mp3']) {
             if (v.name.endsWith(s)) {
                 return true
             }

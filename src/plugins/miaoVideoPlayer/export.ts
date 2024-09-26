@@ -15,7 +15,7 @@ const pluginConfig: registerComponentOption = {
             return false
         }
         for (let i of vFiles) {
-            for (let s of ['mp4']) {
+            for (let s of ['mp4', 'mp3']) {
                 if (i.name.endsWith(s)) {
                     return true
                 }
