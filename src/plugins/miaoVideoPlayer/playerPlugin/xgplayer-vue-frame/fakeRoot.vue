@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Component, toRaw } from "vue";
+import { Component, toRaw } from "vue";
 import Player from "xgplayer/es/player";
 import { pick } from "lodash";
 const props = defineProps({
@@ -21,10 +21,6 @@ const props = defineProps({
         type: Object as () => Component,
         required: true
     }
-})
-
-onMounted(() => {
-    console.log(props)
 })
 
 </script>

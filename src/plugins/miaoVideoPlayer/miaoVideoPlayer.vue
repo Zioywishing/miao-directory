@@ -14,36 +14,70 @@ import XGPlayer from 'xgplayer'
 import '@/style/xgplayer.scss'
 import TextTrack from 'xgplayer/es/plugins/track'
 import 'xgplayer/es/plugins/track/index.css'
+import axios from 'axios'
+import { uniq } from 'lodash'
 import lockScreen from './playerPlugin/lockScreen/lockScreen'
 import xgplayerVueApp from './src/XGPlayerVuePluginRoot.vue'
 import useXGPlayerVueFrame from './playerPlugin/xgplayer-vue-frame/xgplayer-vue-frame'
-import axios from 'axios'
-import { uniq } from 'lodash'
 
 
 const currentFiles = defineModel<VirtualFile[]>('currentFiles', {
     required: true
 })
-
-// const views = useVirtualPages()
-// const view = views.getView(props.id)
-
-// const videoPath = ref<string>('');
 const xgPlayer = ref()
 
 let _player: XGPlayer
 const { setVideo } = (() => {
+    const initPlayer = (videos: VirtualFile[], texttrack: {
+        list: {
+            id: number; url: string
+            text: string
+        }[]
+    }) => {
+        const videoVFile = videos.shift() as VirtualFile
+        _player && _player.destroy()
+        _player = new XGPlayer({
+            plugins: [
+                TextTrack,
+                lockScreen,
+                useXGPlayerVueFrame(xgplayerVueApp),
+            ],
+            el: xgPlayer.value,
+            url: videoVFile.url,
+            width: '100%',
+            height: '100%',
+            volume: 1,
+            // loop: true,
+            // pip: true,
+            videoFillMode: 'contain',
+            autoplay: true,
+            download: true,
+            screenShot: {
+                saveImg: true,
+                quality: 1,
+                type: 'image/png',
+                format: '.png'
+            },
+            lang: 'zh-cn',
+            playbackRate: [0.1, 0.3, 0.5, 0.75, 1, 1.5, 2, 3, 5, 10],
+            playNext: {
+                urlList: videos.map(v => v.url)
+            },
+            texttrack,
+            ignores: [videos.length === 0 ? 'playNext' : undefined].filter(v => v) as string[]
+        })
+    }
     return {
         setVideo: async (
             videoVFiles: VirtualFile[],
             textTrackFiles?: VirtualFile[]
         ) => {
+            // 天哪什么精神状态会写出这种代码
             textTrackFiles &&
                 textTrackFiles.push(...findTextTrack(currentFiles.value))
             textTrackFiles = uniq(textTrackFiles)
-            currentFiles.value = [...currentFiles.value, ...videoVFiles, ...(textTrackFiles ?? [])]
-            const videos = findVideo(currentFiles.value)
-            const videoVFile = videos.shift() as VirtualFile
+            currentFiles.value = uniq([...currentFiles.value, ...videoVFiles, ...(textTrackFiles ?? [])])
+            const videos = findVideo(uniq([...currentFiles.value, ...videoVFiles]))
             const _list = []
             if (textTrackFiles) {
                 for (let i of textTrackFiles) {
@@ -88,32 +122,7 @@ const { setVideo } = (() => {
             const texttrack = {
                 list: _list
             }
-            _player && _player.destroy()
-            _player = new XGPlayer({
-                plugins: [TextTrack, lockScreen, useXGPlayerVueFrame(xgplayerVueApp)],
-                el: xgPlayer.value,
-                url: videoVFile.url,
-                width: '100%',
-                height: '100%',
-                volume: 1,
-                loop: true,
-                // pip: true,
-                videoFillMode: 'contain',
-                autoplay: true,
-                download: true,
-                screenShot: {
-                    saveImg: true,
-                    quality: 1,
-                    type: 'image/png',
-                    format: '.png'
-                },
-                lang: 'zh-cn',
-                playbackRate: [0.1, 0.3, 0.5, 0.75, 1, 1.5, 2, 3, 5, 10],
-                playNext: {
-                    urlList: videos.map(v=>v.url)
-                },
-                texttrack
-            })
+            initPlayer([...videos], texttrack)
         }
     }
 })()
@@ -135,7 +144,7 @@ const { setUrl, destroyUrl } = (() => {
 })()
 
 const handleDropVFiles = (files: VirtualFile[]) => {
-    setVideo(findVideo(files), findTextTrack(files))
+    setVideo(findVideo(files.reverse()), findTextTrack(files))
 }
 
 function srtToVtt(srt: string) {
@@ -282,14 +291,14 @@ function ssaToVtt(ssaContent: string): string {
 }
 
 const findVideo = (vFiles: VirtualFile[]) =>
-    vFiles.filter((v) => {
+    uniq(vFiles.filter((v) => {
         for (let s of ['mp4', 'mp3']) {
             if (v.name.endsWith(s)) {
                 return true
             }
         }
         return false
-    })
+    }))
 
 const findTextTrack = (vFiles: VirtualFile[]) =>
     vFiles.filter((v) => {
@@ -303,6 +312,7 @@ const findTextTrack = (vFiles: VirtualFile[]) =>
 
 onMounted(() => {
     if (currentFiles.value.length) {
+        currentFiles.value.reverse()
         setVideo(
             findVideo(currentFiles.value),
             findTextTrack(currentFiles.value)

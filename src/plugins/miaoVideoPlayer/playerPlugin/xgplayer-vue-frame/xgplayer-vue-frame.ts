@@ -16,7 +16,6 @@ const useXGPlayerVueFrame = (App: Component) => {
 		}
 
 		afterCreate() {
-			console.log({fakeApp})
 			this.createVueFrame();
 		}
 
