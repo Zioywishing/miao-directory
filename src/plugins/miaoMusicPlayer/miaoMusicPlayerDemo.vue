@@ -23,7 +23,8 @@ import "./src/APlayer.fix.css"
 // @ts-ignore
 import APlayer from 'APlayer';
 import config from '@/config';
-import { difference, uniq } from 'lodash';
+import difference from 'lodash/difference';
+import uniq from 'lodash/uniq'
 import apType from './types/ap';
 
 const miaoMessageRef = ref<InstanceType<typeof miaoAlertTipProvider>>()

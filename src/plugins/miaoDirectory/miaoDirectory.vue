@@ -35,7 +35,7 @@ import useDataBus from '@/hooks/useDataBus'
 import useUploadQueue from '@/hooks/useUploadQueue'
 import useVirtualPages from '@/hooks/useVirtualPages'
 import { filePicker, renderIcon } from '@/hooks/miaoTools'
-import { uniq } from 'lodash'
+import uniq from 'lodash/uniq'
 
 // 导入子组件
 import miaoDirectoryTop from './components/miaoDirectoryTop.vue'

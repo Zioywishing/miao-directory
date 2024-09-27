@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { Component, toRaw } from "vue";
 import Player from "xgplayer/es/player";
-import { pick } from "lodash";
+import pick  from "lodash/pick";
 const props = defineProps({
     player: {
         type: Player,

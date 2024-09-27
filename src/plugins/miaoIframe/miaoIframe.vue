@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory'
-import { cloneDeep } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
 import { inject, onMounted, ref } from 'vue'
 import buildFromTree from '../../hooks/buildFromTree';
 
