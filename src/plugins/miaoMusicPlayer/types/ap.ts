@@ -1,6 +1,6 @@
 export type audioType = {
     url: string
-    artist: string
+    artist?: string
     cover?: string
     name: string
     theme?: string

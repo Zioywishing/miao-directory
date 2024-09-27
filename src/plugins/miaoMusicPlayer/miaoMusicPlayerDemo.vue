@@ -101,13 +101,5 @@ onUnmounted(() => {
     position: fixed;
     bottom: 10px;
     width: -webkit-fill-available;
-
-    .aplayer-list {
-        max-height: 444px !important;
-
-        ol {
-            max-height: inherit !important;
-        }
-    }
 }
 </style>

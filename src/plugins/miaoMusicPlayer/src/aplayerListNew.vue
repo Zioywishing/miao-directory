@@ -1,36 +1,46 @@
 <template>
-    <ol :style="{ maxHeight: ap.options.listMaxHeight }" :key="refreshKey" >
-        <VueDraggable v-model="ap.list.audios" @start="onDragStart" @end="onDragEnd" item-key="id" handle=".aplayer-list-control-btn-reorder">
-            <!-- <template #item="{ element, index }"> -->
-                <li v-for="(element, index) in ap.list.audios" :class="activeAudioIndex == index ? 'aplayer-list-light' : ''"
-                    class="aplayer-list-new" @click="switchAudio(index)" :key="element.id">
-                    <span class="aplayer-list-cur" :style="{ backgroundColor: apTheme }"></span>
-                    <span class="aplayer-list-index">{{ index + 1 }}</span>
-                    <span class="aplayer-list-title">{{ element.name }}</span>
-                    <span class="aplayer-list-author" v-show="element.artist">{{ element.artist }}</span>
-                    <div class="aplayer-list-control">
-                        <div class="aplayer-list-control-btn" @click.stop="listAudioUp(index)" v-if="false">
-                            <ChevronUpOutline class="aplayer-list-control-btn-svg" />
-                        </div>
-                        <div class="aplayer-list-control-btn" @click.stop="listAudioDown(index)" v-if="false">
-                            <ChevronDownOutline class="aplayer-list-control-btn-svg" />
-                        </div>
-                        <div class="aplayer-list-control-btn" @click.stop="listAudioRemove(index)">
-                            <CloseOutline class="aplayer-list-control-btn-svg" />
-                        </div>
-                        <div class="aplayer-list-control-btn aplayer-list-control-btn-reorder">
-                            <ReorderFourOutline class="aplayer-list-control-btn-svg" />
-                        </div>
+    <ol :style="{ maxHeight: ap.options.listMaxHeight }" :key="refreshKey">
+        <VueDraggable v-model="ap.list.audios" @start="onDragStart" @end="onDragEnd" item-key="id"
+            handle=".aplayer-list-control-btn-reorder" ghostClass="iSDragging">
+            <li v-for="(element, index) in ap.list.audios"
+                :class="activeAudioIndex == index ? 'aplayer-list-light' : ''" class="aplayer-list-new"
+                :key="element.id">
+                <span class="aplayer-list-cur" :style="{ backgroundColor: apTheme }"></span>
+                <span class="aplayer-list-index">{{ index + 1 }}</span>
+                <span class="aplayer-list-title">{{ element.name }}</span>
+                <div class="aplayer-list-control">
+                    <div class="aplayer-list-control-btn aplayer-list-control-btn-hover aplayer-list-control-btn-play"
+                        @click.stop="switchAudio(index)" v-if="activeAudioIndex !== index">
+                        <PlayOutline class="aplayer-list-control-btn-svg" />
                     </div>
-                </li>
-            <!-- </template> -->
+                    <div class="aplayer-list-control-btn aplayer-list-control-btn-hover"
+                        @click.stop="switchAudio(index)" v-if="false">
+                        <HeartOutline class="aplayer-list-control-btn-svg" />
+                    </div>
+                    <div class="aplayer-list-control-btn" @click.stop="listAudioUp(index)" v-if="false">
+                        <ChevronUpOutline class="aplayer-list-control-btn-svg" />
+                    </div>
+                    <div class="aplayer-list-control-btn" @click.stop="listAudioDown(index)" v-if="false">
+                        <ChevronDownOutline class="aplayer-list-control-btn-svg" />
+                    </div>
+                    <div class="aplayer-list-control-btn aplayer-list-control-btn-hover"
+                        @click.stop="listAudioRemove(index)">
+                        <CloseOutline class="aplayer-list-control-btn-svg" />
+                    </div>
+                    <div class="aplayer-list-control-btn aplayer-list-control-btn-reorder">
+                        <ReorderFourOutline class="aplayer-list-control-btn-svg" />
+                    </div>
+                </div>
+                <span class="aplayer-list-author" v-show="element.artist !== 'Audio artist1'">{{ element.artist
+                    }}</span>
+            </li>
         </VueDraggable>
     </ol>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { ChevronUpOutline, ChevronDownOutline, CloseOutline, ReorderFourOutline } from '@vicons/ionicons5';
+import { ChevronUpOutline, ChevronDownOutline, CloseOutline, ReorderFourOutline, PlayOutline, HeartOutline } from '@vicons/ionicons5';
 import { VueDraggable } from 'vue-draggable-plus'
 import apType, { audioType } from '../types/ap';
 
@@ -65,10 +75,10 @@ const switchAudio = (index: number) => {
     props.ap.list.switch(index)
 }
 const listRefreshIndex = (curr: audioType) => {
-    for(let index in props.ap.list.audios){
-        if(props.ap.list.audios[index] === curr) {
+    for (let index in props.ap.list.audios) {
+        if (props.ap.list.audios[index] === curr) {
             props.ap.list.index = parseInt(index)
-            return 
+            return
         }
     }
 }
@@ -107,7 +117,7 @@ const listAudioDown = (index: number) => {
 const listAudioRemove = (index: number) => {
     props.ap.list.remove(index)
 }
-const {onDragStart, onDragEnd} = (() => {
+const { onDragStart, onDragEnd } = (() => {
     let curr: audioType
     return {
         onDragStart: () => {
@@ -131,10 +141,19 @@ onMounted(() => {
 <style lang="scss" scoped>
 .aplayer-list-new {
     height: fit-content !important;
+    cursor: default !important;
+
     .aplayer-list-cur {
-        height: calc( 100% - 8px ) !important;
+        height: calc(100% - 8px) !important;
+    }
+
+    .aplayer-list-index {
+        display: inline-block;
+        width: 20px;
+        margin-right: 4px !important;
     }
 }
+
 .aplayer-list-control {
     float: right;
     height: 32px;
@@ -147,12 +166,17 @@ onMounted(() => {
         display: flex;
         justify-content: center;
         align-items: center;
+        cursor: pointer;
 
         &-svg {
             width: 20px;
             aspect-ratio: 1;
             transition: all .1s ease;
+        }
+    }
 
+    &-btn-hover {
+        .aplayer-list-control-btn-svg {
             &:hover {
                 width: 24px;
             }
@@ -165,5 +189,10 @@ onMounted(() => {
 .aplayer svg circle,
 .aplayer .aplayer-list-new svg path {
     fill: #ffffff00;
+}
+
+.iSDragging {
+    opacity: 0.5;
+    background: #60e8a2 !important;
 }
 </style>
