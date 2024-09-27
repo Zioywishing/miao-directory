@@ -10,7 +10,7 @@
                 <span class="aplayer-list-title">{{ element.name }}</span>
                 <div class="aplayer-list-control">
                     <div class="aplayer-list-control-btn aplayer-list-control-btn-hover aplayer-list-control-btn-play"
-                        @click.stop="switchAudio(index)" v-if="activeAudioIndex !== index">
+                        @click.stop="switchAudio(index)">
                         <PlayOutline class="aplayer-list-control-btn-svg" />
                     </div>
                     <div class="aplayer-list-control-btn aplayer-list-control-btn-hover"
@@ -151,6 +151,7 @@ onMounted(() => {
         display: inline-block;
         width: 20px;
         margin-right: 4px !important;
+        cursor: default !important;
     }
 }
 
@@ -185,7 +186,7 @@ onMounted(() => {
 }
 </style>
 
-<style>
+<style lang="scss">
 .aplayer svg circle,
 .aplayer .aplayer-list-new svg path {
     fill: #ffffff00;
@@ -194,5 +195,15 @@ onMounted(() => {
 .iSDragging {
     opacity: 0.5;
     background: #60e8a2 !important;
+}
+
+.aplayer-list-light {
+    background: unset !important;
+    .aplayer-list-title {
+        color: #60e8a2;
+    }
+}
+.aplayer .aplayer-list ol li:hover {
+    background: #efefef !important;
 }
 </style>
