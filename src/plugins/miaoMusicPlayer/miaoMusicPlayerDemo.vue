@@ -86,7 +86,7 @@ onMounted(() => {
         const _name = ap.list.audios[index].name
         currentFiles.value = currentFiles.value.filter(v => v.name !== _name)
     })
-    // console.log({ ap, vueApp })
+    vueApp
 });
 
 onUnmounted(() => {

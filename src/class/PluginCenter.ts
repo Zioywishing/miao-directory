@@ -75,7 +75,7 @@ export default class PluginCenter {
 				}
 
 				if (_component === undefined) {
-					const setAlertTip = key !== "miaoDirectory" && this.globalAlertTip(`加载 ${name} 插件中`);
+					const setAlertTip = this.globalAlertTip(`加载 ${name} 插件中`);
 					_component = await getComponent();
 					setAlertTip &&
 						setAlertTip(`加载 ${name} 插件完成`, {

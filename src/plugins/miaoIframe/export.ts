@@ -15,7 +15,8 @@ const pluginConfig: registerComponentOption = {
             return false
         }
         return vFiles[0].name.endsWith('html')
-    }
+    },
+	priority: 2
 }
 
 export default pluginConfig

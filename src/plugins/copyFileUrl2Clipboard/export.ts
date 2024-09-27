@@ -18,7 +18,8 @@ const pluginConfig: Plugin = {
 	},
 	disable: false,
 	group: [PluginGroup.default],
-	func: Copy
+	func: Copy,
+	priority: -1
 };
 
 export default pluginConfig;
