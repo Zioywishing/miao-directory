@@ -1,5 +1,5 @@
 <template>
-    <ol :style="{ maxHeight: ap.options.listMaxHeight }" :key="refreshKey">
+    <ol :style="{ maxHeight: ap.options.listMaxHeight }" :key="refreshKey" ref="ol">
         <VueDraggable v-model="ap.list.audios" @start="onDragStart" @end="onDragEnd" item-key="id"
             handle=".aplayer-list-control-btn-reorder" ghostClass="iSDragging" :animation="150">
             <li v-for="(element, index) in ap.list.audios"
@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 import { ChevronUpOutline, ChevronDownOutline, CloseOutline, ReorderFourOutline, PlayOutline, HeartOutline } from '@vicons/ionicons5';
 import { VueDraggable } from 'vue-draggable-plus'
 import apType, { audioType } from '../types/ap';
@@ -50,7 +50,11 @@ const props = defineProps<{
     onDragItemEnd: () => void
 }>()
 
+const ol = ref<HTMLOListElement>()
+
 const refreshKey = ref(Math.random())
+
+const isDragging = ref(false)
 
 const apTheme = computed(() => props.ap.list.audios[activeAudioIndex.value].theme ?? props.ap.options.theme)
 
@@ -62,7 +66,13 @@ props.ap.on('listswitch', (...args: any) => {
 })
 
 const refresh = () => {
+    const top = ol.value?.scrollTop
     refreshKey.value = Math.random()
+    nextTick(() => {
+        ol.value?.scrollTo({
+            top,
+        })
+    })
 }
 
 props.ap.on('listremove', refresh)
@@ -121,10 +131,14 @@ const { onDragStart, onDragEnd } = (() => {
     let curr: audioType
     return {
         onDragStart: () => {
+            isDragging.value = true
             curr = props.ap.list.audios[props.ap.list.index]
         },
         onDragEnd: () => {
             listRefreshIndex(curr)
+            nextTick(() => {
+                isDragging.value = false
+            })
         }
     }
 })()
@@ -142,6 +156,7 @@ onMounted(() => {
 .aplayer-list-new {
     height: fit-content !important;
     cursor: default !important;
+
     .aplayer-list-cur {
         height: calc(100% - 8px) !important;
     }
@@ -206,5 +221,22 @@ onMounted(() => {
 
 .aplayer .aplayer-list ol li:hover {
     background: #efefef !important;
+}
+
+
+.miaoMusicDrag-move,
+.miaoMusicDrag-enter-active,
+.miaoMusicDrag-leave-active {
+    transition: all 0.5s cubic-bezier(0.55, 0, 0.1, 1);
+}
+
+.miaoMusicDrag-enter-from,
+.miaoMusicDrag-leave-to {
+    opacity: 0;
+    transform: scaleY(0.01) translate(30px, 0);
+}
+
+.miaoMusicDrag-leave-active {
+    position: absolute;
 }
 </style>
