@@ -197,7 +197,7 @@ onBeforeUnmount(() => {
         display: flex;
         align-items: center;
         transition: background-color 0.3s ease;
-
+        overflow-x: hidden;
         .item-main-front {
             height: 100%;
             min-width: 10px;

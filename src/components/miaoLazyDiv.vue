@@ -1,7 +1,7 @@
 <!-- 只适合用于渲染过程较为复杂的组件，不然可能得不偿失
      这么泛用的组件，性能差点也能理解 -->
 <template>
-    <div class="miao-lazy" ref="miaoLazyRoot" :style="!show ? { minHeight, minWidth } : {}">
+    <div class="miao-lazy" ref="miaoLazyRoot" :style="!show ? { minHeight, minWidth, margin } : {}">
         <slot v-if="show" />
     </div>
 </template>
@@ -20,6 +20,10 @@ const props = defineProps({
         default: 'none',
     },
     minWidth: {
+        type: String,
+        default: 'none',
+    },
+    margin: {
         type: String,
         default: 'none',
     }

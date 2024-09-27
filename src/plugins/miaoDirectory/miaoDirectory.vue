@@ -376,7 +376,12 @@ const handleItemClick = (item: VirtualDirectory | VirtualFile) => {
         handleItemSelect(item)
     } else {
         if (item.type === 'file') {
-            openUrl(`${baseUrl}${api.get}${item.path}`)
+            const useablePlugins = pluginCenter.getUsablePlugin([], [item])
+            if(useablePlugins.length > 0){
+                pluginCenter.usePlugin(useablePlugins[0].key, [], [item])
+            } else {
+                openUrl(`${baseUrl}${api.get}${item.path}`)
+            }
         } else if (item.type === 'directory') {
             setCurrentDirectory(item)
         }

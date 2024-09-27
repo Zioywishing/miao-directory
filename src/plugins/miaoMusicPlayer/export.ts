@@ -26,7 +26,8 @@ const pluginConfig: registerComponentOption = {
         return vFiles[0].name.endsWith('?')
     },
     disable: false,
-    single: true
+    single: true,
+    priority: 5,
 }
 
 export default pluginConfig

@@ -20,6 +20,7 @@ export interface registerComponentOption {
 	exitConfirm?: boolean;
 	// 若为true，则只会创建一个页面，当存在已创建页面则会直接将VFile和VDir加到curr里面
 	single?: boolean;
+	priority?: number;
 }
 
 export type Plugin = {
@@ -31,6 +32,8 @@ export type Plugin = {
 	disable: boolean;
 	// 插件所属的group，用于区分插件使用的场合
 	group: PluginGroup[];
+	// 插件优先级
+	priority: number;
 	// 判断在未禁用时是否可以使用这个组件
 	// 使用组件即调用下面的func
 	filter: (VDirectories: VirtualDirectory[], VFiles: VirtualFile[]) => boolean;
@@ -56,7 +59,7 @@ export default class PluginCenter {
 	 * 便捷地注册一个组件为插件，触发时直接用新页面打开
 	 */
 	registerComponent(option: registerComponentOption): void {
-		const { key, name, getComponent, icon, filter, group = [PluginGroup.default], disable = false, exitConfirm = false, single = false } = option;
+		const { key, name, getComponent, icon, filter, group = [PluginGroup.default], disable = false, exitConfirm = false, single = false, priority = 0 } = option;
 		let _component: any;
 		const views = useVirtualPages();
 		this.register(key, {
@@ -65,6 +68,7 @@ export default class PluginCenter {
 			icon: shallowRef(icon),
 			group,
 			disable,
+			priority,
 			func: async (VDirectories: VirtualDirectory[], VFiles: VirtualFile[]) => {
 				if (filter(VDirectories, VFiles) === false) {
 					return;
@@ -110,10 +114,12 @@ export default class PluginCenter {
 				usableList.push(key);
 			}
 		}
-		return usableList.map(key => ({
+		const res = usableList.map(key => ({
 			key,
 			...this.pluginsMap[key]
-		}));
+		}))
+		res.sort((a, b) => b.priority - a.priority);
+		return res
 	}
 
 	usePlugin(key: string, VDirectories?: VirtualDirectory[], VFiles?: VirtualFile[], ...args: any[]) {

@@ -8,7 +8,8 @@
             <miao-lazy-div
                 v-for="dir in showData_directory"
                 :key="dir.id"
-                min-height="50px">
+                min-height="50px"
+                margin="10px">
                 <miaoDirectoryItem
                     :item="dir"
                     :color="props.color"
