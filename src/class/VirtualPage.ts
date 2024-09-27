@@ -1,9 +1,10 @@
-import { reactive, shallowRef } from 'vue'
+import { Component, reactive, shallowRef } from 'vue'
 import VirtualDirectory, { VirtualFile } from './VirtualDirectory'
 import generateId from '@/hooks/generateId'
 
 export interface VirtualPageOption {
     exitConfirm?: boolean
+    allowCopy?: boolean
 }
 
 export interface ViewsPushOption {
@@ -44,6 +45,7 @@ export default class VirtualPage {
         this.refreshKey = Math.random()
         this.color = getRandomWebSafeColor()
         this.exitConfirm = initObjects?.option?.exitConfirm ?? false
+        this.allowCopy = initObjects?.option?.allowCopy ?? true
     }
     // 页面使用的组件
     component: any
@@ -61,8 +63,10 @@ export default class VirtualPage {
     color: string
     // 用于展示的title
     _title?: string
-    // 关闭时是否需要确认
+    // 关闭时是否需要确认（未实现）
     exitConfirm: boolean
+    // 是否允许复制页面
+    allowCopy: boolean
 
     get title() {
         if (this._title) {
@@ -154,5 +158,12 @@ export class VirtualPages {
      */
     deleteView(index: number) {
         this._views.splice(index, 1)
+    }
+
+    /**
+     * 返回第一个使用此组件的页面
+     */
+    find(component: Component) {
+        return this._views.find(v=>v.component === component)
     }
 }

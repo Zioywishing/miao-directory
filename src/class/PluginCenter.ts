@@ -2,6 +2,7 @@ import useVirtualPages from "@/hooks/useVirtualPages";
 import VirtualDirectory, { VirtualFile } from "./VirtualDirectory";
 import { ShallowRef, shallowRef } from "vue";
 import { alertTipType, usePluginHooksType } from "@/types/type";
+import VirtualPage from "./VirtualPage";
 
 export enum PluginGroup {
 	default = "default",
@@ -17,6 +18,8 @@ export interface registerComponentOption {
 	filter: (VDirectories: VirtualDirectory[], VFiles: VirtualFile[]) => boolean;
 	disable?: boolean;
 	exitConfirm?: boolean;
+	// 若为true，则只会创建一个页面，当存在已创建页面则会直接将VFile和VDir加到curr里面
+	single?: boolean;
 }
 
 export type Plugin = {
@@ -31,12 +34,7 @@ export type Plugin = {
 	// 判断在未禁用时是否可以使用这个组件
 	// 使用组件即调用下面的func
 	filter: (VDirectories: VirtualDirectory[], VFiles: VirtualFile[]) => boolean;
-	func: (
-		VDirectories: VirtualDirectory[],
-		VFiles: VirtualFile[],
-		hooks: usePluginHooksType,
-		...args: any[]
-	) => void;
+	func: (VDirectories: VirtualDirectory[], VFiles: VirtualFile[], hooks: usePluginHooksType, ...args: any[]) => void;
 };
 
 export default class PluginCenter {
@@ -58,7 +56,7 @@ export default class PluginCenter {
 	 * 便捷地注册一个组件为插件，触发时直接用新页面打开
 	 */
 	registerComponent(option: registerComponentOption): void {
-		const { key, name, getComponent, icon, filter, group = [PluginGroup.default], disable = false, exitConfirm = false } = option;
+		const { key, name, getComponent, icon, filter, group = [PluginGroup.default], disable = false, exitConfirm = false, single = false } = option;
 		let _component: any;
 		const views = useVirtualPages();
 		this.register(key, {
@@ -81,11 +79,18 @@ export default class PluginCenter {
 							timeout: 2000
 						});
 				}
-				views.push(_component, VDirectories, VFiles, {
-					VirtualPageOption: {
-						exitConfirm
-					}
-				});
+				if (single && views.find(_component) !== undefined) {
+					const view = views.find(_component) as VirtualPage;
+					view.currentFiles = [...view.currentFiles, ...VFiles];
+					view.currentDirectories = [...view.currentDirectories, ...VDirectories];
+				} else {
+					views.push(_component, VDirectories, VFiles, {
+						VirtualPageOption: {
+							exitConfirm,
+							allowCopy: single === false
+						}
+					});
+				}
 			}
 		});
 	}
@@ -112,8 +117,13 @@ export default class PluginCenter {
 	}
 
 	usePlugin(key: string, VDirectories?: VirtualDirectory[], VFiles?: VirtualFile[], ...args: any[]) {
-		this.pluginsMap[key].func(VDirectories ?? [], VFiles ?? [], {
-			globalAlertTip: this.globalAlertTip
-		}, ...args);
+		this.pluginsMap[key].func(
+			VDirectories ?? [],
+			VFiles ?? [],
+			{
+				globalAlertTip: this.globalAlertTip
+			},
+			...args
+		);
 	}
 }

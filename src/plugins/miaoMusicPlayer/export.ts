@@ -25,7 +25,8 @@ const pluginConfig: registerComponentOption = {
         }
         return vFiles[0].name.endsWith('?')
     },
-    disable: false
+    disable: false,
+    single: true
 }
 
 export default pluginConfig

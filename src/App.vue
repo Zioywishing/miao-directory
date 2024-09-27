@@ -113,7 +113,6 @@ onMounted(async () => {
     await init(messageProviderRef.value?.alertTip)
     pluginCenter = usePluginCenter()
     pluginCenter.usePlugin('miaoDirectory', [rootDirectory], [])
-    console.log(rootDirectory.tree)
 })
 
 // @ts-ignore
@@ -138,7 +137,7 @@ provide('rootDirectory', rootDirectory)
                                 </span>
                                 <div class="tab-point" :style="{ backgroundColor: view.color }"></div>
                                 <div class="tab-control">
-                                    <n-icon class="tag-control-icon icon" @click="view.switchShow()">
+                                    <n-icon class="tag-control-icon icon" @click="view.switchShow()" v-if="view.allowCopy">
                                         <EyeOutline v-show="view.visible" class="icon-inner" />
                                         <EyeOffOutline v-show="!view.visible" class="icon-inner" />
                                     </n-icon>

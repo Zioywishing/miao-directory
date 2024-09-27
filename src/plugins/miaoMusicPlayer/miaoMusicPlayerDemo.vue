@@ -1,6 +1,10 @@
 <template>
     <miao-drop-handler @on-virtual-files="handleDropVFiles">
         <div class="miaoMusic-container">
+            <NScrollbar>
+                <div class="miaoMusic-main">
+                </div>
+            </NScrollbar>
             <div ref="aplayer" />
         </div>
     </miao-drop-handler>
@@ -8,40 +12,60 @@
 
 <script setup lang="ts">
 import miaoDropHandler from '@/components/miaoDropHandler.vue'
+import useAplayerMiao from './hooks/aplayerMiao';
 import { VirtualFile } from '@/class/VirtualDirectory';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import { NScrollbar } from 'naive-ui';
 import 'APlayer/dist/APlayer.min.css';
 // @ts-ignore
 import APlayer from 'APlayer';
 import config from '@/config';
+import { difference, uniq } from 'lodash';
+import apType from './types/ap';
 
 
 const currentFiles = defineModel<VirtualFile[]>('currentFiles', {
     required: true
 });
 
-const MusicList = computed(() => currentFiles.value.map(v => ({
+watch(()=>currentFiles.value, (value, oldValue) => {
+    ap.list.add(getMusicList(difference(value, oldValue)))
+})
+
+const getMusicList = (mp3VFiles: VirtualFile[]) => mp3VFiles.map((v, index) => ({
     url: `${config.baseUrl}${v.url}`,
     name: v.name,
-    artist: '???',
-})));
+    artist: ' ',
+    index
+}));
 
 const handleDropVFiles = (files: VirtualFile[]) => {
-    currentFiles.value = [...currentFiles.value, ...files];
+    currentFiles.value = uniq([...currentFiles.value, ...files]);
 };
 
 const aplayer = ref<any>(null);
 
-let ap: any
+let ap: apType
+let vueApp: any
+
 
 onMounted(() => {
     currentFiles.value = [...currentFiles.value.reverse()]
     const aplayerOption = {
         container: aplayer.value,
-        audio: MusicList.value,
+        audio: getMusicList(currentFiles.value),
         autoplay: true,
+        volume: 1,
+        theme: "#60e8a2"
     }
-    ap = new APlayer(aplayerOption);
+    ap = reactive<apType>(new APlayer(aplayerOption))
+    vueApp = useAplayerMiao(ap)
+	ap.on('listremove', (...args: any) => {
+        const {index} = args[0] as {index: number}
+        const _name = ap.list.audios[index].name
+        currentFiles.value = currentFiles.value.filter(v=>v.name !== _name)
+	})
+    console.log({ ap, vueApp })
 });
 
 onUnmounted(() => {
@@ -53,21 +77,28 @@ onUnmounted(() => {
 .miaoMusic-container {
     width: 100%;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .miaoMusic-main {
+        padding-bottom: 88px;
+    }
 }
 </style>
 <style lang="scss">
 .aplayer {
-    height: calc(100% - 10px);
     display: flex;
-    flex-direction: column;
-    // .aplayer-list {
-    //     max-height: none !important;
-    //     height: fit-content;
-    //     min-height: 0;
-    //     ol {
-    //         max-height: none !important;
-    //         height: fit-content;
-    //     }
-    // }
+    flex-direction: column-reverse;
+    position: fixed;
+    bottom: 10px;
+    width: -webkit-fill-available;
+
+    .aplayer-list {
+        max-height: 444px !important;
+
+        ol {
+            max-height: inherit !important;
+        }
+    }
 }
 </style>

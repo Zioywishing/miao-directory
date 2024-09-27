@@ -36,6 +36,7 @@ export class VirtualFile {
 	stats: stats;
 	parent: VirtualDirectory;
 	id: number;
+	storage: {[key: string]: any} = {};
 	get path() {
 		return `${this.parent.path}${this.name}`;
 	}
@@ -48,7 +49,6 @@ export class VirtualFile {
 class VirtualDirectory {
 	constructor(info: directory, parent?: VirtualDirectory) {
 		this.name = info.name;
-		this.type = "directory";
 		this.stats = info.stats;
 		this.parent = parent ?? undefined;
 		this.id = generateId();
@@ -60,13 +60,15 @@ class VirtualDirectory {
 	// 子目录
 	directories?: VirtualDirectory[];
 	// 没啥意义，标注一下就是了
-	type: "directory";
+	type: "directory" = 'directory';
 	// 文件夹创建时间等杂项属性
 	stats: stats;
 	// 父文件夹
 	parent?: VirtualDirectory;
 
 	id: number;
+
+	storage: {[key: string]: any} = {};
 
 	/**
 	 * 获取相对于根目录的路径的层数
