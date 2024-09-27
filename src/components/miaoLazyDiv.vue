@@ -1,15 +1,20 @@
 <!-- 只适合用于渲染过程较为复杂的组件，不然可能得不偿失
      这么泛用的组件，性能差点也能理解 -->
 <template>
-    <div class="miao-lazy" ref="miaoLazyRoot" :style="!show ? { minHeight, minWidth, margin } : {}">
+    <div class="miao-lazy" ref="miaoLazyRoot"
+        :style="!show ? { minHeight: _autoHeight !== undefined ? _autoHeight : props.minHeight, minWidth, margin } : {}">
         <slot v-if="show" />
     </div>
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 
 const props = defineProps({
+    // disable: {
+    //     type: Boolean,
+    //     default: false,
+    // },
     disableLazy: {
         type: Boolean,
         default: false,
@@ -26,10 +31,16 @@ const props = defineProps({
     margin: {
         type: String,
         default: 'none',
+    },
+    autoHeight: {
+        type: Boolean,
+        default: false
     }
 })
 
 const miaoLazyRoot = ref<HTMLDivElement>()
+
+const _autoHeight = ref<string>()
 
 const show = ref<boolean>(props.disableLazy)
 
@@ -49,6 +60,9 @@ const { showSlot, hideSlot, clearTimer } = (() => {
     }
     const hideSlot = () => {
         clearTimer()
+        if (props.autoHeight) {
+            _autoHeight.value = `${miaoLazyRoot.value?.clientHeight}px`
+        }
         show.value = false
     }
     const showSlot = () => {
@@ -69,7 +83,12 @@ const { showSlot, hideSlot, clearTimer } = (() => {
                 hideSlot()
             }
         }, 1000)
-        // })
+        // if (props.autoHeight) {
+        //     nextTick(() => {
+        //         console.log(miaoLazyRoot.value?.clientHeight)
+        //         _autoHeight.value = `${miaoLazyRoot.value?.clientHeight}px`
+        //     })
+        // }
     }
     return { showSlot, hideSlot, clearTimer }
 })()
