@@ -17,6 +17,10 @@ export default function useDataBus() {
 			const value = dataStorage[key];
 			dataStorage[key] = undefined;
 			return value;
+		},
+		get(key: string | number) {
+			const value = dataStorage[key];
+			return value;
 		}
 	};
 }

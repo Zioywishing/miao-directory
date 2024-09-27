@@ -135,9 +135,9 @@ provide('rootDirectory', rootDirectory)
                                             : view.title
                                     }}
                                 </span>
-                                <div class="tab-point" :style="{ backgroundColor: view.color }"></div>
                                 <div class="tab-control">
-                                    <n-icon class="tag-control-icon icon" @click="view.switchShow()" v-if="view.allowCopy">
+                                    <div class="tab-point" :style="{ backgroundColor: view.color }"></div>
+                                    <n-icon class="tag-control-icon icon" @click="view.switchShow()">
                                         <EyeOutline v-show="view.visible" class="icon-inner" />
                                         <EyeOffOutline v-show="!view.visible" class="icon-inner" />
                                     </n-icon>
@@ -148,7 +148,7 @@ provide('rootDirectory', rootDirectory)
                                             view.currentFiles,
                                             index + 1
                                         )
-                                        ">
+                                        "  v-if="view.allowCopy">
                                         <CopyOutline />
                                     </n-icon>
                                     <n-icon class="tag-control-icon icon" @click="deleteView(index)">
@@ -241,7 +241,7 @@ $tag-width: 170px;
                     height: 5px;
                     aspect-ratio: 1;
                     border-radius: 66px;
-                    margin-left: 5px;
+                    margin-right: 5px;
                 }
 
                 .tab-control {

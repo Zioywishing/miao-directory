@@ -2,10 +2,15 @@ import { createApp, Reactive } from "vue";
 import aplayerListNew from "../src/aplayerListNew.vue";
 import apType from "../types/ap";
 
+type aplayerMiaoOption = {
+	onDragItemStart?: () => void,
+	onDragItemEnd?: () => void,
+}
+
 /**
  * 对aplayer进行一些自定义的风格优化
  */
-const useAplayerMiao = (ap: Reactive<apType>) => {
+const useAplayerMiao = (ap: Reactive<apType>, options?: aplayerMiaoOption) => {
 	const container = ap.container as HTMLDivElement;
 
 	// 隐藏旧版歌单
@@ -30,7 +35,7 @@ const useAplayerMiao = (ap: Reactive<apType>) => {
 	});
 
 	container.appendChild(new_list_dom);
-	const app = createApp(aplayerListNew, { ap });
+	const app = createApp(aplayerListNew, { ap, ...(options ?? {}) });
 	app.mount(new_list_dom);
 
 	ap.on("destroy", () => {

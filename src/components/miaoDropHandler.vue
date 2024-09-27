@@ -12,6 +12,13 @@ import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory'
 import config from '@/config'
 import useDataBus from '@/hooks/useDataBus'
 
+const props = defineProps({
+    disable: {
+        type: Boolean,
+        default: false
+    }
+})
+
 const dataBus = useDataBus()
 
 const { uploadSizeLimit } = config
@@ -57,8 +64,16 @@ const removeDirectory = async (files: File[]) => {
         }
     }
 }
+const check = (event: DragEvent) => [
+    ...(event.dataTransfer?.files ?? []),
+    ...(dataBus.get('dragData_vFiles') ?? []),
+    ...(dataBus.get('dragData_vDirectory') ?? [])
+].length !== 0
 
 const handleDragOver = async (event: DragEvent) => {
+    if (props.disable || check(event) === false) {
+        return
+    }
     event.preventDefault()
     if (showMask.value === 1) {
         return
@@ -71,6 +86,9 @@ const handleDragLeave = async () => {
 }
 
 const handleDrop = async (event: DragEvent) => {
+    if (props.disable || check(event) === false) {
+        return
+    }
     showMask.value = 0
     event.preventDefault()
     event.stopPropagation()

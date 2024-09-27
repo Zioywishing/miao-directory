@@ -45,6 +45,8 @@ const handleDropVFiles = (files: VirtualFile[]) => {
 
 const aplayer = ref<any>(null);
 
+const disableDropReceiver = ref(false)
+
 let ap: apType
 let vueApp: any
 
@@ -59,7 +61,14 @@ onMounted(() => {
         theme: "#60e8a2"
     }
     ap = reactive<apType>(new APlayer(aplayerOption))
-    vueApp = useAplayerMiao(ap)
+    vueApp = useAplayerMiao(ap, {
+        onDragItemStart: () => {
+            disableDropReceiver.value = true
+        },
+        onDragItemEnd: () => {
+            disableDropReceiver.value = false
+        },
+    })
 	ap.on('listremove', (...args: any) => {
         const {index} = args[0] as {index: number}
         const _name = ap.list.audios[index].name

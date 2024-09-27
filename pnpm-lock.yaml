@@ -80,6 +80,9 @@ importers:
       vue-codemirror:
         specifier: ^6.1.1
         version: 6.1.1(codemirror@6.0.1(@lezer/common@1.2.1))(vue@3.5.0(typescript@5.5.4))
+      vue-draggable-plus:
+        specifier: ^0.5.3
+        version: 0.5.3(@types/sortablejs@1.15.8)
       xgplayer:
         specifier: ^3.0.20
         version: 3.0.20(core-js@3.38.1)
@@ -522,6 +525,9 @@ packages:
   '@types/pdfjs-dist@2.10.378':
     resolution: {integrity: sha512-TRdIPqdsvKmPla44kVy4jv5Nt5vjMfVjbIEke1CRULIrwKNRC4lIiZvNYDJvbUMNCFPNIUcOKhXTyMJrX18IMA==}
     deprecated: This is a stub types definition. pdfjs-dist provides its own type definitions, so you do not need this installed.
+
+  '@types/sortablejs@1.15.8':
+    resolution: {integrity: sha512-b79830lW+RZfwaztgs1aVPgbasJ8e7AXtZYHTELNXZPsERt4ymJdjV4OccDbHQAvHrCcFpbF78jkm0R6h/pZVg==}
 
   '@vicons/ionicons5@0.12.0':
     resolution: {integrity: sha512-Iy1EUVRpX0WWxeu1VIReR1zsZLMc4fqpt223czR+Rpnrwu7pt46nbnC2ycO7ItI/uqDLJxnbcMC7FujKs9IfFA==}
@@ -1207,6 +1213,15 @@ packages:
       codemirror: 6.x
       vue: 3.x
 
+  vue-draggable-plus@0.5.3:
+    resolution: {integrity: sha512-dwKDzZ8io3y7k2iuIwVwiGrdiq5C0S7Et7nt5Gz5KjpBS9MtZGFP+L4FJPWGSLYleOT8HmVuCXTZYjGet7wC0g==}
+    peerDependencies:
+      '@types/sortablejs': ^1.15.0
+      '@vue/composition-api': '*'
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+
   vue-tsc@2.0.29:
     resolution: {integrity: sha512-MHhsfyxO3mYShZCGYNziSbc63x7cQ5g9kvijV7dRe1TTXBRLxXyL0FnXWpUF1xII2mJ86mwYpYsUmMwkmerq7Q==}
     hasBin: true
@@ -1681,6 +1696,8 @@ snapshots:
     transitivePeerDependencies:
       - encoding
       - supports-color
+
+  '@types/sortablejs@1.15.8': {}
 
   '@vicons/ionicons5@0.12.0': {}
 
@@ -2465,6 +2482,10 @@ snapshots:
       '@codemirror/view': 6.33.0
       codemirror: 6.0.1(@lezer/common@1.2.1)
       vue: 3.5.0(typescript@5.5.4)
+
+  vue-draggable-plus@0.5.3(@types/sortablejs@1.15.8):
+    dependencies:
+      '@types/sortablejs': 1.15.8
 
   vue-tsc@2.0.29(typescript@5.5.4):
     dependencies:
