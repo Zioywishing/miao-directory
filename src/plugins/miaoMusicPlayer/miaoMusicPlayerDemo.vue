@@ -16,7 +16,7 @@ import useAplayerMiao from './hooks/aplayerMiao';
 import { VirtualFile } from '@/class/VirtualDirectory';
 import { onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { NScrollbar } from 'naive-ui';
-import 'APlayer/dist/APlayer.min.css';
+import "./src/APlayer.fix.css"
 // @ts-ignore
 import APlayer from 'APlayer';
 import config from '@/config';

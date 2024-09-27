@@ -1,7 +1,7 @@
 <template>
     <ol :style="{ maxHeight: ap.options.listMaxHeight }" :key="refreshKey">
         <VueDraggable v-model="ap.list.audios" @start="onDragStart" @end="onDragEnd" item-key="id"
-            handle=".aplayer-list-control-btn-reorder" ghostClass="iSDragging">
+            handle=".aplayer-list-control-btn-reorder" ghostClass="iSDragging" :animation="150">
             <li v-for="(element, index) in ap.list.audios"
                 :class="activeAudioIndex == index ? 'aplayer-list-light' : ''" class="aplayer-list-new"
                 :key="element.id">
@@ -142,7 +142,6 @@ onMounted(() => {
 .aplayer-list-new {
     height: fit-content !important;
     cursor: default !important;
-
     .aplayer-list-cur {
         height: calc(100% - 8px) !important;
     }
@@ -194,15 +193,17 @@ onMounted(() => {
 
 .iSDragging {
     opacity: 0.5;
-    background: #60e8a2 !important;
+    // background: #60e8a2 !important;
 }
 
 .aplayer-list-light {
     background: unset !important;
+
     .aplayer-list-title {
         color: #60e8a2;
     }
 }
+
 .aplayer .aplayer-list ol li:hover {
     background: #efefef !important;
 }
