@@ -5,14 +5,16 @@ import type { stats, file, directory } from "@/types/type.ts";
 
 const miaoFetchApi = useMiaoFetchApi();
 
+const vItemMap = new Map();
+
 export interface Tree {
 	name: string;
-	type: 'directory';
+	type: "directory";
 	path: string;
 	stats: stats;
 	files?: {
 		name: string;
-		type: 'file';
+		type: "file";
 		size: number;
 		stats: stats;
 		url: string;
@@ -28,6 +30,7 @@ export class VirtualFile {
 		this.parent = parent;
 		this.type = "file";
 		this.id = generateId();
+		vItemMap.set(this.path, this);
 	}
 	name: string;
 	type: "file";
@@ -35,7 +38,7 @@ export class VirtualFile {
 	stats: stats;
 	parent: VirtualDirectory;
 	id: number;
-	storage: {[key: string]: any} = {};
+	storage: { [key: string]: any } = {};
 	get path() {
 		return `${this.parent.path}${this.name}`;
 	}
@@ -46,11 +49,15 @@ export class VirtualFile {
 }
 
 class VirtualDirectory {
+	/**
+	 * 除非为根节点，否则必须设置parent
+	 */
 	constructor(info: directory, parent?: VirtualDirectory) {
 		this.name = info.name;
 		this.stats = info.stats;
 		this.parent = parent ?? undefined;
 		this.id = generateId();
+		vItemMap.set(this.path, this);
 	}
 	// 文件夹名
 	name: string;
@@ -59,15 +66,18 @@ class VirtualDirectory {
 	// 子目录
 	directories?: VirtualDirectory[];
 	// 没啥意义，标注一下就是了
-	type: "directory" = 'directory';
+	type: "directory" = "directory";
 	// 文件夹创建时间等杂项属性
 	stats: stats;
 	// 父文件夹
 	parent?: VirtualDirectory;
 
+	_isUpdated: boolean = false;
+
 	id: number;
 
-	storage: {[key: string]: any} = {};
+	// 用来存储一些标记信息啥的
+	storage: { [key: string]: any } = {};
 
 	/**
 	 * 获取相对于根目录的路径的层数
@@ -101,6 +111,13 @@ class VirtualDirectory {
 	}
 
 	/**
+	 * 获取当前文件夹是否已经请求过至少一次数据
+	 */
+	get isUpdated() {
+		return this._isUpdated;
+	}
+
+	/**
 	 * 获取 layer 级父文件夹, 如getParent(1)就返回父级
 	 * @param {number} layer 需要跳转的层数
 	 * @returns {VirtualDirectory}
@@ -130,7 +147,10 @@ class VirtualDirectory {
 		};
 	}
 
+	// todo: 重构这个函数
 	updateContent(content: (file | directory)[]) {
+		this._isUpdated = true;
+
 		this.files = this.files ?? [];
 		this.directories = this.directories ?? [];
 		const fileNames: string[] = this.files.map(v => v.name);

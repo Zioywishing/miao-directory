@@ -17,7 +17,7 @@ const pluginConfig: registerComponentOption = {
             return false
         }
         for (let i of vFiles) {
-            for (let s of ['mp3']) {
+            for (let s of ['mp3', 'flac', 'ogg']) {
                 if (i.name.endsWith(s)) {
                     return true
                 }
