@@ -21,8 +21,7 @@
 
 | 长期计划 |
 |---|
-| 重构virtualDirectory，使其不用直接拥有父文件夹 |
-| 重构virtualDirectory，使其不用直接拥有父文件夹 |
+| 无 |
 
 ## 碎碎念：
 

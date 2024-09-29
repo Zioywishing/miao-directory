@@ -1,4 +1,18 @@
 <template>
+    <div class="aplayer-list-top">
+        <div @click="loopModeToggle" class="aplayer-list-top-loopMode">
+            <component
+                :is="loopModeMap[loopMode].icon"
+                class="aplayer-list-top-loopMode-icon"></component>
+            <span class="aplayer-list-top-loopMode-name">
+                {{ loopModeMap[loopMode].name }}
+            </span>
+        </div>
+        <div class="aplayer-list-top-buttons">
+            <component :is="AddCircleOutline" class="aplayer-list-top-buttons-icon"></component>
+        </div>
+        <span></span>
+    </div>
     <ol
         :style="{ maxHeight: ap.options.listMaxHeight }"
         :class="[
@@ -35,7 +49,13 @@
                     <div
                         class="aplayer-list-control-btn aplayer-list-control-btn-hover aplayer-list-control-btn-play"
                         @click.stop="switchAudio(index)">
-                        <PlayOutline class="aplayer-list-control-btn-svg" />
+                        <component
+                            :is="
+                                activeAudioIndex == index && !isPaused
+                                    ? PauseOutline
+                                    : PlayOutline
+                            "
+                            class="aplayer-list-control-btn-svg"></component>
                     </div>
                     <div
                         class="aplayer-list-control-btn aplayer-list-control-btn-hover"
@@ -88,8 +108,15 @@ import {
     ReorderFourOutline,
     PlayOutline,
     HeartOutline,
-    VideocamOutline
+    VideocamOutline,
+    PauseOutline,
+    ListCircleOutline,
+    ListOutline,
+    HeadsetOutline,
+    LogoOctocat,
+    AddCircleOutline
 } from '@vicons/ionicons5'
+
 import { VueDraggable } from 'vue-draggable-plus'
 // 与vue-draggable冲突
 // import miaoLazyDiv from '@/components/miaoLazyDiv.vue';
@@ -101,6 +128,8 @@ const props = defineProps<{
     onDragItemEnd: () => void
     onPlayVideo: (element: audioType) => void
 }>()
+
+const apRef = ref(props.ap)
 
 const ol = ref<HTMLOListElement>()
 
@@ -115,6 +144,17 @@ const apTheme = computed(
 )
 
 const activeAudioIndex = computed(() => props.ap.list.index)
+const isPaused = ref(false)
+
+props.ap.on('play', () => {
+    nextTick(() => {
+        isPaused.value = false
+    })
+})
+
+props.ap.on('pause', () => {
+    isPaused.value = true
+})
 
 props.ap.on('listswitch', (...args: any) => {
     // 手动触发更新，不然监听不到
@@ -136,6 +176,12 @@ props.ap.on('listadd', refresh)
 
 const switchAudio = (index: number) => {
     if (index === activeAudioIndex.value) {
+        if (props.ap.paused) {
+            props.ap.play()
+        } else {
+            props.ap.pause()
+        }
+        props.ap.paused = props.ap.paused
         return
     }
     props.ap.list.switch(index)
@@ -207,9 +253,52 @@ const isVideo = (element: audioType) => {
     }
     return false
 }
+const loopModeMap = {
+    0: { name: '列表循环', icon: ListCircleOutline },
+    1: { name: '单曲循环', icon: HeadsetOutline },
+    2: { name: '列表播放', icon: ListOutline },
+    3: { name: '随机播放', icon: LogoOctocat }
+}
+
+const loopMode = computed(() => {
+    if (apRef.value.options.order === 'list') {
+        switch (apRef.value.options.loop) {
+            case 'all':
+                return 0
+            case 'one':
+                return 1
+            case 'none':
+                return 2
+        }
+    }
+    return 3
+})
+
+const loopModeToggle = () => {
+    const ops = apRef.value.options
+    if (ops.order === 'random') {
+        ops.order = 'list'
+    } else {
+        switch (ops.loop) {
+            case 'all': {
+                ops.loop = 'one'
+                break
+            }
+            case 'one': {
+                ops.loop = 'none'
+                break
+            }
+            case 'none': {
+                ops.loop = 'all'
+                ops.order = 'random'
+                break
+            }
+        }
+    }
+}
 
 onMounted(() => {
-    // console.log(props.ap)
+    console.log(props.ap)
 })
 </script>
 
@@ -256,6 +345,60 @@ onMounted(() => {
             &:hover {
                 width: 24px;
             }
+        }
+    }
+}
+
+.aplayer-list-top {
+    height: 30px;
+    // width: auto;
+    // max-width: 100%;
+    position: relative;
+    border-bottom: 1px solid #e9e9e9;
+    display: flex;
+    justify-items: baseline;
+    align-items: center;
+    padding: 0 10px;
+    .aplayer-list-top-loopMode {
+        text-align: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        float: left;
+        // background-color: #f9f9f9;
+        scale: 1;
+        transition: scale 0.15s ease;
+        &-icon {
+            width: 20px;
+            aspect-ratio: 1;
+            transform: translateY(1px);
+            fill: #000;
+            path {
+                fill: #000 !important;
+            }
+        }
+        &-name {
+            margin-left: 5px;
+        }
+        &:hover {
+            scale: 1.1;
+        }
+    }
+    .aplayer-list-top-buttons {
+        display: inline-flex;
+        position: absolute;
+        right: 10px;
+        align-items: center;
+        justify-content: center;
+        scale: 1;
+        transition: scale 0.15s ease;
+        &-icon {
+            width: 20px;
+            aspect-ratio: 1;
+        }
+        &:hover {
+            scale: 1.1;
         }
     }
 }

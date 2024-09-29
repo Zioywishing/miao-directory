@@ -89,6 +89,7 @@ defineExpose({ alertTip });
     width: 100%;
     height: 100%;
     position: relative;
+    overflow: hidden;
 
     .miao-message-provider-container {
         position: absolute;
