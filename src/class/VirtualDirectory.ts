@@ -193,7 +193,7 @@ class VirtualDirectory {
         )
         const newDirectoryNames: string[] = difference(
             content.filter((v) => v.type === 'directory').map((v) => v.name),
-            this.files.map((v) => v.name)
+            this.directories.map((v) => v.name)
         )
         _delete(this.files)
         _delete(this.directories)
