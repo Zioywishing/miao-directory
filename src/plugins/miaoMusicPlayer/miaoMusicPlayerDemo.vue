@@ -17,7 +17,7 @@ import miaoDropHandler from '@/components/miaoDropHandler.vue'
 import miaoAlertTipProvider from '@/components/miaoAlertTipProvider.vue'
 import useAplayerMiao from './hooks/aplayerMiao';
 import { VirtualFile } from '@/class/VirtualDirectory';
-import { onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import { App, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { NScrollbar } from 'naive-ui';
 import "./src/APlayer.fix.css"
 // @ts-ignore
@@ -61,7 +61,7 @@ const aplayer = ref<any>(null);
 const disableDropReceiver = ref(false)
 
 let ap: apType
-let vueApp: any
+let vueApp: App<Element>
 
 
 onMounted(() => {
@@ -71,7 +71,8 @@ onMounted(() => {
         audio: getMusicList(currentFiles.value),
         autoplay: true,
         volume: 1,
-        theme: "#60e8a2"
+        theme: "#60e8a2",
+        listMaxHeight: '500px'
     }
     ap = reactive<apType>(new APlayer(aplayerOption))
     vueApp = useAplayerMiao(ap, {
@@ -87,10 +88,10 @@ onMounted(() => {
         const _name = ap.list.audios[index].name
         currentFiles.value = currentFiles.value.filter(v => v.name !== _name)
     })
-    vueApp
 });
 
 onUnmounted(() => {
+    vueApp.unmount()
     ap.destroy()
 })
 </script>

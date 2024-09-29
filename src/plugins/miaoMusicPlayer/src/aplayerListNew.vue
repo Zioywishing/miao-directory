@@ -1,55 +1,94 @@
 <template>
-    <ol :style="{ maxHeight: ap.options.listMaxHeight }" :key="refreshKey" ref="ol">
-        <VueDraggable v-model="ap.list.audios" @start="onDragStart" @end="onDragEnd" item-key="id"
-            handle=".aplayer-list-control-btn-reorder" ghostClass="iSDragging" :animation="150">
+    <ol
+        :style="{ maxHeight: ap.options.listMaxHeight }"
+        :class="[!isDragging ? 'miaoMusic-ol-isDragging' : 'miaoMusic-ol-notDragging']"
+        :key="refreshKey"
+        ref="ol">
+        <VueDraggable
+            v-model="ap.list.audios"
+            @start="onDragStart"
+            @end="onDragEnd"
+            item-key="id"
+            handle=".aplayer-list-control-btn-reorder"
+            ghostClass="iSDragging"
+            :animation="150">
             <!-- <miaoLazyDiv :min-height="'32px'" auto-height> -->
-                <li v-for="(element, index) in ap.list.audios"  :class="activeAudioIndex == index ? 'aplayer-list-light' : ''" class="aplayer-list-new"
-                    :key="element.id">
-                    <span class="aplayer-list-cur" :style="{ backgroundColor: apTheme }"></span>
-                    <span class="aplayer-list-index">{{ index + 1 }}</span>
-                    <span class="aplayer-list-title">{{ element.name }}</span>
-                    <div class="aplayer-list-control">
-                        <div class="aplayer-list-control-btn aplayer-list-control-btn-hover aplayer-list-control-btn-play"
-                            @click.stop="switchAudio(index)">
-                            <PlayOutline class="aplayer-list-control-btn-svg" />
-                        </div>
-                        <div class="aplayer-list-control-btn aplayer-list-control-btn-hover"
-                            @click.stop="switchAudio(index)" v-if="false">
-                            <HeartOutline class="aplayer-list-control-btn-svg" />
-                        </div>
-                        <div class="aplayer-list-control-btn" @click.stop="listAudioUp(index)" v-if="false">
-                            <ChevronUpOutline class="aplayer-list-control-btn-svg" />
-                        </div>
-                        <div class="aplayer-list-control-btn" @click.stop="listAudioDown(index)" v-if="false">
-                            <ChevronDownOutline class="aplayer-list-control-btn-svg" />
-                        </div>
-                        <div class="aplayer-list-control-btn aplayer-list-control-btn-hover"
-                            @click.stop="listAudioRemove(index)">
-                            <CloseOutline class="aplayer-list-control-btn-svg" />
-                        </div>
-                        <div class="aplayer-list-control-btn aplayer-list-control-btn-reorder">
-                            <ReorderFourOutline class="aplayer-list-control-btn-svg" />
-                        </div>
+            <li
+                v-for="(element, index) in ap.list.audios"
+                :class="[activeAudioIndex == index ? 'aplayer-list-light' : '']"
+                class="aplayer-list-new"
+                :key="element.id">
+                <span
+                    class="aplayer-list-cur"
+                    :style="{ backgroundColor: apTheme }"></span>
+                <span class="aplayer-list-index">{{ index + 1 }}</span>
+                <span class="aplayer-list-title">{{ element.name }}</span>
+                <div class="aplayer-list-control">
+                    <div
+                        class="aplayer-list-control-btn aplayer-list-control-btn-hover aplayer-list-control-btn-play"
+                        @click.stop="switchAudio(index)">
+                        <PlayOutline class="aplayer-list-control-btn-svg" />
                     </div>
-                    <span class="aplayer-list-author" v-show="element.artist !== 'Audio artist1'">{{ element.artist
-                        }}</span>
-                </li>
+                    <div
+                        class="aplayer-list-control-btn aplayer-list-control-btn-hover"
+                        @click.stop="switchAudio(index)"
+                        v-if="false">
+                        <HeartOutline class="aplayer-list-control-btn-svg" />
+                    </div>
+                    <div
+                        class="aplayer-list-control-btn"
+                        @click.stop="listAudioUp(index)"
+                        v-if="false">
+                        <ChevronUpOutline
+                            class="aplayer-list-control-btn-svg" />
+                    </div>
+                    <div
+                        class="aplayer-list-control-btn"
+                        @click.stop="listAudioDown(index)"
+                        v-if="false">
+                        <ChevronDownOutline
+                            class="aplayer-list-control-btn-svg" />
+                    </div>
+                    <div
+                        class="aplayer-list-control-btn aplayer-list-control-btn-hover"
+                        @click.stop="listAudioRemove(index)">
+                        <CloseOutline class="aplayer-list-control-btn-svg" />
+                    </div>
+                    <div
+                        class="aplayer-list-control-btn aplayer-list-control-btn-reorder">
+                        <ReorderFourOutline
+                            class="aplayer-list-control-btn-svg" />
+                    </div>
+                </div>
+                <span
+                    class="aplayer-list-author"
+                    v-show="element.artist !== 'Audio artist1'">
+                    {{ element.artist }}
+                </span>
+            </li>
             <!-- </miaoLazyDiv> -->
         </VueDraggable>
     </ol>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue';
-import { ChevronUpOutline, ChevronDownOutline, CloseOutline, ReorderFourOutline, PlayOutline, HeartOutline } from '@vicons/ionicons5';
+import { computed, nextTick, onMounted, ref } from 'vue'
+import {
+    ChevronUpOutline,
+    ChevronDownOutline,
+    CloseOutline,
+    ReorderFourOutline,
+    PlayOutline,
+    HeartOutline
+} from '@vicons/ionicons5'
 import { VueDraggable } from 'vue-draggable-plus'
 // 与vue-draggable冲突
 // import miaoLazyDiv from '@/components/miaoLazyDiv.vue';
-import apType, { audioType } from '../types/ap';
+import apType, { audioType } from '../types/ap'
 
 const props = defineProps<{
     ap: apType
-    onDragItemStart: () => void,
+    onDragItemStart: () => void
     onDragItemEnd: () => void
 }>()
 
@@ -59,13 +98,17 @@ const refreshKey = ref(Math.random())
 
 const isDragging = ref(false)
 
-const apTheme = computed(() => props.ap.list.audios[activeAudioIndex.value].theme ?? props.ap.options.theme)
+const apTheme = computed(
+    () =>
+        props.ap.list.audios[activeAudioIndex.value].theme ??
+        props.ap.options.theme
+)
 
 const activeAudioIndex = computed(() => props.ap.list.index)
 
 props.ap.on('listswitch', (...args: any) => {
     // 手动触发更新，不然监听不到
-    props.ap.list.index = args[0].index as number;
+    props.ap.list.index = args[0].index as number
 })
 
 const refresh = () => {
@@ -73,7 +116,7 @@ const refresh = () => {
     refreshKey.value = Math.random()
     nextTick(() => {
         ol.value?.scrollTo({
-            top,
+            top
         })
     })
 }
@@ -97,33 +140,33 @@ const listRefreshIndex = (curr: audioType) => {
 }
 
 const listAudioUp = (index: number) => {
-    const arr = props.ap.list.audios;
+    const arr = props.ap.list.audios
     const len = arr.length
     const curr = props.ap.list.audios[props.ap.list.index]
     if (index === 0) {
-        const _item = arr.shift();
-        _item && arr.push(_item);
+        const _item = arr.shift()
+        _item && arr.push(_item)
     } else {
-        const pre: number = (len - 1 + index) % len;
-        const _pre = arr[index];
-        arr[index] = arr[pre];
-        arr[pre] = _pre;
+        const pre: number = (len - 1 + index) % len
+        const _pre = arr[index]
+        arr[index] = arr[pre]
+        arr[pre] = _pre
     }
     listRefreshIndex(curr)
-};
+}
 
 const listAudioDown = (index: number) => {
-    const arr = props.ap.list.audios;
+    const arr = props.ap.list.audios
     const len = arr.length
     const curr = props.ap.list.audios[props.ap.list.index]
     if (index === len - 1) {
-        const _item = arr.pop();
-        _item && arr.unshift(_item);
+        const _item = arr.pop()
+        _item && arr.unshift(_item)
     } else {
-        const pre: number = (len + 1 + index) % len;
-        const _pre = arr[index];
-        arr[index] = arr[pre];
-        arr[pre] = _pre;
+        const pre: number = (len + 1 + index) % len
+        const _pre = arr[index]
+        arr[index] = arr[pre]
+        arr[pre] = _pre
     }
     listRefreshIndex(curr)
 }
@@ -189,7 +232,7 @@ onMounted(() => {
         &-svg {
             width: 20px;
             aspect-ratio: 1;
-            transition: all .1s ease;
+            transition: all 0.1s ease;
         }
     }
 
@@ -222,10 +265,9 @@ onMounted(() => {
     }
 }
 
-.aplayer .aplayer-list ol li:hover {
+.aplayer .aplayer-list .miaoMusic-ol-isDragging li:hover {
     background: #efefef !important;
 }
-
 
 .miaoMusicDrag-move,
 .miaoMusicDrag-enter-active,

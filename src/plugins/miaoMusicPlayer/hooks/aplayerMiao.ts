@@ -38,6 +38,8 @@ const useAplayerMiao = (ap: Reactive<apType>, options?: aplayerMiaoOption) => {
 	const app = createApp(aplayerListNew, { ap, ...(options ?? {}) });
 	app.mount(new_list_dom);
 
+	console.log({ap})
+
 	ap.on("destroy", () => {
 		app.unmount();
 	});

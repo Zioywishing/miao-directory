@@ -7,7 +7,7 @@ const pluginConfig: registerComponentOption = {
     key: 'miaoMusicPlayer',
     name: '音乐',
     icon: Disc,
-    getComponent: async () => 
+    getComponent: async () =>
         (await import('./miaoMusicPlayerDemo.vue')).default,
     filter: (vDirs, vFiles) => {
         if (vDirs.length !== 0) {
@@ -17,13 +17,13 @@ const pluginConfig: registerComponentOption = {
             return false
         }
         for (let i of vFiles) {
-            for (let s of ['mp3', 'flac', 'ogg']) {
+            for (let s of ['mp3', 'flac', 'ogg', 'mp4']) {
                 if (i.name.endsWith(s)) {
                     return true
                 }
             }
         }
-        return vFiles[0].name.endsWith('?')
+        return false
     },
     disable: false,
     single: true,
