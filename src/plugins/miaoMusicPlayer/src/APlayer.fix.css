@@ -427,11 +427,11 @@
     fill: #000
 }
 
-.aplayer .aplayer-info .aplayer-controller .aplayer-time .aplayer-icon.aplayer-icon-menu,
+/* .aplayer .aplayer-info .aplayer-controller .aplayer-time .aplayer-icon.aplayer-icon-menu,
 .aplayer .aplayer-info .aplayer-controller .aplayer-time.aplayer-time-narrow .aplayer-icon-menu,
 .aplayer .aplayer-info .aplayer-controller .aplayer-time.aplayer-time-narrow .aplayer-icon-mode {
     display: none
-}
+} */
 
 .aplayer .aplayer-info .aplayer-controller .aplayer-volume-wrap {
     position: relative;
@@ -556,9 +556,9 @@
 
 .aplayer .aplayer-list {
     overflow: auto;
-    transition: all .5s ease;
+    transition: all .35s ease;
     will-change: height;
-    display: none;
+    /* display: none; */
     overflow: hidden
 }
 

@@ -1,5 +1,9 @@
 <template>
-    <div class="container" @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop">
+    <div
+        class="container"
+        @dragover="handleDragOver"
+        @dragleave="handleDragLeave"
+        @drop="handleDrop">
         <slot></slot>
         <miao-mask v-model:show="showMask"></miao-mask>
     </div>
@@ -64,11 +68,15 @@ const removeDirectory = async (files: File[]) => {
         }
     }
 }
-const check = (event: DragEvent) => [
-    ...(event.dataTransfer?.files ?? []),
-    ...(dataBus.get('dragData_vFiles') ?? []),
-    ...(dataBus.get('dragData_vDirectory') ?? [])
-].length !== 0
+const check = (event: DragEvent) => {
+    return (
+        [
+            ...(event.dataTransfer?.types?.filter(v=>v === 'Files') ?? []),
+            ...(dataBus.get('dragData_vFiles') ?? []),
+            ...(dataBus.get('dragData_vDirectory') ?? [])
+        ].length !== 0
+    )
+}
 
 const handleDragOver = async (event: DragEvent) => {
     if (props.disable || check(event) === false) {

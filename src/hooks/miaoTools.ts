@@ -53,7 +53,12 @@ export const renderIcon = (icon: any) => {
     }
 }
 
+export const sleep = async (timeout: number) => {
+    await new Promise(_=>setTimeout(_, timeout))
+}
+
 export default {
     filePicker,
-    renderIcon
+    renderIcon,
+    sleep
 }

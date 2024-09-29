@@ -26,6 +26,9 @@ import config from '@/config';
 import difference from 'lodash/difference';
 import uniq from 'lodash/uniq'
 import apType from './types/ap';
+import usePluginCenter from '@/hooks/usePluginCenter';
+
+const pluginCenter = usePluginCenter()
 
 const miaoMessageRef = ref<InstanceType<typeof miaoAlertTipProvider>>()
 
@@ -49,7 +52,7 @@ const getMusicList = (mp3VFiles: VirtualFile[]) => mp3VFiles.map((v, index) => (
     url: `${config.baseUrl}${v.url}`,
     name: v.name,
     artist: ' ',
-    index
+    index,
 }));
 
 const handleDropVFiles = (files: VirtualFile[]) => {
@@ -57,8 +60,6 @@ const handleDropVFiles = (files: VirtualFile[]) => {
 };
 
 const aplayer = ref<any>(null);
-
-const disableDropReceiver = ref(false)
 
 let ap: apType
 let vueApp: App<Element>
@@ -77,11 +78,12 @@ onMounted(() => {
     ap = reactive<apType>(new APlayer(aplayerOption))
     vueApp = useAplayerMiao(ap, {
         onDragItemStart: () => {
-            disableDropReceiver.value = true
         },
         onDragItemEnd: () => {
-            disableDropReceiver.value = false
         },
+        onPlayVideo: element => {
+            pluginCenter.usePlugin('miaoVideoPlayer', [], [currentFiles.value.find(v=>v.name === element.name) as VirtualFile])
+        }
     })
     ap.on('listremove', (...args: any) => {
         const { index } = args[0] as { index: number }
@@ -112,7 +114,7 @@ onUnmounted(() => {
 .aplayer {
     display: flex;
     flex-direction: column-reverse;
-    position: fixed;
+    position: absolute;
     bottom: 10px;
     width: -webkit-fill-available;
 }

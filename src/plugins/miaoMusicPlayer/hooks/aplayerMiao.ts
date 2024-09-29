@@ -1,10 +1,11 @@
 import { createApp, Reactive } from "vue";
 import aplayerListNew from "../src/aplayerListNew.vue";
-import apType from "../types/ap";
+import apType, { audioType } from "../types/ap";
 
 type aplayerMiaoOption = {
-	onDragItemStart?: () => void,
-	onDragItemEnd?: () => void,
+    onDragItemStart?: () => void
+    onDragItemEnd?: () => void
+    onPlayVideo?: (element: audioType) => void
 }
 
 /**

@@ -1,7 +1,9 @@
 <template>
     <ol
         :style="{ maxHeight: ap.options.listMaxHeight }"
-        :class="[!isDragging ? 'miaoMusic-ol-isDragging' : 'miaoMusic-ol-notDragging']"
+        :class="[
+            !isDragging ? 'miaoMusic-ol-isDragging' : 'miaoMusic-ol-notDragging'
+        ]"
         :key="refreshKey"
         ref="ol">
         <VueDraggable
@@ -24,6 +26,12 @@
                 <span class="aplayer-list-index">{{ index + 1 }}</span>
                 <span class="aplayer-list-title">{{ element.name }}</span>
                 <div class="aplayer-list-control">
+                    <div
+                        v-if="isVideo(element)"
+                        class="aplayer-list-control-btn aplayer-list-control-btn-hover aplayer-list-control-btn-play"
+                        @click.stop="onPlayVideo(element)">
+                        <VideocamOutline class="aplayer-list-control-btn-svg" />
+                    </div>
                     <div
                         class="aplayer-list-control-btn aplayer-list-control-btn-hover aplayer-list-control-btn-play"
                         @click.stop="switchAudio(index)">
@@ -79,7 +87,8 @@ import {
     CloseOutline,
     ReorderFourOutline,
     PlayOutline,
-    HeartOutline
+    HeartOutline,
+    VideocamOutline
 } from '@vicons/ionicons5'
 import { VueDraggable } from 'vue-draggable-plus'
 // 与vue-draggable冲突
@@ -90,6 +99,7 @@ const props = defineProps<{
     ap: apType
     onDragItemStart: () => void
     onDragItemEnd: () => void
+    onPlayVideo: (element: audioType) => void
 }>()
 
 const ol = ref<HTMLOListElement>()
@@ -188,10 +198,15 @@ const { onDragStart, onDragEnd } = (() => {
         }
     }
 })()
-// const onDragEnd = (_e: any) => {
-//     const curr = props.ap.list.audios[props.ap.list.index]
-//     listRefreshIndex(curr)
-// }
+
+const isVideo = (element: audioType) => {
+    for (let end of ['mp4']) {
+        if (element.name.endsWith(end)) {
+            return true
+        }
+    }
+    return false
+}
 
 onMounted(() => {
     // console.log(props.ap)
