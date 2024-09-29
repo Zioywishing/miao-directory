@@ -2,8 +2,8 @@
     <ol :style="{ maxHeight: ap.options.listMaxHeight }" :key="refreshKey" ref="ol">
         <VueDraggable v-model="ap.list.audios" @start="onDragStart" @end="onDragEnd" item-key="id"
             handle=".aplayer-list-control-btn-reorder" ghostClass="iSDragging" :animation="150">
-            <miaoLazyDiv v-for="(element, index) in ap.list.audios" :min-height="'32px'" auto-height>
-                <li :class="activeAudioIndex == index ? 'aplayer-list-light' : ''" class="aplayer-list-new"
+            <!-- <miaoLazyDiv :min-height="'32px'" auto-height> -->
+                <li v-for="(element, index) in ap.list.audios"  :class="activeAudioIndex == index ? 'aplayer-list-light' : ''" class="aplayer-list-new"
                     :key="element.id">
                     <span class="aplayer-list-cur" :style="{ backgroundColor: apTheme }"></span>
                     <span class="aplayer-list-index">{{ index + 1 }}</span>
@@ -34,7 +34,7 @@
                     <span class="aplayer-list-author" v-show="element.artist !== 'Audio artist1'">{{ element.artist
                         }}</span>
                 </li>
-            </miaoLazyDiv>
+            <!-- </miaoLazyDiv> -->
         </VueDraggable>
     </ol>
 </template>
@@ -43,7 +43,8 @@
 import { computed, nextTick, onMounted, ref } from 'vue';
 import { ChevronUpOutline, ChevronDownOutline, CloseOutline, ReorderFourOutline, PlayOutline, HeartOutline } from '@vicons/ionicons5';
 import { VueDraggable } from 'vue-draggable-plus'
-import miaoLazyDiv from '@/components/miaoLazyDiv.vue';
+// 与vue-draggable冲突
+// import miaoLazyDiv from '@/components/miaoLazyDiv.vue';
 import apType, { audioType } from '../types/ap';
 
 const props = defineProps<{
