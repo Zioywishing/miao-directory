@@ -25,6 +25,7 @@
 	z-index: 10;
 	background-image: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.37), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75));
 	transition: opacity 0.5s ease, visibility 0.5s ease;
+	cursor: default;
 }
 .xgplayer .xgplayer-controls.show {
 	display: block;
