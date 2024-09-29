@@ -14,14 +14,14 @@ export interface Tree {
     type: 'directory'
     path: string
     stats: stats
-    files?: {
+    files: {
         name: string
         type: 'file'
         size: number
         stats: stats
         url: string
     }[]
-    directories?: Tree[]
+    directories: Tree[]
 }
 
 export class VirtualFile {
