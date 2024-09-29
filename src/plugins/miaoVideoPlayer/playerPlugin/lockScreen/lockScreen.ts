@@ -58,6 +58,8 @@ export default class LockPlugin extends BasePlugin {
     }
 
     private toggleLock() {
+        console.log(this.player.seek)
+        this.player.seek = () => {}
         if (this.lockDiv && this.overlayDiv) {
             this.locked = !this.locked
             this.lockDiv.innerHTML = this.locked
@@ -69,7 +71,7 @@ export default class LockPlugin extends BasePlugin {
                     ? this.player.controls.hide()
                     : this.player.controls.show())
             this.player.root !== null &&
-                this.player.root.classList.toggle('locked', this.locked)
+                this.player.root.classList.toggle('xgplayer-locked', this.locked)
         }
     }
 
