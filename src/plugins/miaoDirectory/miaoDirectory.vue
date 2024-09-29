@@ -1,28 +1,49 @@
 <template>
-    <miao-drop-handler @on-virtual-directory="handleDropVDirectory" @on-files="handleDropFiles"
+    <miao-drop-handler
+        @on-virtual-directory="handleDropVDirectory"
+        @on-files="handleDropFiles"
         @on-virtual-files="handleDropVirtualFiles">
-        <div class="miao-directory-item-container" ref="rootDomRef">
-            <!-- 顶部面包屑导航和工具栏 -->
-            <miao-directory-top :color="props.color" :current-directory="currentDirectory" @back="handleBack"
-                :open-menu-option="topBarMenuOption" @reload="handleReload" @exit="emit('exit')" :index="index"
-                @set-current-directory="setCurrentDirectory" @search="handleSearch"
-                @menu-select="handleTopBarMenuSelect" />
+        <miaoAlertTipProvider ref="miaoAlertTip">
+            <div class="miao-directory-item-container" ref="rootDomRef">
+                <!-- 顶部面包屑导航和工具栏 -->
+                <miao-directory-top
+                    :color="props.color"
+                    :current-directory="currentDirectory"
+                    @back="handleBack"
+                    :open-menu-option="topBarMenuOption"
+                    @reload="handleReload"
+                    @exit="emit('exit')"
+                    :index="index"
+                    @set-current-directory="setCurrentDirectory"
+                    @search="handleSearch"
+                    @menu-select="handleTopBarMenuSelect" />
 
-            <!-- 文件和文件夹列表 -->
-            <miao-directory-items ref="miaoDirectoryItemRef" :color="props.color"
-                :showData_directory="showData_directory" :showData_files="showData_files"
-                :selected-item="selectedItem.value" :index="index" @item-click="handleItemClick"
-                @item-download="handleItemDownload" @item-delete="handleItemDelete"
-                @item-drag-start="handleItemDragStart" @item-rename="handleItemRename"
-                @item-select="handleItemSelect" />
+                <!-- 文件和文件夹列表 -->
+                <miao-directory-items
+                    ref="miaoDirectoryItemRef"
+                    :color="props.color"
+                    :showData_directory="showData_directory"
+                    :showData_files="showData_files"
+                    :selected-item="selectedItem.value"
+                    :index="index"
+                    @item-click="handleItemClick"
+                    @item-download="handleItemDownload"
+                    @item-delete="handleItemDelete"
+                    @item-drag-start="handleItemDragStart"
+                    @item-rename="handleItemRename"
+                    @item-select="handleItemSelect" />
 
-            <!-- 底部工具栏 -->
-            <miao-directory-bottom :index="index" @add-new-item="handleAddNewItem" v-if="false"
-                @pick-files-upload="handlePickFilesUpload" />
+                <!-- 底部工具栏 -->
+                <miao-directory-bottom
+                    :index="index"
+                    @add-new-item="handleAddNewItem"
+                    v-if="false"
+                    @pick-files-upload="handlePickFilesUpload" />
 
-            <miao-mask v-model:show="showModel"></miao-mask>
-            <miao-popup-input ref="popupInput"></miao-popup-input>
-        </div>
+                <miao-mask v-model:show="showModel"></miao-mask>
+                <miao-popup-input ref="popupInput"></miao-popup-input>
+            </div>
+        </miaoAlertTipProvider>
     </miao-drop-handler>
 </template>
 
@@ -37,13 +58,13 @@ import useVirtualPages from '@/hooks/useVirtualPages'
 import { filePicker, renderIcon } from '@/hooks/miaoTools'
 import uniq from 'lodash/uniq'
 
-// 导入子组件
 import miaoDirectoryTop from './components/miaoDirectoryTop.vue'
 import MiaoDirectoryItems from './components/miaoDirectoryItemsContainer.vue'
 import MiaoDirectoryBottom from './components/miaoDirectoryBottom.vue'
 import MiaoMask from '@/components/miaoMask.vue'
 import MiaoPopupInput from '@/components/miaoPopupInput.vue'
 import MiaoDropHandler from '@/components/miaoDropHandler.vue'
+import miaoAlertTipProvider from '@/components/miaoAlertTipProvider.vue'
 import {
     CloseOutline,
     SearchOutline,
@@ -80,6 +101,7 @@ const searchText = ref<string>('')
 const showDirs = ref<boolean>(true)
 const showFiles = ref<boolean>(true)
 const miaoDirectoryItemRef = ref()
+const miaoAlertTip = ref<InstanceType<typeof miaoAlertTipProvider>>()
 
 class SelectedItem {
     constructor() {
@@ -182,10 +204,10 @@ const topBarMenuOption = computed(() => {
         },
         searchText.value !== ''
             ? {
-                label: '重置搜索',
-                key: 'searchReset',
-                icon: renderIcon(SearchOutline)
-            }
+                  label: '重置搜索',
+                  key: 'searchReset',
+                  icon: renderIcon(SearchOutline)
+              }
             : undefined,
         // selectedItem.value.length !== 0
         //     ? {
@@ -227,13 +249,14 @@ const topBarMenuOption = computed(() => {
                     label: `反选`,
                     key: 'multiSelect:inversion'
                 },
-                selectedItem.value.length === 2 ?
-                    {
-                        label: `区间内全选`,
-                        key: 'multiSelect:range'
-                    } : undefined
+                selectedItem.value.length === 2
+                    ? {
+                          label: `区间内全选`,
+                          key: 'multiSelect:range'
+                      }
+                    : undefined
             ].filter((v) => v !== undefined),
-            icon: renderIcon(CheckmarkDoneOutline),
+            icon: renderIcon(CheckmarkDoneOutline)
         },
         {
             label: '插件',
@@ -259,11 +282,9 @@ const topBarMenuOption = computed(() => {
 
 // 设置显示的dir
 const setCurrentDirectory = async (virtualDirectory: VirtualDirectory) => {
+    try {
     // 若没有缓存数据则同步刷新，有缓存数据则异步刷新
-    if (
-        virtualDirectory.files === undefined ||
-        virtualDirectory.directories === undefined
-    ) {
+    if (!virtualDirectory.isUpdated) {
         await virtualDirectory.update()
     } else {
         virtualDirectory.update()
@@ -279,6 +300,12 @@ const setCurrentDirectory = async (virtualDirectory: VirtualDirectory) => {
         })
     }
     currentDirectories.value[0] = virtualDirectory
+    } catch(e) {
+        miaoAlertTip.value?.alertTip(`获取文件夹内容出错`, {
+            type: 'error',
+            timeout: 3000
+        })
+    }
 }
 
 const reload = () => {
@@ -315,10 +342,12 @@ const handleTopBarMenuSelect = (key: string) => {
         //     selectedItem.clear()
     } else if (key === 'showDirs') {
         showDirs.value = !showDirs.value
-        showDirs.value === false && selectedItem.clear(v => v.type !== 'directory')
+        showDirs.value === false &&
+            selectedItem.clear((v) => v.type !== 'directory')
     } else if (key === 'showFiles') {
         showFiles.value = !showFiles.value
-        showFiles.value === false && selectedItem.clear(v => v.type !== 'file')
+        showFiles.value === false &&
+            selectedItem.clear((v) => v.type !== 'file')
     } else if (key.startsWith('plugin:')) {
         const pluginName = key.split(':')[1]
         pluginCenter.usePlugin(pluginName, [currentDirectory.value], [])
@@ -326,20 +355,29 @@ const handleTopBarMenuSelect = (key: string) => {
         const opName = key.split(':')[1]
         switch (opName) {
             case 'all':
-                selectedItem.pushArray([...showData_directory.value, ...showData_files.value])
-                break;
+                selectedItem.pushArray([
+                    ...showData_directory.value,
+                    ...showData_files.value
+                ])
+                break
             case 'reset':
                 selectedItem.clear()
                 break
             case 'inversion':
                 const sArr = selectedItem.value
-                const arr = [...showData_directory.value, ...showData_files.value].filter(i => !sArr.includes(i))
+                const arr = [
+                    ...showData_directory.value,
+                    ...showData_files.value
+                ].filter((i) => !sArr.includes(i))
                 selectedItem.clear()
                 selectedItem.pushArray(arr)
                 break
-            case "range":
+            case 'range':
                 const _sArr = selectedItem.value
-                const _arr = [...showData_directory.value, ...showData_files.value]
+                const _arr = [
+                    ...showData_directory.value,
+                    ...showData_files.value
+                ]
                 const _nArr = []
                 let _counter = 0
                 for (const i of _arr) {
@@ -357,7 +395,6 @@ const handleTopBarMenuSelect = (key: string) => {
                 selectedItem.pushArray(_nArr)
                 break
         }
-
     }
 }
 
@@ -377,7 +414,7 @@ const handleItemClick = (item: VirtualDirectory | VirtualFile) => {
     } else {
         if (item.type === 'file') {
             const useablePlugins = pluginCenter.getUsablePlugin([], [item])
-            if(useablePlugins.length > 0){
+            if (useablePlugins.length > 0) {
                 pluginCenter.usePlugin(useablePlugins[0].key, [], [item])
             } else {
                 openUrl(`${baseUrl}${api.get}${item.path}`)
@@ -396,7 +433,7 @@ const handleItemDownload = (item: VirtualFile) => {
 
 const handleItemDelete = async (_item: VirtualDirectory | VirtualFile) => {
     for (let item of uniq([...selectedItem.value, _item])) {
-        ; (async () => {
+        ;(async () => {
             const { response } = miaoFetchApi.delete(item, {
                 retry: 5
             })
@@ -485,7 +522,7 @@ const handleDropVDirectory = async (vDirs: VirtualDirectory[]) => {
         }
     }
     for (let dir of vDirs) {
-        ; (async () => {
+        ;(async () => {
             const _from = dir.parent
             const { response } = miaoFetchApi.cut(dir, currentDirectory.value)
             const id = (await response).eventId
@@ -504,7 +541,7 @@ const handleDropVirtualFiles = (files: VirtualFile[]) => {
         return
     }
     for (let file of files) {
-        ; (async () => {
+        ;(async () => {
             const _from = file.parent
             const { response } = miaoFetchApi.cut(file, currentDirectory.value)
             const id = (await response).eventId
