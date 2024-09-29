@@ -52,19 +52,22 @@ const { setVideo } = (() => {
             videoFillMode: 'contain',
             autoplay: true,
             download: true,
+            ignores: [videos.length === 0 ? 'playNext' : undefined].filter(v => v) as string[],
+            lang: 'zh-cn',
+            playbackRate: [0.1, 0.3, 0.5, 0.75, 1, 1.5, 2, 3, 5, 10],
+            texttrack,
             screenShot: {
                 saveImg: true,
                 quality: 1,
                 type: 'image/png',
                 format: '.png'
             },
-            lang: 'zh-cn',
-            playbackRate: [0.1, 0.3, 0.5, 0.75, 1, 1.5, 2, 3, 5, 10],
             playNext: {
                 urlList: videos.map(v => v.url)
             },
-            texttrack,
-            ignores: [videos.length === 0 ? 'playNext' : undefined].filter(v => v) as string[]
+            progress: {
+                isDragingSeek: true
+            }
         })
     }
     return {
