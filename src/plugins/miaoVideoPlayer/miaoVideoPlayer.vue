@@ -67,7 +67,10 @@ const { setVideo } = (() => {
             },
             progress: {
                 isDragingSeek: true
-            }
+            },
+            // mobile: {
+            //     disableGesture: true
+            // }
         })
     }
     return {

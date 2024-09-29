@@ -22,6 +22,8 @@ const { baseUrl } = config
 
 const showModal = ref<boolean>(false)
 
+const viewRef = ref<HTMLDivElement>()
+
 const modalData = shallowRef<{
     component: any
     props: any
@@ -121,7 +123,7 @@ provide('rootDirectory', rootDirectory)
 </script>
 
 <template>
-    <div class="view">
+    <div class="view" ref="viewRef">
         <miao-message-provider ref="messageProviderRef">
             <div class="view-controller">
                 <n-scrollbar x-scrollable>

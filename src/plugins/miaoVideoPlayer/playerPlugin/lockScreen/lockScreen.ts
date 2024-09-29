@@ -8,8 +8,8 @@ export default class LockPlugin extends BasePlugin {
 	}
 
 	private locked: boolean;
-	private lockDiv: HTMLDivElement | null = null;
-	private overlayDiv: HTMLDivElement | null = null;
+	private lockDiv: HTMLDivElement = document.createElement("div");
+	private overlayDiv: HTMLDivElement = document.createElement("div");
 
 	private lockOpenSVG: string = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -29,22 +29,26 @@ export default class LockPlugin extends BasePlugin {
 	}
 
 	afterCreate() {
-		this.createLockDiv();
-		this.createOverlayDiv();
+		this.initLockDiv();
+		this.initOverlayDiv();
 		this.bindEvents();
 	}
 
-	private createLockDiv() {
-		this.lockDiv = document.createElement("div");
+	private initLockDiv() {
 		this.lockDiv.innerHTML = this.lockClosedSVG;
 		this.lockDiv.className = "lock-div";
 		this.player.root !== null && this.player.root.appendChild(this.lockDiv);
 	}
 
-	private createOverlayDiv() {
-		this.overlayDiv = document.createElement("div");
+	private initOverlayDiv() {
 		this.overlayDiv.className = "overlay-div";
 		this.player.root !== null && this.player.root.appendChild(this.overlayDiv);
+		this.overlayDiv.addEventListener('mousedown', (e) => {
+			e.preventDefault();
+		});
+		this.overlayDiv.addEventListener('mousemove', (e) => {
+			e.preventDefault();
+		});
 	}
 
 	private bindEvents() {
@@ -69,6 +73,7 @@ export default class LockPlugin extends BasePlugin {
 
 	private toggleLock() {
         const mobile = this.getPlugin('mobile') as MobilePlugin | undefined
+		// mobile?.disableGesture()
 		if (this.lockDiv && this.overlayDiv) {
 			this.locked = !this.locked;
 			this.lockDiv.innerHTML = this.locked ? this.lockOpenSVG : this.lockClosedSVG;
