@@ -2,20 +2,11 @@
     <miao-drop-handler @on-virtual-files="handleDropVFiles">
         <miao-alert-tip-provider ref="miaoMessageRef">
             <div class="miaoMusic-container">
-                <miao-music-main
-                    v-if="ap"
-                    :ap="ap"
-                    v-model:data="data"
-                    :updateLocalData="updateLocalData"
+                <miao-music-main v-if="ap" :ap="ap" v-model:data="data" :updateLocalData="updateLocalData"
                     @new-collection="saveCurrPlayList"></miao-music-main>
-                <miao-mask
-                    :show="isAPlayerListShow"
-                    style="z-index: 5"
-                    @click="() => ap?.list.hide()"></miao-mask>
+                <miao-mask :show="isAPlayerListShow" style="z-index: 5" @click="() => ap?.list.hide()"></miao-mask>
                 <div ref="aplayer" style="z-index: 10" />
-                <miao-mask
-                    :show="isSavingCollection"
-                    @click="isSavingCollection = false"></miao-mask>
+                <miao-mask :show="isSavingCollection" @click="isSavingCollection = false"></miao-mask>
             </div>
         </miao-alert-tip-provider>
     </miao-drop-handler>
@@ -69,12 +60,12 @@ const props = defineProps<{
     view: VirtualPage
 }>()
 
-const data = ref<collectionType[]>([])
+const data = ref<collectionType[]>()
 
 watch(
     data,
-    () => {
-        updateLocalData()
+    (_v, oldV) => {
+        updateLocalData(oldV !== undefined)
     },
     {
         deep: true
@@ -113,13 +104,13 @@ const handleDropVFiles = (files: VirtualFile[]) => {
 
 const saveCurrPlayList = () => {
     if (ap.value) {
-        data.value.unshift({
+        data.value?.unshift({
             id: Math.random(),
             name: `新建歌单-${new Date()}`,
             intro: 'none',
             createTime: new Date(),
             coverUrl: '',
-            audios: cloneDeep(ap.value.list.audios)
+            audios: cloneDeep(ap.value.list.audios).map((v, i) => ({ ...v, index: i }))
         })
         miaoMessageRef.value?.alertTip('已创建新的歌单', {
             timeout: 1000,
@@ -139,8 +130,8 @@ const initAPlayerMiao = () => {
     }
     ap.value = reactive<apType>(new APlayer(aplayerOption))
     vueApp = useAplayerMiao(ap.value, {
-        onDragItemStart: () => {},
-        onDragItemEnd: () => {},
+        onDragItemStart: () => { },
+        onDragItemEnd: () => { },
         onPlayVideo: (element) => {
             pluginCenter.usePlugin(
                 'miaoVideoPlayer',
@@ -171,16 +162,22 @@ const initAPlayerMiao = () => {
     })
 }
 
-const updateLocalData = debounce(() => {
-    console.log('update')
+const updateLocalData = debounce((log?: boolean) => {
+    log && miaoMessageRef.value?.alertTip(`保存设置成功`, {
+        type: 'success',
+        timeout: 999,
+    })
     localForage.setItem('miaoMusic-storage-musicCollections', toRaw(data.value))
 }, 1000, {
-  'leading': false,
-  'trailing': true
+    'leading': false,
+    'trailing': true
 })
 const getLocalData = async () => {
-    data.value =
-        (await localForage.getItem('miaoMusic-storage-musicCollections')) ?? []
+    const _data =
+        (await localForage.getItem('miaoMusic-storage-musicCollections') as collectionType[]) ?? []
+    _data.forEach(v => v.audios.sort((a, b) => a.index - b.index))
+    data.value = _data
+    console.log('data ==>', toRaw(data.value))
 }
 onBeforeMount(async () => {
     await getLocalData()
@@ -213,6 +210,7 @@ onUnmounted(() => {
     position: absolute;
     bottom: 10px;
     width: -webkit-fill-available;
+
     .aplayer-icon-order,
     .aplayer-icon-loop {
         display: none !important;
