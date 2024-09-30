@@ -2,14 +2,20 @@
     <miao-drop-handler @on-virtual-files="handleDropVFiles">
         <miao-alert-tip-provider ref="miaoMessageRef">
             <div class="miaoMusic-container">
-                <NScrollbar>
-                    <miao-music-main v-if="ap" :ap="ap"></miao-music-main>
-                </NScrollbar>
+                <miao-music-main
+                    v-if="ap"
+                    :ap="ap"
+                    v-model:data="data"
+                    :updateLocalData="updateLocalData"
+                    @new-collection="saveCurrPlayList"></miao-music-main>
                 <miao-mask
                     :show="isAPlayerListShow"
                     style="z-index: 5"
                     @click="() => ap?.list.hide()"></miao-mask>
                 <div ref="aplayer" style="z-index: 10" />
+                <miao-mask
+                    :show="isSavingCollection"
+                    @click="isSavingCollection = false"></miao-mask>
             </div>
         </miao-alert-tip-provider>
     </miao-drop-handler>
@@ -18,8 +24,16 @@
 <script setup lang="ts">
 import useAplayerMiao from './hooks/aplayerMiao'
 import { VirtualFile } from '@/class/VirtualDirectory'
-import { App, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
-import { NScrollbar } from 'naive-ui'
+import {
+    App,
+    onBeforeMount,
+    onMounted,
+    onUnmounted,
+    reactive,
+    ref,
+    toRaw,
+    watch
+} from 'vue'
 import './src/APlayer.fix.css'
 // @ts-ignore
 import APlayer from 'APlayer'
@@ -33,6 +47,9 @@ import usePluginCenter from '@/hooks/usePluginCenter'
 import VirtualPage from '@/class/VirtualPage'
 import miaoMask from '@/components/miaoMask.vue'
 import miaoMusicMain from './src/main.vue'
+import collectionType from './types/collection'
+import cloneDeep from 'lodash/cloneDeep'
+import localForage from 'localforage'
 
 const pluginCenter = usePluginCenter()
 let ap = ref<apType>()
@@ -41,6 +58,7 @@ let vueApp: App<Element>
 const miaoMessageRef = ref<InstanceType<typeof miaoAlertTipProvider>>()
 const aplayer = ref<any>(null)
 const isAPlayerListShow = ref(true)
+const isSavingCollection = ref(false)
 
 const currentFiles = defineModel<VirtualFile[]>('currentFiles', {
     required: true
@@ -49,6 +67,18 @@ const currentFiles = defineModel<VirtualFile[]>('currentFiles', {
 const props = defineProps<{
     view: VirtualPage
 }>()
+
+const data = ref<collectionType[]>([])
+
+watch(
+    data,
+    () => {
+        updateLocalData()
+    },
+    {
+        deep: true
+    }
+)
 
 watch(
     () => currentFiles.value,
@@ -80,6 +110,23 @@ const handleDropVFiles = (files: VirtualFile[]) => {
     currentFiles.value = uniq([...currentFiles.value, ...files])
 }
 
+const saveCurrPlayList = () => {
+    if (ap.value) {
+        data.value.unshift({
+            id: Math.random(),
+            name: `新建歌单-${new Date()}`,
+            intro: 'none',
+            createTime: new Date(),
+            coverUrl: '',
+            audios: cloneDeep(ap.value.list.audios)
+        })
+        miaoMessageRef.value?.alertTip('已创建新的歌单', {
+            timeout: 1000,
+            type: 'success'
+        })
+    }
+}
+
 const initAPlayerMiao = () => {
     const aplayerOption = {
         container: aplayer.value,
@@ -103,7 +150,8 @@ const initAPlayerMiao = () => {
                     ) as VirtualFile
                 ]
             )
-        }
+        },
+        onSaveCollection: saveCurrPlayList
     })
     ap.value.on('listremove', (...args: any) => {
         const { index } = args[0] as { index: number }
@@ -122,7 +170,18 @@ const initAPlayerMiao = () => {
     })
 }
 
-onMounted(() => {
+const updateLocalData = () => {
+    // console.log('updateLocalData', toRaw(data.value))
+    localForage.setItem('miaoMusic-storage-musicCollections', toRaw(data.value))
+}
+const getLocalData = async () => {
+    data.value =
+        (await localForage.getItem('miaoMusic-storage-musicCollections')) ?? []
+}
+onBeforeMount(async () => {
+    await getLocalData()
+})
+onMounted(async () => {
     currentFiles.value = [...currentFiles.value.reverse()]
     initAPlayerMiao()
 })

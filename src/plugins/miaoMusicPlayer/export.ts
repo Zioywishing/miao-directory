@@ -8,7 +8,7 @@ const pluginConfig: registerComponentOption = {
     name: '音乐',
     icon: Disc,
     getComponent: async () =>
-        (await import('./miaoMusicPlayerDemo.vue')).default,
+        (await import('./miaoMusicPlayer.vue')).default,
     filter: (vDirs, vFiles) => {
         if (vDirs.length !== 0) {
             return false

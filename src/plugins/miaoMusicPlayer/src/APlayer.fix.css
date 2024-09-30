@@ -331,7 +331,8 @@
 }
 
 .aplayer .aplayer-info .aplayer-music .aplayer-title {
-    font-size: 14px
+    font-size: 14px;
+    user-select: none;
 }
 
 .aplayer .aplayer-info .aplayer-music .aplayer-author {

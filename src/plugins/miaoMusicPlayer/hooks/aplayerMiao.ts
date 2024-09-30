@@ -1,11 +1,12 @@
 import { createApp, Reactive } from "vue";
-import aplayerListNew from "../src/aplayerListNew.vue";
+import aplayerListNew from "../src/components/aplayerListNew.vue";
 import apType, { audioType } from "../types/ap";
 
-type aplayerMiaoOption = {
+export type aplayerMiaoOption = {
     onDragItemStart?: () => void
     onDragItemEnd?: () => void
     onPlayVideo?: (element: audioType) => void
+		onSaveCollection?: (audios: audioType[]) => void
 }
 
 /**

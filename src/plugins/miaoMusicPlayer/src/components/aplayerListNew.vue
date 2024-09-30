@@ -9,7 +9,10 @@
             </span>
         </div>
         <div class="aplayer-list-top-buttons">
-            <component :is="AddCircleOutline" class="aplayer-list-top-buttons-icon"></component>
+            <AddCircleOutline
+                v-if="onSaveCollection"
+                class="aplayer-list-top-buttons-icon"
+                @click="onSaveCollection(ap.list.audios)"></AddCircleOutline>
         </div>
         <span></span>
     </div>
@@ -43,7 +46,7 @@
                     <div
                         v-if="isVideo(element)"
                         class="aplayer-list-control-btn aplayer-list-control-btn-hover aplayer-list-control-btn-play"
-                        @click.stop="onPlayVideo(element)">
+                        @click.stop="onPlayVideo && onPlayVideo(element)">
                         <VideocamOutline class="aplayer-list-control-btn-svg" />
                     </div>
                     <div
@@ -120,14 +123,14 @@ import {
 import { VueDraggable } from 'vue-draggable-plus'
 // 与vue-draggable冲突
 // import miaoLazyDiv from '@/components/miaoLazyDiv.vue';
-import apType, { audioType } from '../types/ap'
+import apType, { audioType } from '../../types/ap'
+import { aplayerMiaoOption } from '../../hooks/aplayerMiao'
 
-const props = defineProps<{
-    ap: apType
-    onDragItemStart: () => void
-    onDragItemEnd: () => void
-    onPlayVideo: (element: audioType) => void
-}>()
+const props = defineProps<
+    {
+        ap: apType
+    } & aplayerMiaoOption
+>()
 
 const apRef = ref(props.ap)
 
@@ -396,6 +399,7 @@ onMounted(() => {
         &-icon {
             width: 20px;
             aspect-ratio: 1;
+            cursor: pointer;
         }
         &:hover {
             scale: 1.1;

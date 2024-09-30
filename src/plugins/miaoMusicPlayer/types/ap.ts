@@ -18,6 +18,7 @@ type apType = {
         add: (audios: audioType[]) => void
         refreshAudioIndex: () => void
         hide: () => void
+        clear: () => void
     }
     container: HTMLDivElement
     on: (event: string, callback: () => void) => void
