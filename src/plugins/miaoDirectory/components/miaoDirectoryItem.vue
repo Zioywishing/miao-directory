@@ -1,5 +1,5 @@
 <template>
-    <div class="miao-item" draggable="true" ref="itemRef" @dragstart="handleDragStart">
+    <miao-draggable-div class="miao-item" :isDraggable="draggable" ref="itemRef" @on-drag-start="handleDragStart">
         <miaoContextMenu :options="dropDownOptions ?? []" :touch-time-out="500" @select="handleDropdownSelect">
             <div class="item-main" :class="selected ? 'item-main-selected' : ''" ref="mainRef">
                 <div class="item-main-front" :style="{ backgroundColor: props.color }"></div>
@@ -15,7 +15,7 @@
                 </div>
             </div>
         </miaoContextMenu>
-    </div>
+    </miao-draggable-div>
 </template>
 
 <script setup lang="ts">
@@ -36,6 +36,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import dateFormatter from '@/hooks/dateFormatter'
 import { NEllipsis } from 'naive-ui'
 import { DropdownOption } from 'naive-ui/es/dropdown';
+import miaoDraggableDiv from '@/components/miaoDraggableDiv.vue'
 // import useMiaoFetchApi from '@/hooks/useMiaoFetchApi'
 
 // const miaoFetchApi = useMiaoFetchApi()
@@ -58,12 +59,14 @@ const emit = defineEmits<{
     download: []
     delete: []
     rename: []
-    dragStart: [event: DragEvent]
+    dragStart: [e: DragEvent]
     onSelected: []
     plugin: [plugin: string]
 }>()
 
 const mainRef = ref<HTMLDivElement>()
+
+const draggable = ref(true)
 
 // 使用ResizeObserver实现
 const clientWidth = ref<number>(666)
@@ -157,9 +160,8 @@ const Icon = computed(() => {
 
 const itemRef = ref()
 
-const handleDragStart = (event: DragEvent) => {
-    emit('dragStart', event)
-    // dataBus.set('dragData', [props.item])
+const handleDragStart = (e: DragEvent) => {
+    emit('dragStart', e)
 }
 
 onMounted(() => {
@@ -198,6 +200,7 @@ onBeforeUnmount(() => {
         align-items: center;
         transition: background-color 0.3s ease;
         overflow-x: hidden;
+
         .item-main-front {
             height: 100%;
             min-width: 10px;
