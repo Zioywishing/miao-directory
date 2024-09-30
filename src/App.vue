@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, onMounted, provide, reactive, ref, shallowRef, useTemplateRef } from 'vue'
+import { computed, onMounted, provide, reactive, ref, shallowRef, useTemplateRef } from 'vue'
 import { NIcon, NScrollbar, NDropdown } from 'naive-ui'
 import {
     EyeOffOutline,
@@ -7,7 +7,8 @@ import {
     CloseOutline,
     CopyOutline,
     EllipsisVertical,
-    QrCodeOutline
+    QrCodeOutline,
+    ExtensionPuzzleOutline
 } from '@vicons/ionicons5'
 import VirtualDirectory, { VirtualFile } from './class/VirtualDirectory'
 import MiaoMask from './components/miaoMask.vue'
@@ -16,7 +17,9 @@ import config from './config'
 import useVirtualPages from './hooks/useVirtualPages'
 import init from './hooks/init'
 import usePluginCenter from './hooks/usePluginCenter'
-import PluginCenter from './class/PluginCenter'
+import PluginCenter, { PluginGroup } from './class/PluginCenter'
+import { renderIcon } from './hooks/miaoTools'
+import { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 
 const { baseUrl } = config
 
@@ -32,7 +35,7 @@ const modalData = shallowRef<{
 const messageProviderRef = useTemplateRef('messageProviderRef')
 
 const views = useVirtualPages()
-let pluginCenter: PluginCenter
+let pluginCenter = ref<PluginCenter>()
 
 const rootDirectory = reactive(
     new VirtualDirectory({
@@ -49,17 +52,18 @@ const rootDirectory = reactive(
 // component就是一个vue组件，类似于miaoDirectory
 const createView = (
     component: any,
+    name: string,
     currentDirectories?: VirtualDirectory[],
     currentFiles?: VirtualFile[],
     index?: number
 ) => {
-    views.push(component, currentDirectories, currentFiles, { index })
+    views.push(component, name, currentDirectories, currentFiles, { index })
 }
 
 const deleteView = (index: number) => {
     views.deleteView(index)
     if (views.length === 0) {
-        pluginCenter.usePlugin('miaoDirectory', [rootDirectory], [])
+        pluginCenter.value && pluginCenter.value.usePlugin('miaoDirectory', [rootDirectory], [])
     }
 }
 
@@ -79,22 +83,28 @@ const handleClickTitle = (index: number) => {
     }
 }
 
-// 顶部菜单相关
-function renderIcon(icon: any) {
-    return () => {
-        return h(NIcon, null, {
-            default: () => h(icon)
-        })
-    }
-}
-
-const openMenuOption = [
+const openMenuOption = computed(() => [
     {
         label: '分享',
         key: 'share',
         icon: renderIcon(QrCodeOutline)
-    }
-]
+    }, pluginCenter.value ? {
+        label: '插件',
+        key: 'plugin',
+        children: [
+            ...pluginCenter.value
+                .getUsablePlugin([], [], {
+                    group: [PluginGroup.mainMenu]
+                })
+                .map((v) => ({
+                    label: `${v.name}`,
+                    key: `plugin:${v.key}`,
+                    icon: v.icon ? renderIcon(v.icon) : undefined
+                }))
+        ],
+        icon: renderIcon(ExtensionPuzzleOutline)
+    } : undefined
+].filter(v => v) as DropdownMixedOption[])
 
 const handleMenuSelect = async (key: string) => {
     if (key === 'share') {
@@ -107,14 +117,18 @@ const handleMenuSelect = async (key: string) => {
                 errorCorrectionLevel: 'H'
             }
         }
+    } else if (key.startsWith('plugin:')) {
+        const pluginName = key.split(':')[1]
+        pluginCenter.value && pluginCenter.value.usePlugin(pluginName, [], [])
     }
 }
 
 onMounted(async () => {
     // @ts-ignore
     await init(messageProviderRef.value?.alertTip)
-    pluginCenter = usePluginCenter()
-    pluginCenter.usePlugin('miaoDirectory', [rootDirectory], [])
+    pluginCenter.value = usePluginCenter()
+    // console.log({ pluginCenter })
+    pluginCenter.value.usePlugin('miaoDirectory', [rootDirectory], [])
 })
 
 // @ts-ignore
@@ -146,11 +160,12 @@ provide('rootDirectory', rootDirectory)
                                     <n-icon class="tag-control-icon icon" @click="
                                         createView(
                                             view.component,
+                                            view.name,
                                             view.currentDirectories,
                                             view.currentFiles,
                                             index + 1
                                         )
-                                        "  v-if="view.allowCopy">
+                                        " v-if="view.allowCopy">
                                         <CopyOutline />
                                     </n-icon>
                                     <n-icon class="tag-control-icon icon" @click="deleteView(index)">

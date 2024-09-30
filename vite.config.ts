@@ -2,14 +2,14 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
 // import { viteSingleFile } from 'vite-plugin-singlefile'
-// import { visualizer } from 'rollup-plugin-visualizer'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vitejs.dev/config/
 export default defineConfig({
     base: './',
     plugins: [
         vue(),
-        // visualizer()
+        visualizer()
         // viteSingleFile()
     ],
     resolve: {

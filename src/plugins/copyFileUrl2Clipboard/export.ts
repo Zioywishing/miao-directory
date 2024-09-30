@@ -25,3 +25,5 @@ const pluginConfig: Plugin = {
 export default pluginConfig;
 
 export const type = PluginExportType.default;
+
+export const key = 'miaoCopy';

@@ -30,13 +30,15 @@ const getRandomWebSafeColor = (() => {
 
 export default class VirtualPage {
     constructor(
-        component: any,
-        initObjects?: {
+        component: Component,
+        initObjects: {
+            name: string
             directories?: VirtualDirectory[]
             files?: VirtualFile[]
             option?: VirtualPageOption
         }
     ) {
+        this.name = initObjects?.name
         this.component = shallowRef(component)
         this.currentDirectories = initObjects?.directories ?? []
         this.currentFiles = initObjects?.files ?? []
@@ -48,7 +50,9 @@ export default class VirtualPage {
         this.allowCopy = initObjects?.option?.allowCopy ?? true
     }
     // 页面使用的组件
-    component: any
+    component: Component
+    // 页面名
+    name: string
     // 是否可见
     visible: boolean
     // 当前正在使用的文件夹
@@ -135,7 +139,8 @@ export class VirtualPages {
      * 推入一个新的页面
      */
     push(
-        component: any,
+        component: Component,
+        name: string,
         currentDirectories?: VirtualDirectory[],
         currentFiles?: VirtualFile[],
         option?: ViewsPushOption
@@ -146,6 +151,7 @@ export class VirtualPages {
             0,
             reactive<VirtualPage>(
                 new VirtualPage(component, {
+                    name,
                     directories: [...(currentDirectories ?? [])],
                     files: [...(currentFiles ?? [])],
                     option: VirtualPageOption
@@ -163,7 +169,18 @@ export class VirtualPages {
     /**
      * 返回第一个使用此组件的页面
      */
-    find(component: Component) {
-        return this._views.find(v=>v.component === component)
+    find(component: Component) : VirtualPage[]
+    /**
+     * 通过页面名查找
+     */
+    find(name: string) : VirtualPage[]
+
+    find(input: unknown) {
+        console.log(this)
+        if (typeof input === 'string') {
+            return this._views.filter(v => v.component.name === input);
+        } else {
+            return this._views.filter(v => v.component === input);
+        }
     }
 }
