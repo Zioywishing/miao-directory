@@ -1,5 +1,5 @@
 <template>
-    <miao-draggable-div class="miao-item" :isDraggable="draggable" ref="itemRef" @on-drag-start="handleDragStart">
+    <miao-draggable-div class="miao-item" :isDraggable="!draggable" ref="itemRef" @on-drag-start="handleDragStart">
         <miaoContextMenu :options="dropDownOptions ?? []" :touch-time-out="500" @select="handleDropdownSelect">
             <div class="item-main" :class="selected ? 'item-main-selected' : ''" ref="mainRef">
                 <div class="item-main-front" :style="{ backgroundColor: props.color }"></div>
@@ -13,6 +13,9 @@
                         {{ time }}
                     </div>
                 </div>
+                <miao-draggable-div class="item-main-dragBtn" :isDraggable="draggable">
+                    <ReorderFourOutline></ReorderFourOutline>
+                </miao-draggable-div>
             </div>
         </miaoContextMenu>
     </miao-draggable-div>
@@ -30,7 +33,8 @@ import {
     LogoJavascript,
     LogoVue,
     PlayCircle,
-    Disc
+    Disc,
+    ReorderFourOutline,
 } from '@vicons/ionicons5'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import dateFormatter from '@/hooks/dateFormatter'
@@ -86,7 +90,6 @@ const time = computed(() => {
     )
 })
 
-// 是不是可以直接在这里面实现？
 // 应该将所有事件emit出去才对
 const handleDropdownSelect = (key: string) => {
     if (key === 'rename') {
@@ -242,6 +245,7 @@ onBeforeUnmount(() => {
             &-date {
                 user-select: none;
                 font-size: small;
+                text-wrap: nowrap;
             }
         }
 
@@ -288,5 +292,12 @@ onBeforeUnmount(() => {
             ;
         }
     }
+}
+
+.item-main-dragBtn {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    right: 5px;
 }
 </style>
