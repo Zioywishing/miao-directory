@@ -14,7 +14,7 @@
         <span></span>
     </div>
     <ol
-        :style="{ maxHeight: ap.options.listMaxHeight }"
+        :style="{ maxHeight: `calc( ${ap.options.listMaxHeight} - 30px )` }"
         :class="[
             !isDragging ? 'miaoMusic-ol-isDragging' : 'miaoMusic-ol-notDragging'
         ]"
