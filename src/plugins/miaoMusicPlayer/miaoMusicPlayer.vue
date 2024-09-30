@@ -50,6 +50,7 @@ import miaoMusicMain from './src/main.vue'
 import collectionType from './types/collection'
 import cloneDeep from 'lodash/cloneDeep'
 import localForage from 'localforage'
+import debounce from 'lodash/debounce'
 
 const pluginCenter = usePluginCenter()
 let ap = ref<apType>()
@@ -170,10 +171,13 @@ const initAPlayerMiao = () => {
     })
 }
 
-const updateLocalData = () => {
-    // console.log('updateLocalData', toRaw(data.value))
+const updateLocalData = debounce(() => {
+    console.log('update')
     localForage.setItem('miaoMusic-storage-musicCollections', toRaw(data.value))
-}
+}, 1000, {
+  'leading': false,
+  'trailing': true
+})
 const getLocalData = async () => {
     data.value =
         (await localForage.getItem('miaoMusic-storage-musicCollections')) ?? []
@@ -199,6 +203,7 @@ onUnmounted(() => {
     height: 100%;
     display: flex;
     flex-direction: column;
+    background-color: #ffffff;
 }
 </style>
 <style lang="scss">
