@@ -7,10 +7,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 // import Sortable from 'sortablejs'
+
 const props = defineProps<{
     isDraggable: boolean
 }>()
-
+props
 const emit = defineEmits<{
     onDragStart: [e: DragEvent]
 }>()

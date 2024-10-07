@@ -188,8 +188,8 @@ provide('rootDirectory', rootDirectory)
             </div>
             <div class="view-container">
                 <transition-group name="page">
-                    <div class="view-container-item" v-for="(view, index) of views._views" v-show="view.visible"
-                        :key="view.id">
+                    <div class="view-container-item" v-for="(view, index) of views._views"
+                        :class="!view.visible ? 'view-container-item-hidden' : ''" :key="view.id">
                         <component :is="view.component" v-model:current-directories="view.currentDirectories"
                             v-model:current-files="view.currentFiles" :id="view.id" :color="view.color" :view="view"
                             :views="views" @exit="deleteView(index)"></component>
@@ -336,6 +336,16 @@ $tag-width: 170px;
             flex: 1;
             height: 100%;
             min-width: 180px;
+            opacity: 1;
+            transition: flex .25s ease, opacity .25s ease;
+        }
+
+        .view-container-item-hidden {
+            flex: 0;
+            min-width: 0px;
+            opacity: 0;
+            transition-delay: opacity .25s;
+            // transition: opacity 5.25s ease;
         }
 
         &::-webkit-scrollbar {
@@ -394,7 +404,7 @@ $tag-width: 170px;
 
     // .view-container {
     //     .page-move {
-    //       transition: all 0.2s ease;
+    //       transition: all 0.15s ease;
     //     }
 
     //     .page-enter-active {
@@ -402,7 +412,7 @@ $tag-width: 170px;
     //     }
 
     //     .page-leave-active {
-    //       transition: none;
+    //       transition: none !important;
     //     }
 
     //     .page-enter-from {
