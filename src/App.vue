@@ -187,14 +187,14 @@ provide('rootDirectory', rootDirectory)
                 </div>
             </div>
             <div class="view-container">
-                <transition-group name="page">
+                <!-- <transition-group name="page"> -->
                     <div class="view-container-item" v-for="(view, index) of views._views"
                         :class="!view.visible ? 'view-container-item-hidden' : ''" :key="view.id">
                         <component :is="view.component" v-model:current-directories="view.currentDirectories"
                             v-model:current-files="view.currentFiles" :id="view.id" :color="view.color" :view="view"
                             :views="views" @exit="deleteView(index)"></component>
                     </div>
-                </transition-group>
+                <!-- </transition-group> -->
             </div>
         </miao-message-provider>
     </div>
@@ -344,7 +344,7 @@ $tag-width: 170px;
             flex: 0;
             min-width: 0px;
             opacity: 0;
-            transition-delay: opacity .25s;
+            // transition-delay: opacity .25s;
             // transition: opacity 5.25s ease;
         }
 
@@ -404,23 +404,22 @@ $tag-width: 170px;
 
     // .view-container {
     //     .page-move {
-    //       transition: all 0.15s ease;
+    //         //   transition: all 0.55s ease;
     //     }
 
-    //     .page-enter-active {
-
-    //     }
+    //     .page-enter-active {}
 
     //     .page-leave-active {
-    //       transition: none !important;
+    //         transition: none !important;
     //     }
 
     //     .page-enter-from {
-    //       opacity: 0;
+    //         //   opacity: 0;
     //     }
 
     //     .page-leave-active {
-    //       position: absolute;
+    //         display: none;
+    //         position: absolute;
     //     }
     // }
 }
