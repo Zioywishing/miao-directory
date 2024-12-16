@@ -176,7 +176,7 @@ export class VirtualPages {
     find(name: string) : VirtualPage[]
 
     find(input: unknown) {
-        console.log(this)
+        // console.log(this)
         if (typeof input === 'string') {
             return this._views.filter(v => v.component.name === input);
         } else {
