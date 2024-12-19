@@ -30,7 +30,11 @@ const pluginConfig: registerComponentOption = {
             'yaml',
             'txt',
             'xml',
-            'vue'
+            'vue',
+            'srt',
+            'vtt',
+            'ass',
+            'ssa'
         ]) {
             if (vFiles[0].name.endsWith(end)) {
                 return true

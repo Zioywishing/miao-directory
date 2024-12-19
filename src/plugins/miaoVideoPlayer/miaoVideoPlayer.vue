@@ -298,7 +298,7 @@ function ssaToVtt(ssaContent: string): string {
 
 const findVideo = (vFiles: VirtualFile[]) =>
     uniq(vFiles.filter((v) => {
-        for (let s of ['mp4', 'mp3']) {
+        for (let s of ['mp4', 'mp3', 'mkv']) {
             if (v.name.endsWith(s)) {
                 return true
             }

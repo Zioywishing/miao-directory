@@ -210,6 +210,8 @@ $controller-height: 25px;
 $tag-width: 170px;
 
 .view {
+    
+    background-color: #ffffff;
     position: relative;
     height: 100%;
     width: 100%;
