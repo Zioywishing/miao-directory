@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, provide, reactive, ref, shallowRef, useTemplateRef } from 'vue'
+import { computed, onMounted, provide, ref, shallowRef, useTemplateRef } from 'vue'
 import { NIcon, NScrollbar, NDropdown } from 'naive-ui'
 import {
     EyeOffOutline,
@@ -10,7 +10,8 @@ import {
     QrCodeOutline,
     ExtensionPuzzleOutline
 } from '@vicons/ionicons5'
-import VirtualDirectory, { VirtualFile } from './class/VirtualDirectory'
+import type VirtualDirectory from './class/VirtualDirectory'
+import type { VirtualFile } from './class/VirtualDirectory'
 import MiaoMask from './components/miaoMask.vue'
 import MiaoMessageProvider from './components/miaoAlertTipProvider.vue'
 import config from './config'
@@ -20,6 +21,7 @@ import usePluginCenter from './hooks/usePluginCenter'
 import PluginCenter, { PluginGroup } from './class/PluginCenter'
 import { renderIcon } from './hooks/miaoTools'
 import { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
+import useRootVDirectory from './hooks/useRootVDirectory'
 
 const { baseUrl } = config
 
@@ -37,17 +39,7 @@ const messageProviderRef = useTemplateRef('messageProviderRef')
 const views = useVirtualPages()
 let pluginCenter = ref<PluginCenter>()
 
-const rootDirectory = reactive(
-    new VirtualDirectory({
-        name: '根目录',
-        stats: {
-            atimeMs: 0,
-            birthtimeMs: 0,
-            ctimeMs: 0,
-            mtimeMs: 0
-        }
-    })
-)
+const rootDirectory = useRootVDirectory()
 
 // component就是一个vue组件，类似于miaoDirectory
 const createView = (
@@ -62,9 +54,6 @@ const createView = (
 
 const deleteView = (index: number) => {
     views.deleteView(index)
-    if (views.length === 0) {
-        pluginCenter.value && pluginCenter.value.usePlugin('miaoDirectory', [rootDirectory], [])
-    }
 }
 
 // 点击标题是隐藏其他标签或显示其他标签，还挺好用的
@@ -127,8 +116,6 @@ onMounted(async () => {
     // @ts-ignore
     await init(messageProviderRef.value?.alertTip)
     pluginCenter.value = usePluginCenter()
-    // console.log({ pluginCenter })
-    pluginCenter.value.usePlugin('miaoDirectory', [rootDirectory], [])
 })
 
 // @ts-ignore
@@ -188,12 +175,12 @@ provide('rootDirectory', rootDirectory)
             </div>
             <div class="view-container">
                 <!-- <transition-group name="page"> -->
-                    <div class="view-container-item" v-for="(view, index) of views._views"
-                        :class="!view.visible ? 'view-container-item-hidden' : ''" :key="view.id">
-                        <component :is="view.component" v-model:current-directories="view.currentDirectories"
-                            v-model:current-files="view.currentFiles" :id="view.id" :color="view.color" :view="view"
-                            :views="views" @exit="deleteView(index)"></component>
-                    </div>
+                <div class="view-container-item" v-for="(view, index) of views._views"
+                    :class="!view.visible ? 'view-container-item-hidden' : ''" :key="view.id">
+                    <component :is="view.component" v-model:current-directories="view.currentDirectories"
+                        v-model:current-files="view.currentFiles" :id="view.id" :color="view.color" :view="view"
+                        :views="views" @exit="deleteView(index)"></component>
+                </div>
                 <!-- </transition-group> -->
             </div>
         </miao-message-provider>
@@ -210,7 +197,7 @@ $controller-height: 25px;
 $tag-width: 170px;
 
 .view {
-    
+
     background-color: #ffffff;
     position: relative;
     height: 100%;

@@ -1,5 +1,6 @@
 import PluginCenter from "@/class/PluginCenter";
-import { VirtualPages } from "@/class/VirtualPage";
+import VirtualDirectory from "@/class/VirtualDirectory";
+import type { VirtualPages } from "@/class/VirtualPage";
 
 export type stats = {
 	atimeMs: number; // 上次访问时间（毫秒）
@@ -41,6 +42,7 @@ export interface usePluginHooksType {
 	globalAlertTip: alertTipType;
 	getViews: () => VirtualPages;
 	getPluginCenter: () => PluginCenter;
+	getRootVDirectory: () => VirtualDirectory;
 }
 
 export type Equals<X, Y> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? true : false;

@@ -3,10 +3,13 @@ import VirtualDirectory, { VirtualFile } from "./VirtualDirectory";
 import { ShallowRef, shallowRef } from "vue";
 import { alertTipType, usePluginHooksType } from "@/types/type";
 import VirtualPage, { VirtualPages } from "./VirtualPage";
+import useRootVDirectory from "@/hooks/useRootVDirectory";
 
 export enum PluginGroup {
 	default = "default",
-	mainMenu = "mainMenu"
+	mainMenu = "mainMenu",
+	// 导入的时候会立即执行函数一次
+	immediately = "immediately"
 }
 
 export interface registerComponentOption {
@@ -53,6 +56,13 @@ export default class PluginCenter {
 
 	register(key: string, plugin: Plugin) {
 		this.pluginsMap[key] = plugin;
+		if (plugin.group.includes(PluginGroup.immediately)) {
+			this.usePlugin(key, [], [], this.usePluginHook)
+		}
+	}
+
+	deregister(key: string) {
+		delete this.pluginsMap[key]
 	}
 
 	/**
@@ -124,18 +134,21 @@ export default class PluginCenter {
 		return res;
 	}
 
-	usePlugin(key: string, VDirectories?: VirtualDirectory[], VFiles?: VirtualFile[], ...args: any[]): void;
-	// usePlugin(key: string, VPages: VirtualPages, ...args: any[]) : void
+	get usePluginHook(): usePluginHooksType {
+		return {
+			globalAlertTip: this.globalAlertTip,
+			getViews: useVirtualPages,
+			getPluginCenter: () => this,
+			getRootVDirectory: () => useRootVDirectory()
+		}
+	}
 
+	usePlugin(key: string, VDirectories?: VirtualDirectory[], VFiles?: VirtualFile[], ...args: any[]): void;
 	usePlugin(key: string, VDirectories?: VirtualDirectory[], VFiles?: VirtualFile[], ...args: any[]) {
 		this.pluginsMap[key].func(
 			VDirectories ?? [],
 			VFiles ?? [],
-			{
-				globalAlertTip: this.globalAlertTip,
-				getViews: useVirtualPages,
-				getPluginCenter: () => this
-			},
+			this.usePluginHook,
 			...args
 		);
 	}
