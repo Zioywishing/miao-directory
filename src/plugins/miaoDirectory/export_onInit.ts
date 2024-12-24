@@ -1,6 +1,6 @@
 import { Plugin, PluginGroup } from "@/class/PluginCenter";
 import { PluginExportType } from "@/types/type";
-import { watchEffect } from "vue";
+import { watch } from "vue";
 
 const pluginConfig: Plugin = {
 	name: "初始化完成之后打开miaoDirectory",
@@ -15,15 +15,16 @@ const pluginConfig: Plugin = {
 		const pc = getPluginCenter();
 		const root = getRootVDirectory();
 		setTimeout(() => {
-			// if (views.length === 0) {
-			// 	pc.usePlugin('miaoDirectory', [root])
-			// }
-			pc.deregister('miaoDirectory_onInit')
-			watchEffect(() => {
+			if (views.length === 0) {
+				pc.usePlugin('miaoDirectory', [root])
+			}
+			watch(() => views.length, () => {
 				if(views.length === 0) {
 					pc.usePlugin('miaoDirectory', [root])
 				}
 			})
+			
+			pc.deregister('miaoDirectory_onInit')
 		})
 	},
 	priority: -1
