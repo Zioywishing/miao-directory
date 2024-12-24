@@ -73,6 +73,7 @@ const mainRef = ref<HTMLDivElement>()
 const draggable = ref(true)
 
 // 使用ResizeObserver实现
+// 什么？性能问题？这玩意性能问题多着呢，轮不到它。
 const clientWidth = ref<number>(666)
 
 const name = props.name ?? props.item.name

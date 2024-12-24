@@ -4,7 +4,7 @@ import { alertTipType, PluginExportType } from "@/types/type";
 
 const initPlugin = async (globalAlertTip: alertTipType) => {
 	initPluginCenter(globalAlertTip);
-	const modulesFiles = import.meta.glob("@/plugins/**/export.ts", { eager: true });
+	const modulesFiles = import.meta.glob("@/plugins/**/export*.ts", { eager: true });
 	const pluginCenter = usePluginCenter();
 	const promiseArray = [];
 	for (let pluginConfig of Object.values(modulesFiles)) {

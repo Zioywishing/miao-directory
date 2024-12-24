@@ -19,42 +19,10 @@ export default defineConfig({
     },
     server: {
         proxy: {
-            '/get': {
+            '^/(get|upload|delete|query|rename|cut|mkdir)': {
                 target: 'http://127.0.0.1:17705',
                 changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/get/, '/get')
-            },
-
-            '/upload': {
-                target: 'http://127.0.0.1:17705',
-                changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/upload/, '/upload')
-            },
-
-            '/delete': {
-                target: 'http://127.0.0.1:17705',
-                changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/delete/, '/delete')
-            },
-            '/query': {
-                target: 'http://127.0.0.1:17705',
-                changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/query/, '/query')
-            },
-            '/rename': {
-                target: 'http://127.0.0.1:17705',
-                changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/rename/, '/rename')
-            },
-            '/cut': {
-                target: 'http://127.0.0.1:17705',
-                changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/cut/, '/cut')
-            },
-            '/mkdir': {
-                target: 'http://127.0.0.1:17705',
-                changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/mkdir/, '/mkdir')
+                rewrite: (path) => path
             }
         }
     },
