@@ -6,6 +6,7 @@
       }">
       <n-scrollbar ref="scrollbarRef" style="max-height: 100%">
          <miao-lazy-div
+            class="miao-directory-container-items-container"
             v-for="dir in showData_directory"
             :key="dir.id"
             min-height="50px"
@@ -23,6 +24,7 @@
                @on-selected="handleItemSelect(dir)" />
          </miao-lazy-div>
          <miao-lazy-div
+            class="miao-directory-container-items-container"
             v-for="file in showData_files"
             :key="file.id"
             min-height="50px">
@@ -178,5 +180,8 @@ defineExpose({
    width: 100%;
    flex: 1;
    min-height: 0;
+   .miao-directory-container-items-container {
+      margin: 10px;
+   }
 }
 </style>

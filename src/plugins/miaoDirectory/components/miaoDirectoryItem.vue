@@ -201,7 +201,8 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .miao-item {
    cursor: pointer;
-   width: calc(100% - 20px);
+   // width: calc(100% - 20px);
+   width: 100%;
    // min-width: 170px;
    // aspect-ratio: 66/9;
    height: 50px;
@@ -209,12 +210,12 @@ onBeforeUnmount(() => {
    display: flex;
    justify-content: center;
    align-items: center;
-   margin: 10px 10px;
+   // margin: 10px 10px;
 
    .item-main {
       position: relative;
       width: 100%;
-      height: 95%;
+      height: 100%;
       background-color: rgb(255, 255, 255);
       border-radius: 7px;
       display: flex;
