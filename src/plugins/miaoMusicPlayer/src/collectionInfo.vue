@@ -163,6 +163,8 @@ $ig: linear-gradient(90deg, #a1ee5e 0%, #00e3ae 100%);
         &-title {
             display: flex;
             margin-left: 10px;
+            margin-right: 100px;
+            flex: 1;
 
             &-confirm {
                 margin-left: 10px;
