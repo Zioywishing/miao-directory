@@ -62,7 +62,7 @@ import useMiaoFetchApi from '@/hooks/useMiaoFetchApi'
 import useDataBus from '@/hooks/useDataBus'
 import useUploadQueue from '@/hooks/useUploadQueue'
 import useVirtualPages from '@/hooks/useVirtualPages'
-import { filePicker, renderIcon } from '@/hooks/miaoTools'
+import { filePicker, renderIcon } from '@/utils/miaoTools'
 import uniq from 'lodash/uniq'
 
 import miaoDirectoryTop from './components/miaoDirectoryTop.vue'

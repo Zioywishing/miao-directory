@@ -69,7 +69,7 @@ import {
    ReorderFourOutline
 } from '@vicons/ionicons5'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import dateFormatter from '@/hooks/dateFormatter'
+import dateFormatter from '@/utils/dateFormatter'
 import { NEllipsis } from 'naive-ui'
 import { DropdownOption } from 'naive-ui/es/dropdown'
 import miaoDraggableDiv from '@/components/miaoDraggableDiv.vue'

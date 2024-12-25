@@ -13,7 +13,7 @@
 import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory'
 import cloneDeep from 'lodash/cloneDeep'
 import { inject, onMounted, ref } from 'vue'
-import buildFromTree from '../../hooks/buildFromTree'
+import buildFromTree from '../../utils/buildFromTree'
 
 const root = inject('rootDirectory') as VirtualDirectory
 const currentFiles = defineModel<VirtualFile[]>('currentFiles', {

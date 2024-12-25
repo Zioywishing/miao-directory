@@ -1,5 +1,5 @@
 import config from '@/config'
-import generateId from '@/hooks/generateId'
+import generateId from '@/utils/generateId'
 import useMiaoFetchApi from '@/hooks/useMiaoFetchApi'
 import type { stats, file, directory } from '@/types/type.ts'
 import difference from 'lodash/difference'

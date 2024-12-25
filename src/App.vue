@@ -26,7 +26,7 @@ import useVirtualPages from './hooks/useVirtualPages'
 import init from './hooks/init'
 import usePluginCenter from './hooks/usePluginCenter'
 import PluginCenter, { PluginGroup } from './class/PluginCenter'
-import { renderIcon } from './hooks/miaoTools'
+import { renderIcon } from './utils/miaoTools'
 import { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import useRootVDirectory from './hooks/useRootVDirectory'
 

@@ -1,4 +1,4 @@
-import generateId from '@/hooks/generateId'
+import generateId from '@/utils/generateId'
 import useMiaoFetchApi from '@/hooks/useMiaoFetchApi'
 import VirtualDirectory from './VirtualDirectory'
 

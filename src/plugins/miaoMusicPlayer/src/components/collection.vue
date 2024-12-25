@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import collectionType from '../../types/collection'
-import dateFormatter from '@/hooks/dateFormatter'
+import dateFormatter from '@/utils/dateFormatter'
 import { Play } from '@vicons/ionicons5'
 
 const props = defineProps<{

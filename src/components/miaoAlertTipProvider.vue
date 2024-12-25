@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import generateId from '@/hooks/generateId'
+import generateId from '@/utils/generateId'
 import { NIcon } from 'naive-ui'
 import { computed, onMounted, ref, shallowReactive } from 'vue'
 import {

@@ -1,6 +1,6 @@
 import { Component, reactive, shallowRef } from 'vue'
 import VirtualDirectory, { VirtualFile } from './VirtualDirectory'
-import generateId from '@/hooks/generateId'
+import generateId from '@/utils/generateId'
 
 export interface VirtualPageOption {
    exitConfirm?: boolean

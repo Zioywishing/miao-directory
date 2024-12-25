@@ -58,7 +58,7 @@ import miaoDirectoryItem from './miaoDirectoryItem.vue'
 import miaoLazyDiv from '@/components/miaoLazyDiv.vue'
 import { computed, ref } from 'vue'
 import usePluginCenter from '@/hooks/usePluginCenter'
-import { renderIcon } from '@/hooks/miaoTools'
+import { renderIcon } from '@/utils/miaoTools'
 
 const pluginCenter = usePluginCenter()
 
