@@ -9,19 +9,21 @@
          :style="{ backgroundColor: props.color }"></div>
       <div class="container-top-breadcrumb">
          <div class="container-top-breadcrumb-container">
-            <n-breadcrumb separator=">" style="margin-left: 5px">
-               <n-breadcrumb-item :clickable="false">
-                  <n-icon size="18">
-                     <CloudOutline />
-                  </n-icon>
-               </n-breadcrumb-item>
-               <n-breadcrumb-item
-                  v-for="dir in currentDirectory?.getParents"
-                  @click="handleClickBreadcrumbItem(dir)"
-                  :clickable="true">
-                  <div>{{ dir.name }}</div>
-               </n-breadcrumb-item>
-            </n-breadcrumb>
+            <!-- <n-scrollbar x-scrollable> -->
+               <n-breadcrumb separator=">" style="margin-left: 5px">
+                  <n-breadcrumb-item :clickable="false">
+                     <n-icon size="18">
+                        <CloudOutline />
+                     </n-icon>
+                  </n-breadcrumb-item>
+                  <n-breadcrumb-item
+                     v-for="dir in currentDirectory?.getParents"
+                     @click="handleClickBreadcrumbItem(dir)"
+                     :clickable="true">
+                     <div>{{ dir.name }}</div>
+                  </n-breadcrumb-item>
+               </n-breadcrumb>
+            <!-- </n-scrollbar> -->
          </div>
       </div>
       <div class="container-top-tools">
@@ -50,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { NBreadcrumbItem, NBreadcrumb, NIcon, NDropdown } from 'naive-ui'
+import { NBreadcrumbItem, NBreadcrumb, NIcon, NDropdown, NScrollbar } from 'naive-ui'
 import {
    CloudOutline,
    ChevronBackOutline,
