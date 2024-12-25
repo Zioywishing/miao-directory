@@ -1,26 +1,39 @@
 <!-- 基于naiveui的下拉菜单实现的自定义下拉菜单 -->
 <!-- 支持长按和右键呼出下拉菜单 -->
 <template>
-    <div class="main" @contextmenu="handleContextMenu" @mouseleave="handleMainMouseLeave">
-        <slot></slot>
-    </div>
-    <n-dropdown placement="bottom-start" trigger="manual" :x="x" :y="y" :options="props.options"
-        :show="showContextMenu > 0" :on-clickoutside="onClickoutside" @select="handleSelect" @mouseleave="
-            showContextMenu -= 1" @mouseenter="showContextMenu += 1" />
+   <div
+      class="main"
+      @contextmenu="handleContextMenu"
+      @mouseleave="handleMainMouseLeave"
+   >
+      <slot></slot>
+   </div>
+   <n-dropdown
+      placement="bottom-start"
+      trigger="manual"
+      :x="x"
+      :y="y"
+      :options="props.options"
+      :show="showContextMenu > 0"
+      :on-clickoutside="onClickoutside"
+      @select="handleSelect"
+      @mouseleave="showContextMenu -= 1"
+      @mouseenter="showContextMenu += 1"
+   />
 </template>
 
 <script setup lang="ts">
-import { NDropdown } from 'naive-ui/es/dropdown';
-import { DropdownOption } from 'naive-ui/es/dropdown';
-import { nextTick, ref } from 'vue';
+import { NDropdown } from 'naive-ui/es/dropdown'
+import { DropdownOption } from 'naive-ui/es/dropdown'
+import { nextTick, ref } from 'vue'
 
 const props = defineProps<{
-    options: DropdownOption[]
-    // 长按呼出右键菜单的时延，undefined时不生效
-    touchTimeOut?: number
+   options: DropdownOption[]
+   // 长按呼出右键菜单的时延，undefined时不生效
+   touchTimeOut?: number
 }>()
 const emit = defineEmits<{
-    select: [key: string]
+   select: [key: string]
 }>()
 
 const x = ref(0)
@@ -30,31 +43,31 @@ const showContextMenu = ref(0)
 // let timer_touch: string | number | NodeJS.Timeout | undefined
 
 const onClickoutside = async () => {
-    showContextMenu.value = 0
+   showContextMenu.value = 0
 }
 
 const handleMainMouseLeave = async () => {
-    setTimeout(() => {
-        showContextMenu.value -= 1
-    }, 20)
-    // nextTick(()=>{
-    //     showContextMenu.value -= 1
-    // })
+   setTimeout(() => {
+      showContextMenu.value -= 1
+   }, 20)
+   // nextTick(()=>{
+   //     showContextMenu.value -= 1
+   // })
 }
 
 const handleSelect = async (key: string) => {
-    emit('select', key)
-    showContextMenu.value = 0
+   emit('select', key)
+   showContextMenu.value = 0
 }
 
 const handleContextMenu = (e: MouseEvent) => {
-    e.preventDefault()
-    showContextMenu.value = 0
-    nextTick().then(() => {
-        showContextMenu.value += 1
-        x.value = e.clientX
-        y.value = e.clientY
-    })
+   e.preventDefault()
+   showContextMenu.value = 0
+   nextTick().then(() => {
+      showContextMenu.value += 1
+      x.value = e.clientX
+      y.value = e.clientY
+   })
 }
 
 // const handleTouchStart = (e: TouchEvent) => {
@@ -76,13 +89,12 @@ const handleContextMenu = (e: MouseEvent) => {
 //     }
 
 // }
-
 </script>
 
 <style>
 .main {
-    width: 100%;
-    height: 100%;
-    position: relative;
+   width: 100%;
+   height: 100%;
+   position: relative;
 }
 </style>

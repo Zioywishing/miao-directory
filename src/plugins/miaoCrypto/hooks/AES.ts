@@ -8,12 +8,12 @@ import aes_worker from '../workers/aes-worker?worker'
  * @returns {Uint8Array}
  */
 export default (key: string, data: Uint8Array) => {
-    const key_u8i = aesJs.utils.utf8.toBytes(key)
-    return new Promise<Uint8Array>((resolve) => {
-        const aesWorker = new aes_worker()
-        aesWorker.onmessage = (event) => {
-            resolve(event.data)
-        }
-        aesWorker.postMessage({ data, key: key_u8i })
-    })
+   const key_u8i = aesJs.utils.utf8.toBytes(key)
+   return new Promise<Uint8Array>((resolve) => {
+      const aesWorker = new aes_worker()
+      aesWorker.onmessage = (event) => {
+         resolve(event.data)
+      }
+      aesWorker.postMessage({ data, key: key_u8i })
+   })
 }

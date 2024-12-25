@@ -1,4 +1,4 @@
 const fullScreen = () => {
-    document.body.requestFullscreen()
+   document.body.requestFullscreen()
 }
 export default fullScreen

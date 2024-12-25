@@ -120,6 +120,12 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^5.1.2
         version: 5.1.2(vite@5.4.0(@types/node@22.1.0)(sass@1.77.8))(vue@3.5.0(typescript@5.5.4))
+      prettier:
+        specifier: ^3.4.2
+        version: 3.4.2
+      prettier-plugin-vue:
+        specifier: ^1.1.6
+        version: 1.1.6
       rollup-plugin-visualizer:
         specifier: ^5.12.0
         version: 5.12.0(rollup@4.20.0)
@@ -1100,6 +1106,19 @@ packages:
   postcss@8.4.44:
     resolution: {integrity: sha512-Aweb9unOEpQ3ezu4Q00DPvvM2ZTUitJdNKeP/+uQgr1IBIqu574IaZoURId7BKtWMREwzKa9OgzPzezWGPWFQw==}
     engines: {node: ^10 || ^12 || >=14}
+
+  prettier-plugin-vue@1.1.6:
+    resolution: {integrity: sha512-trQ/oY+6hSsGe2zPIFThXMIM0TbxMEbk2VOrKjwHWuSz7OEo0rnumbz9a47OxVPCaAnGY9vZG8qDTiTmk9bq0A==}
+
+  prettier@2.8.8:
+    resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
+
+  prettier@3.4.2:
+    resolution: {integrity: sha512-e9MewbtFo+Fevyuxn/4rrcDAaq0IYxPGLvObpQjiZBMAzB9IGmzlnG9RZy3FFas+eBMu2vA0CszMeduow5dIuQ==}
+    engines: {node: '>=14'}
+    hasBin: true
 
   promise-polyfill@7.1.0:
     resolution: {integrity: sha512-P6NJ2wU/8fac44ENORsuqT8TiolKGB2u0fEClPtXezn7w5cmLIjM/7mhPlTebke2EPr6tmqZbXvnX0TxwykGrg==}
@@ -2457,6 +2476,14 @@ snapshots:
       nanoid: 3.3.7
       picocolors: 1.0.1
       source-map-js: 1.2.0
+
+  prettier-plugin-vue@1.1.6:
+    dependencies:
+      prettier: 2.8.8
+
+  prettier@2.8.8: {}
+
+  prettier@3.4.2: {}
 
   promise-polyfill@7.1.0: {}
 
