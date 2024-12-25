@@ -8,9 +8,16 @@
          class="container-top-colorfulBar"
          :style="{ backgroundColor: props.color }"></div>
       <div class="container-top-breadcrumb">
-         <div class="container-top-breadcrumb-container">
-            <!-- <n-scrollbar x-scrollable> -->
-               <n-breadcrumb separator=">" style="margin-left: 5px">
+         <n-scrollbar
+            ref="scrollbarRef"
+            :x-scrollable="true"
+            class="container-top-breadcrumb-scroll"
+            @wheel="handleWheel">
+            <div class="container-top-breadcrumb-container">
+               <n-breadcrumb
+                  separator=">"
+                  class="sb-nn"
+                  style="margin-left: 5px">
                   <n-breadcrumb-item :clickable="false">
                      <n-icon size="18">
                         <CloudOutline />
@@ -23,8 +30,8 @@
                      <div>{{ dir.name }}</div>
                   </n-breadcrumb-item>
                </n-breadcrumb>
-            <!-- </n-scrollbar> -->
-         </div>
+            </div>
+         </n-scrollbar>
       </div>
       <div class="container-top-tools">
          <n-icon
@@ -52,7 +59,13 @@
 </template>
 
 <script setup lang="ts">
-import { NBreadcrumbItem, NBreadcrumb, NIcon, NDropdown, NScrollbar } from 'naive-ui'
+import {
+   NBreadcrumbItem,
+   NBreadcrumb,
+   NIcon,
+   NDropdown,
+   NScrollbar
+} from 'naive-ui'
 import {
    CloudOutline,
    ChevronBackOutline,
@@ -60,6 +73,7 @@ import {
    EllipsisVertical
 } from '@vicons/ionicons5'
 import VirtualDirectory from '@/class/VirtualDirectory'
+import { ref } from 'vue'
 
 const props = defineProps<{
    color: string
@@ -79,9 +93,28 @@ const emit = defineEmits<{
    'set-current-directory': [virtualDirectory: VirtualDirectory]
 }>()
 
+const scrollbarRef = ref<InstanceType<typeof NScrollbar>>()
+
 const handleClickBreadcrumbItem = (virtualDirectory: VirtualDirectory) => {
    emit('set-current-directory', virtualDirectory)
 }
+
+const handleWheel = (event: WheelEvent) => {
+   event.preventDefault()
+   event.stopPropagation()
+   if (scrollbarRef.value) {
+      scrollbarRef.value.scrollBy({
+         left: event.deltaY,
+         behavior: "smooth"
+      })
+   }
+}
+
+defineExpose({
+   // @ts-ignore
+   scrollTo: (...args: any[]) => scrollbarRef.value?.scrollTo(...args)
+   // getRef: () => scrollbarRef.value
+})
 </script>
 
 <style scoped lang="scss">
@@ -117,14 +150,15 @@ const handleClickBreadcrumbItem = (virtualDirectory: VirtualDirectory) => {
       border-radius: 0 3px 3px 0;
 
       .container-top-breadcrumb-container {
-         position: absolute;
-         height: 100%;
-         right: 0;
-         top: 0;
+         // position: absolute;
+         height: 21px;
+         // right: 0;
+         // top: 0;
          min-width: 100%;
          display: flex;
          justify-content: flex-start;
          align-items: center;
+         overflow: hidden;
       }
    }
 
@@ -161,6 +195,14 @@ const handleClickBreadcrumbItem = (virtualDirectory: VirtualDirectory) => {
             transform: rotate(360deg);
          }
       }
+   }
+}
+</style>
+
+<style lang="scss">
+.container-top-breadcrumb-scroll {
+   .n-scrollbar-rail {
+      transform: translateY(5px);
    }
 }
 </style>

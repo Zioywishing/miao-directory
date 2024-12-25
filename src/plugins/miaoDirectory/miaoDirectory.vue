@@ -7,6 +7,7 @@
          <div class="miao-directory-item-container" ref="rootDomRef">
             <!-- 顶部面包屑导航和工具栏 -->
             <miao-directory-top
+               ref="miaoDirectoryTopRef"
                :color="props.color"
                :current-directory="currentDirectory"
                @back="handleBack"
@@ -101,6 +102,7 @@ const searchText = ref<string>('')
 const showDirs = ref<boolean>(true)
 const showFiles = ref<boolean>(true)
 const miaoDirectoryItemRef = ref()
+const miaoDirectoryTopRef = ref<InstanceType<typeof miaoDirectoryTop>>()
 const miaoAlertTip = ref<InstanceType<typeof miaoAlertTipProvider>>()
 
 class SelectedItem {
@@ -295,6 +297,16 @@ const setCurrentDirectory = async (virtualDirectory: VirtualDirectory) => {
          nextTick(() => {
             miaoDirectoryItemRef.value.scrollTo({
                top: 0,
+               behavior: 'instant'
+            })
+            // miaoDirectoryTopRef.value &&
+            //    miaoDirectoryTopRef.value.scrollTo({
+            //    top: 0,
+            //    behavior: 'instant'
+            // })
+            miaoDirectoryTopRef.value?.scrollTo({
+               top: 0,
+               left: 999,
                behavior: 'instant'
             })
          })
