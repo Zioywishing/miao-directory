@@ -3,16 +3,14 @@
       class="miao-directory-container-bottom"
       :style="{
          backgroundColor: index % 2 === 1 ? 'rgb(61 61 61)' : 'rgb(162 162 162)'
-      }"
-   >
+      }">
       <div class="container-bottom-item">
          <div class="container-bottom-item-icon">
             <add-outline
                :style="{
                   color: index % 2 === 0 ? 'rgb(0 0 0)' : 'rgb(255 255 255)'
                }"
-               @click="emit('add-new-item')"
-            />
+               @click="emit('add-new-item')" />
          </div>
       </div>
       <div class="container-bottom-item">
@@ -21,8 +19,7 @@
                :style="{
                   color: index % 2 === 0 ? 'rgb(0 0 0)' : 'rgb(255 255 255)'
                }"
-               @click="emit('pick-files-upload')"
-            />
+               @click="emit('pick-files-upload')" />
          </div>
       </div>
    </div>

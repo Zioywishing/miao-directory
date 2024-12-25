@@ -1,10 +1,6 @@
 <template>
    <transition name="transition">
-      <div
-         class="mask-body"
-         ref="maskBodyRef"
-         v-show="showMask"
-      >
+      <div class="mask-body" ref="maskBodyRef" v-show="showMask">
          <slot></slot>
       </div>
    </transition>

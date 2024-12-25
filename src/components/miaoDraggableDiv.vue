@@ -1,9 +1,5 @@
 <template>
-   <div
-      ref="divRef"
-      @dragstart="onDs"
-      :draggable="isDraggable"
-   >
+   <div ref="divRef" @dragstart="onDs" :draggable="isDraggable">
       <slot></slot>
    </div>
 </template>

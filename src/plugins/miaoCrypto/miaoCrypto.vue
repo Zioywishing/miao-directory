@@ -6,8 +6,7 @@
                <div
                   v-for="item of workItemList"
                   :key="item.id"
-                  class="miaoCrypto-container-item-item"
-               >
+                  class="miaoCrypto-container-item-item">
                   <div
                      class="miaoCrypto-container-item-percentBar"
                      :style="{
@@ -17,16 +16,14 @@
                               ? `${item.getBufferProgress * 100}%`
                               : `0%`,
                         backgroundColor: 'blue'
-                     }"
-                  ></div>
+                     }"></div>
                   <div
                      class="miaoCrypto-container-item-percentBar"
                      :style="{
                         zIndex: 1,
                         width: item.status === 'finish' ? `100%` : `0%`,
                         backgroundColor: 'green'
-                     }"
-                  ></div>
+                     }"></div>
                   <span class="miaoCrypto-container-item-content">
                      {{ item.name }}{{ item.status }}
                   </span>

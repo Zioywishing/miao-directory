@@ -2,8 +2,7 @@
    <n-scrollbar>
       <div
          class="miao-markdown-container-miaomiaomiao"
-         v-html="renderedMarkdown"
-      ></div>
+         v-html="renderedMarkdown"></div>
       <div style="height: 50px; width: 100%"></div>
    </n-scrollbar>
 </template>

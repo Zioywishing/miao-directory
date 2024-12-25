@@ -5,36 +5,31 @@
             <div
                class="miao-container-topBar-btn"
                @click="() => handleZoom(10)"
-               title="快速缩小"
-            >
+               title="快速缩小">
                --
             </div>
             <div
                class="miao-container-topBar-btn"
                @click="() => handleZoom()"
-               title="缩小"
-            >
+               title="缩小">
                -
             </div>
             <div
                class="miao-container-topBar-btn"
                @click="() => handleResetMargin()"
-               title="还原"
-            >
+               title="还原">
                还原缩放
             </div>
             <div
                class="miao-container-topBar-btn"
                @click="() => handleShrink()"
-               title="放大"
-            >
+               title="放大">
                +
             </div>
             <div
                class="miao-container-topBar-btn"
                @click="() => handleShrink(10)"
-               title="快速放大"
-            >
+               title="快速放大">
                ++
             </div>
          </div>
@@ -43,15 +38,13 @@
                class="miao-container-pdf"
                :style="{
                   alignItems: pdfMargin < 0 ? 'baseline' : 'center'
-               }"
-            >
+               }">
                <div
                   ref="pdfEl"
                   class="miao-container-pdf-content"
                   :style="{
                      width: `calc( 100% - ${pdfMargin}px)`
-                  }"
-               ></div>
+                  }"></div>
             </div>
          </NScrollbar>
       </div>

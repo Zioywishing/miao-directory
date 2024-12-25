@@ -1,23 +1,14 @@
 <template>
    <div class="collection-info-container">
       <div class="collection-info-container-top">
-         <div
-            class="collection-info-container-top-exit"
-            @click="emit('exit')"
-         >
+         <div class="collection-info-container-top-exit" @click="emit('exit')">
             <ArrowBackOutline></ArrowBackOutline>
          </div>
          <div class="collection-info-container-top-title">
-            <span
-               :tooltip="false"
-               v-if="!isEditing"
-            >
+            <span :tooltip="false" v-if="!isEditing">
                {{ collection.name }}
             </span>
-            <n-input
-               v-if="isEditing"
-               v-model:value="collection.name"
-            ></n-input>
+            <n-input v-if="isEditing" v-model:value="collection.name"></n-input>
          </div>
 
          <div
@@ -25,8 +16,7 @@
             v-if="isEditing"
             @click="
                clickDeleteCount !== 2 ? clickDeleteCount++ : emit('deleteSelf')
-            "
-         >
+            ">
             <TrashOutline></TrashOutline>
             <span>
                {{
@@ -42,8 +32,7 @@
       <div class="collection-info-container-controller">
          <div
             class="collection-info-container-controller-play"
-            @click="emit('playAll', collection)"
-         >
+            @click="emit('playAll', collection)">
             <div class="collection-info-container-controller-play-icon">
                <CaretForwardOutline></CaretForwardOutline>
             </div>
@@ -54,11 +43,11 @@
          <div class="collection-info-container-controller-right">
             <div
                class="collection-info-container-controller-edit"
-               @click="isEditing = !isEditing"
-            >
+               @click="isEditing = !isEditing">
                <component
-                  :is="isEditing ? CheckmarkOutline : CreateOutline"
-               ></component>
+                  :is="
+                     isEditing ? CheckmarkOutline : CreateOutline
+                  "></component>
             </div>
          </div>
       </div>
@@ -69,46 +58,40 @@
                :animation="150"
                handle=".collection-info-container-audioList-item-controller-item-drag"
                ghostClass="iSDragging"
-               @end="updateAudiosIndex"
-            >
+               @end="updateAudiosIndex">
                <div
                   v-for="(audio, index) in collection.audios"
-                  class="collection-info-container-audioList-item"
-               >
+                  class="collection-info-container-audioList-item">
                   <div class="collection-info-container-audioList-item-index">
                      <div>{{ index + 1 }}</div>
                   </div>
                   <div class="collection-info-container-audioList-item-info">
                      <div
                         v-if="!isEditing"
-                        class="collection-info-container-audioList-item-info-name"
-                     >
+                        class="collection-info-container-audioList-item-info-name">
                         <NEllipsis :tooltip="false">
                            {{ audio.name }}
                         </NEllipsis>
                      </div>
                      <n-input
                         v-model:value="audio.name"
-                        v-if="isEditing"
-                     ></n-input>
+                        v-if="isEditing"></n-input>
                   </div>
                   <div
-                     class="collection-info-container-audioList-item-controller"
-                  >
+                     class="collection-info-container-audioList-item-controller">
                      <PlayOutline
                         class="collection-info-container-audioList-item-controller-item"
                         v-if="!isEditing"
-                        @click="emit('playAll', collection, index)"
-                     ></PlayOutline>
+                        @click="
+                           emit('playAll', collection, index)
+                        "></PlayOutline>
                      <TrashOutline
                         class="collection-info-container-audioList-item-controller-item"
                         v-if="isEditing"
-                        @click="handleDelete(index)"
-                     ></TrashOutline>
+                        @click="handleDelete(index)"></TrashOutline>
                      <ReorderFourOutline
                         v-if="isEditing"
-                        class="collection-info-container-audioList-item-controller-item collection-info-container-audioList-item-controller-item-drag"
-                     ></ReorderFourOutline>
+                        class="collection-info-container-audioList-item-controller-item collection-info-container-audioList-item-controller-item-drag"></ReorderFourOutline>
                   </div>
                </div>
             </VueDraggable>

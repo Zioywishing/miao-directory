@@ -1,13 +1,9 @@
 <template>
    <div class="aplayer-list-top">
-      <div
-         @click="loopModeToggle"
-         class="aplayer-list-top-loopMode"
-      >
+      <div @click="loopModeToggle" class="aplayer-list-top-loopMode">
          <component
             :is="loopModeMap[loopMode].icon"
-            class="aplayer-list-top-loopMode-icon"
-         ></component>
+            class="aplayer-list-top-loopMode-icon"></component>
          <span class="aplayer-list-top-loopMode-name">
             {{ loopModeMap[loopMode].name }}
          </span>
@@ -16,8 +12,7 @@
          <AddCircleOutline
             v-if="onSaveCollection"
             class="aplayer-list-top-buttons-icon"
-            @click="onSaveCollection(ap.list.audios)"
-         ></AddCircleOutline>
+            @click="onSaveCollection(ap.list.audios)"></AddCircleOutline>
       </div>
       <span></span>
    </div>
@@ -27,8 +22,7 @@
          !isDragging ? 'miaoMusic-ol-isDragging' : 'miaoMusic-ol-notDragging'
       ]"
       :key="refreshKey"
-      ref="ol"
-   >
+      ref="ol">
       <VueDraggable
          v-model="ap.list.audios"
          @start="onDragStart"
@@ -36,79 +30,67 @@
          item-key="id"
          handle=".aplayer-list-control-btn-reorder"
          ghostClass="iSDragging"
-         :animation="150"
-      >
+         :animation="150">
          <!-- <miaoLazyDiv :min-height="'32px'" auto-height> -->
          <li
             v-for="(element, index) in ap.list.audios"
             :class="[activeAudioIndex == index ? 'aplayer-list-light' : '']"
             class="aplayer-list-new"
-            :key="element.id"
-         >
+            :key="element.id">
             <span
                class="aplayer-list-cur"
-               :style="{ backgroundColor: apTheme }"
-            ></span>
+               :style="{ backgroundColor: apTheme }"></span>
             <span class="aplayer-list-index">{{ index + 1 }}</span>
             <span class="aplayer-list-title">{{ element.name }}</span>
             <div class="aplayer-list-control">
                <div
                   v-if="isVideo(element)"
                   class="aplayer-list-control-btn aplayer-list-control-btn-hover aplayer-list-control-btn-play"
-                  @click.stop="onPlayVideo && onPlayVideo(element)"
-               >
+                  @click.stop="onPlayVideo && onPlayVideo(element)">
                   <VideocamOutline class="aplayer-list-control-btn-svg" />
                </div>
                <div
                   class="aplayer-list-control-btn aplayer-list-control-btn-hover aplayer-list-control-btn-play"
-                  @click.stop="switchAudio(index)"
-               >
+                  @click.stop="switchAudio(index)">
                   <component
                      :is="
                         activeAudioIndex == index && !isPaused
                            ? PauseOutline
                            : PlayOutline
                      "
-                     class="aplayer-list-control-btn-svg"
-                  ></component>
+                     class="aplayer-list-control-btn-svg"></component>
                </div>
                <div
                   class="aplayer-list-control-btn aplayer-list-control-btn-hover"
                   @click.stop="switchAudio(index)"
-                  v-if="false"
-               >
+                  v-if="false">
                   <HeartOutline class="aplayer-list-control-btn-svg" />
                </div>
                <div
                   class="aplayer-list-control-btn"
                   @click.stop="listAudioUp(index)"
-                  v-if="false"
-               >
+                  v-if="false">
                   <ChevronUpOutline class="aplayer-list-control-btn-svg" />
                </div>
                <div
                   class="aplayer-list-control-btn"
                   @click.stop="listAudioDown(index)"
-                  v-if="false"
-               >
+                  v-if="false">
                   <ChevronDownOutline class="aplayer-list-control-btn-svg" />
                </div>
                <div
                   class="aplayer-list-control-btn aplayer-list-control-btn-hover"
-                  @click.stop="listAudioRemove(index)"
-               >
+                  @click.stop="listAudioRemove(index)">
                   <CloseOutline class="aplayer-list-control-btn-svg" />
                </div>
                <div
-                  class="aplayer-list-control-btn aplayer-list-control-btn-reorder"
-               >
+                  class="aplayer-list-control-btn aplayer-list-control-btn-reorder">
                   <ReorderFourOutline class="aplayer-list-control-btn-svg" />
                </div>
             </div>
             <span
                class="aplayer-list-author"
-               v-show="element.artist !== 'Audio artist1'"
-            >
+               v-show="element.artist !== 'Audio artist1'">
                {{ element.artist }}
             </span>
          </li>

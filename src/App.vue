@@ -137,10 +137,7 @@ provide('rootDirectory', rootDirectory)
 </script>
 
 <template>
-   <div
-      class="view"
-      ref="viewRef"
-   >
+   <div class="view" ref="viewRef">
       <miao-message-provider ref="messageProviderRef">
          <div class="view-controller">
             <n-scrollbar x-scrollable>
@@ -149,13 +146,11 @@ provide('rootDirectory', rootDirectory)
                      <div
                         class="tab"
                         v-for="(view, index) of views._views"
-                        :key="view.id"
-                     >
+                        :key="view.id">
                         <span
                            class="tab-title"
                            :title="view.title"
-                           @click="handleClickTitle(index)"
-                        >
+                           @click="handleClickTitle(index)">
                            {{
                               view.title.length > 5 && 0
                                  ? `${view.title.substring(0, 5)}...`
@@ -165,20 +160,16 @@ provide('rootDirectory', rootDirectory)
                         <div class="tab-control">
                            <div
                               class="tab-point"
-                              :style="{ backgroundColor: view.color }"
-                           ></div>
+                              :style="{ backgroundColor: view.color }"></div>
                            <n-icon
                               class="tag-control-icon icon"
-                              @click="view.switchShow()"
-                           >
+                              @click="view.switchShow()">
                               <EyeOutline
                                  v-show="view.visible"
-                                 class="icon-inner"
-                              />
+                                 class="icon-inner" />
                               <EyeOffOutline
                                  v-show="!view.visible"
-                                 class="icon-inner"
-                              />
+                                 class="icon-inner" />
                            </n-icon>
                            <n-icon
                               class="tag-control-icon icon"
@@ -191,14 +182,12 @@ provide('rootDirectory', rootDirectory)
                                     index + 1
                                  )
                               "
-                              v-if="view.allowCopy"
-                           >
+                              v-if="view.allowCopy">
                               <CopyOutline />
                            </n-icon>
                            <n-icon
                               class="tag-control-icon icon"
-                              @click="deleteView(index)"
-                           >
+                              @click="deleteView(index)">
                               <CloseOutline class="icon-inner" />
                            </n-icon>
                         </div>
@@ -211,8 +200,7 @@ provide('rootDirectory', rootDirectory)
                   <n-dropdown
                      trigger="click"
                      :options="openMenuOption"
-                     @select="handleMenuSelect"
-                  >
+                     @select="handleMenuSelect">
                      <n-icon class="icon">
                         <EllipsisVertical class="icon-inner" />
                      </n-icon>
@@ -226,8 +214,7 @@ provide('rootDirectory', rootDirectory)
                class="view-container-item"
                v-for="(view, index) of views._views"
                :class="!view.visible ? 'view-container-item-hidden' : ''"
-               :key="view.id"
-            >
+               :key="view.id">
                <component
                   :is="view.component"
                   v-model:current-directories="view.currentDirectories"
@@ -236,23 +223,18 @@ provide('rootDirectory', rootDirectory)
                   :color="view.color"
                   :view="view"
                   :views="views"
-                  @exit="deleteView(index)"
-               ></component>
+                  @exit="deleteView(index)"></component>
             </div>
             <!-- </transition-group> -->
          </div>
       </miao-message-provider>
    </div>
    <!-- 模态框展示，用来显示分享二维码，设置菜单之类的东西 -->
-   <MiaoMask
-      v-model:show="showModal"
-      @click="showModal = false"
-   >
+   <MiaoMask v-model:show="showModal" @click="showModal = false">
       <component
          @click="(e: any) => e.stopPropagation()"
          :is="modalData?.component"
-         v-bind="modalData?.props"
-      ></component>
+         v-bind="modalData?.props"></component>
    </MiaoMask>
 </template>
 

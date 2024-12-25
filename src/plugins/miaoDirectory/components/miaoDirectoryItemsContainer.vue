@@ -3,18 +3,13 @@
       class="miao-directory-container-items"
       :style="{
          backgroundColor: index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)'
-      }"
-   >
-      <n-scrollbar
-         ref="scrollbarRef"
-         style="max-height: 100%"
-      >
+      }">
+      <n-scrollbar ref="scrollbarRef" style="max-height: 100%">
          <miao-lazy-div
             v-for="dir in showData_directory"
             :key="dir.id"
             min-height="50px"
-            margin="10px"
-         >
+            margin="10px">
             <miaoDirectoryItem
                :item="dir"
                :color="props.color"
@@ -25,14 +20,12 @@
                @click="handleItemClick(dir)"
                @drag-start="(e) => handleItemDragStart(dir)(e)"
                @rename="handleItemRename(dir)"
-               @on-selected="handleItemSelect(dir)"
-            />
+               @on-selected="handleItemSelect(dir)" />
          </miao-lazy-div>
          <miao-lazy-div
             v-for="file in showData_files"
             :key="file.id"
-            min-height="50px"
-         >
+            min-height="50px">
             <miaoDirectoryItem
                :item="file"
                :color="props.color"
@@ -44,8 +37,7 @@
                @drag-start="(e) => handleItemDragStart(file)(e)"
                @rename="handleItemRename(file)"
                @plugin="(p) => handleItemUsePlugin(file)(p)"
-               @on-selected="handleItemSelect(file)"
-            />
+               @on-selected="handleItemSelect(file)" />
          </miao-lazy-div>
       </n-scrollbar>
    </div>

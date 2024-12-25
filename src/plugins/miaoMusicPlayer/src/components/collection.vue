@@ -1,17 +1,10 @@
 <template>
-   <div
-      class="collection"
-      @click="emit('onenter')"
-   >
-      <div
-         class="collection-cover"
-         @click.stop="emit('onPlay')"
-      >
+   <div class="collection" @click="emit('onenter')">
+      <div class="collection-cover" @click.stop="emit('onPlay')">
          <img
             v-if="item.coverUrl"
             class="collection-cover-img"
-            :src="item.coverUrl"
-         />
+            :src="item.coverUrl" />
          <div class="collection-cover-play">
             <Play></Play>
          </div>

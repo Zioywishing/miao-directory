@@ -13,8 +13,7 @@
                  margin
               }
             : {}
-      "
-   >
+      ">
       <slot v-if="show" />
    </div>
 </template>

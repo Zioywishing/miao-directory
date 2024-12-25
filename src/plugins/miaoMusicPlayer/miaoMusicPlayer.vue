@@ -7,21 +7,15 @@
                :ap="ap"
                v-model:data="data"
                :updateLocalData="updateLocalData"
-               @new-collection="saveCurrPlayList"
-            ></miao-music-main>
+               @new-collection="saveCurrPlayList"></miao-music-main>
             <miao-mask
                :show="isAPlayerListShow"
                style="z-index: 5"
-               @click="() => ap?.list.hide()"
-            ></miao-mask>
-            <div
-               ref="aplayer"
-               style="z-index: 10"
-            />
+               @click="() => ap?.list.hide()"></miao-mask>
+            <div ref="aplayer" style="z-index: 10" />
             <miao-mask
                :show="isSavingCollection"
-               @click="isSavingCollection = false"
-            ></miao-mask>
+               @click="isSavingCollection = false"></miao-mask>
          </div>
       </miao-alert-tip-provider>
    </miao-drop-handler>

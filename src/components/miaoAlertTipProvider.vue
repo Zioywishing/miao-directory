@@ -1,25 +1,16 @@
 <template>
-   <div
-      class="miao-message-provider"
-      ref="rootRef"
-   >
+   <div class="miao-message-provider" ref="rootRef">
       <slot></slot>
       <transition-group
          name="message-fade"
          tag="div"
-         class="miao-message-provider-container"
-      >
+         class="miao-message-provider-container">
          <div
             class="miao-message"
             v-for="msg in messageList"
             :key="msg.id"
-            :style="{ maxWidth: maxMessageWidth + 'px' }"
-         >
-            <n-icon
-               class="miao-message-item"
-               size="18"
-               :color="msg.iconColor"
-            >
+            :style="{ maxWidth: maxMessageWidth + 'px' }">
+            <n-icon class="miao-message-item" size="18" :color="msg.iconColor">
                <component :is="msg.icon"></component>
             </n-icon>
             <div class="miao-message-item miao-message-item-content">

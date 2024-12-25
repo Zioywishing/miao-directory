@@ -63,7 +63,7 @@ export default {
      * @default false
      * @type {boolean}
      */
-    bracketSameLine: false,
+    bracketSameLine: true,
     /**
      * 当箭头函数只有一个参数是否加括号
      * @default "always"
@@ -99,6 +99,6 @@ export default {
      * @default true
      * @type {boolean}
      */
-    singleAttributePerLine: true,
-    disableLanguages: ['html']
+    // singleAttributePerLine: true,
+    // disableLanguages: ['html']
 }

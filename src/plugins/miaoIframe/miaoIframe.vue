@@ -4,8 +4,7 @@
          ref="iframeRef"
          :src="iframeSrc"
          frameborder="0"
-         class="iframe-container-iframe"
-      ></iframe>
+         class="iframe-container-iframe"></iframe>
    </div>
 </template>
 

@@ -8,21 +8,18 @@
                v-model="collections"
                :animation="150"
                :delay="100"
-               ghostClass="iSDragging"
-            >
+               ghostClass="iSDragging">
                <collection
                   v-for="item in collections"
                   :item="item"
                   @on-play="handleCollectionsPlay(item)"
-                  @onenter="handleCollectionEnter(item)"
-               ></collection>
+                  @onenter="handleCollectionEnter(item)"></collection>
             </VueDraggable>
             <n-empty
                description="空空如也~"
                size="huge"
                style="margin-top: 200px"
-               v-if="!data || data?.length === 0"
-            >
+               v-if="!data || data?.length === 0">
                <template #icon>
                   <n-icon>
                      <HandLeftOutline />
@@ -32,8 +29,7 @@
                   <n-button
                      size="small"
                      type="primary"
-                     @click="emit('newCollection')"
-                  >
+                     @click="emit('newCollection')">
                      立刻创建
                   </n-button>
                </template>
@@ -47,8 +43,7 @@
             v-if="currCollection"
             @exit="handleCollectionEnter(undefined)"
             @delete-self="handleCollectionDelete()"
-            @play-all="handleCollectionsPlay"
-         ></collectionInfo>
+            @play-all="handleCollectionsPlay"></collectionInfo>
       </Transition>
    </div>
 </template>

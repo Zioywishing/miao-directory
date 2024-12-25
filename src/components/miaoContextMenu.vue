@@ -4,8 +4,7 @@
    <div
       class="main"
       @contextmenu="handleContextMenu"
-      @mouseleave="handleMainMouseLeave"
-   >
+      @mouseleave="handleMainMouseLeave">
       <slot></slot>
    </div>
    <n-dropdown
@@ -18,8 +17,7 @@
       :on-clickoutside="onClickoutside"
       @select="handleSelect"
       @mouseleave="showContextMenu -= 1"
-      @mouseenter="showContextMenu += 1"
-   />
+      @mouseenter="showContextMenu += 1" />
 </template>
 
 <script setup lang="ts">

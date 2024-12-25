@@ -3,18 +3,13 @@
       class="miao-directory-container-top"
       :style="{
          backgroundColor: index % 2 === 0 ? '#f8f8f8' : 'rgb(240 240 240)'
-      }"
-   >
+      }">
       <div
          class="container-top-colorfulBar"
-         :style="{ backgroundColor: props.color }"
-      ></div>
+         :style="{ backgroundColor: props.color }"></div>
       <div class="container-top-breadcrumb">
          <div class="container-top-breadcrumb-container">
-            <n-breadcrumb
-               separator=">"
-               style="margin-left: 5px"
-            >
+            <n-breadcrumb separator=">" style="margin-left: 5px">
                <n-breadcrumb-item :clickable="false">
                   <n-icon size="18">
                      <CloudOutline />
@@ -23,8 +18,7 @@
                <n-breadcrumb-item
                   v-for="dir in currentDirectory?.getParents"
                   @click="handleClickBreadcrumbItem(dir)"
-                  :clickable="true"
-               >
+                  :clickable="true">
                   <div>{{ dir.name }}</div>
                </n-breadcrumb-item>
             </n-breadcrumb>
@@ -34,26 +28,20 @@
          <n-icon
             class="container-top-tools-item"
             size="15"
-            @click="$emit('back')"
-         >
+            @click="$emit('back')">
             <ChevronBackOutline />
          </n-icon>
          <n-icon
             class="container-top-tools-item"
             size="14"
-            @click="$emit('reload')"
-         >
+            @click="$emit('reload')">
             <ReloadOutline class="container-top-tools-item-reload" />
          </n-icon>
          <n-dropdown
             trigger="click"
             :options="openMenuOption"
-            @select="(key: string) => emit('menuSelect', key)"
-         >
-            <n-icon
-               class="container-top-tools-item"
-               size="14"
-            >
+            @select="(key: string) => emit('menuSelect', key)">
+            <n-icon class="container-top-tools-item" size="14">
                <EllipsisVertical />
             </n-icon>
          </n-dropdown>

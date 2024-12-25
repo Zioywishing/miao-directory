@@ -1,10 +1,6 @@
 <template>
    <miao-mask v-model:show="showMask">
-      <n-card
-         class="popup-card"
-         :title="popupConfig?.title"
-         size="medium"
-      >
+      <n-card class="popup-card" :title="popupConfig?.title" size="medium">
          {{ popupConfig?.content }}
          <n-input
             class="popup-input"
@@ -13,16 +9,14 @@
             v-bind="popupConfig?.inputProps"
             passively-activated
             autofocus
-            v-if="popupConfig?.inputProps"
-         />
+            v-if="popupConfig?.inputProps" />
          <div class="popup-button-container">
             <n-button
                class="popup-button-container-button"
                v-for="option in popupConfig?.options"
                :key="option.label"
                :type="option.type"
-               @click="_resolve && _resolve(option.key)"
-            >
+               @click="_resolve && _resolve(option.key)">
                {{ option.label }}
             </n-button>
          </div>

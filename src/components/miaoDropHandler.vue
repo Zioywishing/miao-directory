@@ -3,8 +3,7 @@
       class="container"
       @dragover="handleDragOver"
       @dragleave="handleDragLeave"
-      @drop="handleDrop"
-   >
+      @drop="handleDrop">
       <slot></slot>
       <miao-mask v-model:show="showMask"></miao-mask>
    </div>

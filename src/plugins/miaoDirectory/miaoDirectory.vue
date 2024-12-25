@@ -2,13 +2,9 @@
    <miao-drop-handler
       @on-virtual-directory="handleDropVDirectory"
       @on-files="handleDropFiles"
-      @on-virtual-files="handleDropVirtualFiles"
-   >
+      @on-virtual-files="handleDropVirtualFiles">
       <miaoAlertTipProvider ref="miaoAlertTip">
-         <div
-            class="miao-directory-item-container"
-            ref="rootDomRef"
-         >
+         <div class="miao-directory-item-container" ref="rootDomRef">
             <!-- 顶部面包屑导航和工具栏 -->
             <miao-directory-top
                :color="props.color"
@@ -20,8 +16,7 @@
                :index="index"
                @set-current-directory="setCurrentDirectory"
                @search="handleSearch"
-               @menu-select="handleTopBarMenuSelect"
-            />
+               @menu-select="handleTopBarMenuSelect" />
 
             <!-- 文件和文件夹列表 -->
             <miao-directory-items
@@ -36,16 +31,14 @@
                @item-delete="handleItemDelete"
                @item-drag-start="handleItemDragStart"
                @item-rename="handleItemRename"
-               @item-select="handleItemSelect"
-            />
+               @item-select="handleItemSelect" />
 
             <!-- 底部工具栏 -->
             <miao-directory-bottom
                :index="index"
                @add-new-item="handleAddNewItem"
                v-if="false"
-               @pick-files-upload="handlePickFilesUpload"
-            />
+               @pick-files-upload="handlePickFilesUpload" />
 
             <miao-mask v-model:show="showModel"></miao-mask>
             <miao-popup-input ref="popupInput"></miao-popup-input>

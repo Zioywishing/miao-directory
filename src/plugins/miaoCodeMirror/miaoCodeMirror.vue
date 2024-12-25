@@ -3,28 +3,22 @@
       <div
          class="codemirror-container"
          ref="rootRef"
-         :class="`codemirror-container-${theme}`"
-      >
+         :class="`codemirror-container-${theme}`">
          <div class="codemirror-container-top">
             <div
                class="codemirror-container-btn codemirror-container-btn-save"
-               @click="handleSave"
-            >
+               @click="handleSave">
                保存
             </div>
             <div
                class="codemirror-container-btn codemirror-container-btn-save"
-               @click="handleReset"
-            >
+               @click="handleReset">
                恢复到上次保存
             </div>
          </div>
          <div class="codemirror-container-main">
             <NScrollbar style="max-height: calc(100%)">
-               <codemirror
-                  v-model="codeData"
-                  :extensions="extensions"
-               />
+               <codemirror v-model="codeData" :extensions="extensions" />
             </NScrollbar>
          </div>
       </div>

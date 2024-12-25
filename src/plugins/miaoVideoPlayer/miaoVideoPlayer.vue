@@ -1,10 +1,7 @@
 <template>
    <miao-drop-handler @on-virtual-files="handleDropVFiles">
       <div class="player-container">
-         <div
-            ref="xgPlayer"
-            id="xgplayer"
-         ></div>
+         <div ref="xgPlayer" id="xgplayer"></div>
       </div>
    </miao-drop-handler>
 </template>

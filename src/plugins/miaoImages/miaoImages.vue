@@ -1,21 +1,13 @@
 <template>
    <miao-drop-handler
       @on-virtual-directory="handleDrop"
-      @on-virtual-files="handleDrop"
-   >
+      @on-virtual-files="handleDrop">
       <miao-message-provider ref="miaoMessageRef">
-         <div
-            class="miaoImage"
-            ref="rootRef"
-         >
-            <n-scrollbar
-               ref="NScrollbarRef"
-               style="max-height: 100%"
-            >
+         <div class="miaoImage" ref="rootRef">
+            <n-scrollbar ref="NScrollbarRef" style="max-height: 100%">
                <div
                   class="miaoImage-container"
-                  v-for="imageGroup in imageGroupList"
-               >
+                  v-for="imageGroup in imageGroupList">
                   <div class="miaoImage-container-day">
                      <!-- <div class="miaoImage-container-divide miaoImage-container-divide-before">
                             <div class="miaoImage-container-divide-line"></div>
@@ -30,8 +22,7 @@
                   <div
                      class="miaoImage-container-row"
                      v-for="vFile in imageGroup.items"
-                     :key="vFile.id"
-                  >
+                     :key="vFile.id">
                      <img
                         :src="vFile.url"
                         class="miaoImage-container-row-image"
@@ -41,8 +32,7 @@
                               ? 'miaoImage-container-row-image-active'
                               : ''
                         "
-                        @click="activeImage = vFile"
-                     />
+                        @click="activeImage = vFile" />
                   </div>
                </div>
             </n-scrollbar>
@@ -50,23 +40,19 @@
                :show="activeImage !== undefined"
                @click="activeImage = undefined"
                class="miaoImage-mask"
-               @wheel="handleWheel"
-            >
+               @wheel="handleWheel">
                <ChevronBack
                   class="miaoImage-mask-btn miaoImage-mask-btn-back"
-                  @click="handleActiveImageBack"
-               />
+                  @click="handleActiveImageBack" />
                <img
                   :src="activeImage?.url"
                   class="miaoImage-mask-active"
                   @click="(e) => e.stopPropagation()"
                   draggable="false"
-                  :style="{ transform: `scale(${imgViewScale})` }"
-               />
+                  :style="{ transform: `scale(${imgViewScale})` }" />
                <ChevronForward
                   class="miaoImage-mask-btn miaoImage-mask-btn-forward"
-                  @click="handleActiveImageForward"
-               />
+                  @click="handleActiveImageForward" />
             </miao-mask>
          </div>
       </miao-message-provider>
