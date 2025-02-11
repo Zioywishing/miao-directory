@@ -31,6 +31,7 @@ func main() {
 
 	router.GET("/query", api.QueryHandler(fsOperateEventCenter))
 	router.GET("/get/*path", api.GetHandler)
+	router.HEAD("/get/*path", api.GetHandler)
 	router.POST("/mkdir/*path", api.MkdirHandler)
 	router.POST("/upload/*path", api.UploadHandler)
 	router.POST("/cut/*path", api.CutHandler(fsOperateEventCenter))
