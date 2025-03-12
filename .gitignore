@@ -30,3 +30,9 @@ test
 stats.html
 
 src-server/web/*
+
+auto-imports.d.ts
+
+components.d.ts
+
+src/plugins/onnx_demo

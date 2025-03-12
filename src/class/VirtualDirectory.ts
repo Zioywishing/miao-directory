@@ -111,6 +111,10 @@ class VirtualDirectory {
       return `${this.parent.path}${this.name}/`
    }
 
+   get url(): string {
+      return `${config.api.get}${this.path}/`
+   }
+
    /**
     * 获取从根目录开始的按顺序的文件夹
     * @returns {VirtualDirectory[]}
