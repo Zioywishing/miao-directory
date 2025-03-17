@@ -42,6 +42,7 @@ export default class VirtualPage {
       this.color = getRandomWebSafeColor()
       this.exitConfirm = initObjects?.option?.exitConfirm ?? false
       this.allowCopy = initObjects?.option?.allowCopy ?? true
+      this.pageStorage = {}
    }
    // 页面使用的组件
    component: Component
@@ -53,6 +54,8 @@ export default class VirtualPage {
    currentDirectories: VirtualDirectory[]
    // 当前正在使用的文件
    currentFiles: VirtualFile[]
+   // 页面数据存储
+   pageStorage: { [key: string]: any }
    // 区分每一个页面的唯一id
    id: number
    // 当refreshKey改变时需要刷新页面，目前还没接入刷新

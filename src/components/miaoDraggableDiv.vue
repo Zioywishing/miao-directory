@@ -1,17 +1,20 @@
 <template>
-   <div ref="divRef" @dragstart="onDs" :draggable="isDraggable">
+   <div ref="divRef" @dragstart="onDs" :draggable="isDraggable ?? true">
       <slot></slot>
    </div>
 </template>
 
 <script setup lang="ts">
+import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory';
+import useDataBus from '@/hooks/useDataBus';
 import { onMounted, ref } from 'vue'
 // import Sortable from 'sortablejs'
 
 const props = defineProps<{
-   isDraggable: boolean
+   isDraggable?: boolean,
+   bindVirtualFiles?: VirtualFile[],
+   bindVirtualDirectories?: VirtualDirectory[]
 }>()
-props
 const emit = defineEmits<{
    onDragStart: [e: DragEvent]
 }>()
@@ -20,6 +23,15 @@ const divRef = ref<HTMLDivElement>()
 
 const onDs = (e: DragEvent) => {
    emit('onDragStart', e)
+   const dataBus = useDataBus()
+   props.bindVirtualFiles && dataBus.set(
+      'dragData_vFiles',
+      props.bindVirtualFiles
+   )
+   props.bindVirtualDirectories && dataBus.set(
+      'dragData_vDirectory',
+      props.bindVirtualDirectories
+   )
 }
 
 onMounted(() => {

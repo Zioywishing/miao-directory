@@ -220,6 +220,12 @@ const sendMessage = async () => {
       (partialResult: string, done: boolean) => {
         // 累加部分结果并更新UI
         currentGeneratedText.value += partialResult;
+        const banStart = [',', '，']
+        for(const ban of banStart) {
+          if(currentGeneratedText.value.startsWith(ban)) {
+            currentGeneratedText.value = currentGeneratedText.value.slice(1)
+          } 
+        }
 
         // 滚动到底部以显示最新内容
         nextTick().then(scrollToBottom);

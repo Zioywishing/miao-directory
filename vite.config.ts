@@ -6,6 +6,7 @@ import { visualizer } from 'rollup-plugin-visualizer'
 import AutoImport from 'unplugin-auto-import/vite'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
+import tailwindcss from '@tailwindcss/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -28,7 +29,8 @@ export default defineConfig({
         }),
         Components({
           resolvers: [NaiveUiResolver()]
-        })
+        }),
+        tailwindcss()
         // viteSingleFile()
     ],
     resolve: {

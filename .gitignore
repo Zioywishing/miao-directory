@@ -35,4 +35,4 @@ auto-imports.d.ts
 
 components.d.ts
 
-src/plugins/onnx_demo
+src/plugins/onnx_demo_*

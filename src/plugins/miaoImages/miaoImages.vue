@@ -1,13 +1,9 @@
 <template>
-   <miao-drop-handler
-      @on-virtual-directory="handleDrop"
-      @on-virtual-files="handleDrop">
+   <miao-drop-handler @on-virtual-directory="handleDrop" @on-virtual-files="handleDrop">
       <miao-message-provider ref="miaoMessageRef">
          <div class="miaoImage" ref="rootRef">
             <n-scrollbar ref="NScrollbarRef" style="max-height: 100%">
-               <div
-                  class="miaoImage-container"
-                  v-for="imageGroup in imageGroupList">
+               <div class="miaoImage-container" v-for="imageGroup in imageGroupList">
                   <div class="miaoImage-container-day">
                      <!-- <div class="miaoImage-container-divide miaoImage-container-divide-before">
                             <div class="miaoImage-container-divide-line"></div>
@@ -19,39 +15,22 @@
                             <div class="miaoImage-container-divide-line"></div>
                         </div> -->
                   </div>
-                  <div
-                     class="miaoImage-container-row"
-                     v-for="vFile in imageGroup.items"
-                     :key="vFile.id">
-                     <img
-                        :src="vFile.url"
-                        class="miaoImage-container-row-image"
-                        loading="lazy"
-                        :class="
-                           activeImage === vFile
+                  <div class="miaoImage-container-row" v-for="vFile in imageGroup.items" :key="vFile.id">
+                     <MiaoDraggableDiv :bind-virtual-files="[vFile]" class="size-full flex justify-center items-center">
+                        <img :src="vFile.url" class="miaoImage-container-row-image" loading="lazy" :class="activeImage === vFile
                               ? 'miaoImage-container-row-image-active'
                               : ''
-                        "
-                        @click="activeImage = vFile" />
+                           " @click="activeImage = vFile" />
+                     </MiaoDraggableDiv >
                   </div>
                </div>
             </n-scrollbar>
-            <miao-mask
-               :show="activeImage !== undefined"
-               @click="activeImage = undefined"
-               class="miaoImage-mask"
+            <miao-mask :show="activeImage !== undefined" @click="activeImage = undefined" class="miaoImage-mask"
                @wheel="handleWheel">
-               <ChevronBack
-                  class="miaoImage-mask-btn miaoImage-mask-btn-back"
-                  @click="handleActiveImageBack" />
-               <img
-                  :src="activeImage?.url"
-                  class="miaoImage-mask-active"
-                  @click="(e) => e.stopPropagation()"
-                  draggable="false"
-                  :style="{ transform: `scale(${imgViewScale})` }" />
-               <ChevronForward
-                  class="miaoImage-mask-btn miaoImage-mask-btn-forward"
+               <ChevronBack class="miaoImage-mask-btn miaoImage-mask-btn-back" @click="handleActiveImageBack" />
+               <img :src="activeImage?.url" class="miaoImage-mask-active" @click="(e) => e.stopPropagation()"
+                  draggable="false" :style="{ transform: `scale(${imgViewScale})` }" />
+               <ChevronForward class="miaoImage-mask-btn miaoImage-mask-btn-forward"
                   @click="handleActiveImageForward" />
             </miao-mask>
          </div>
@@ -167,7 +146,7 @@ const handleActiveImageBack = (e: any) => {
    const index = imageFileList.value.indexOf(activeImage.value)
    activeImage.value =
       imageFileList.value[
-         (index - 1 + imageFileList.value.length) % imageFileList.value.length
+      (index - 1 + imageFileList.value.length) % imageFileList.value.length
       ]
 }
 
@@ -179,7 +158,7 @@ const handleActiveImageForward = (e: any) => {
    const index = imageFileList.value.indexOf(activeImage.value)
    activeImage.value =
       imageFileList.value[
-         (index + 1 + imageFileList.value.length) % imageFileList.value.length
+      (index + 1 + imageFileList.value.length) % imageFileList.value.length
       ]
 }
 

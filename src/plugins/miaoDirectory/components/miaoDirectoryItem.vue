@@ -1,28 +1,13 @@
 <template>
-   <miao-draggable-div
-      class="miao-item"
-      :isDraggable="!draggable"
-      ref="itemRef"
-      @on-drag-start="handleDragStart">
-      <miaoContextMenu
-         :options="dropDownOptions ?? []"
-         :touch-time-out="500"
-         @select="handleDropdownSelect">
-         <div
-            class="item-main"
-            :class="selected ? 'item-main-selected' : ''"
-            ref="mainRef">
-            <div
-               class="item-main-front"
-               :style="{ backgroundColor: props.color }"></div>
+   <miao-draggable-div class="miao-item" :isDraggable="!draggable" ref="itemRef">
+      <miaoContextMenu :options="dropDownOptions ?? []" :touch-time-out="500" @select="handleDropdownSelect">
+         <div class="item-main" :class="selected ? 'item-main-selected' : ''" ref="mainRef">
+            <div class="item-main-front" :style="{ backgroundColor: props.color }"></div>
             <Icon class="item-main-icon" v-show="clientWidth > 250"></Icon>
             <div class="item-main-info">
                <div class="item-main-info-name">
-                  <Icon
-                     class="item-main-info-name-icon"
-                     v-if="clientWidth <= 250"></Icon>
-                  <n-ellipsis
-                     :style="{ maxWidth: clientWidth > 250 ? '80%' : '75%' }">
+                  <Icon class="item-main-info-name-icon" v-if="clientWidth <= 250"></Icon>
+                  <n-ellipsis :style="{ maxWidth: clientWidth > 250 ? '80%' : '75%' }">
                      {{ name }}
                   </n-ellipsis>
                </div>
@@ -30,9 +15,7 @@
                   {{ time }}
                </div>
             </div>
-            <miao-draggable-div
-               class="item-main-dragBtn"
-               :isDraggable="draggable">
+            <miao-draggable-div class="item-main-dragBtn" :isDraggable="draggable" @on-drag-start="handleDragStart">
                <ReorderFourOutline></ReorderFourOutline>
             </miao-draggable-div>
          </div>

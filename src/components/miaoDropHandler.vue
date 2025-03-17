@@ -1,6 +1,6 @@
 <template>
    <div
-      class="container"
+      class="miao-drop-container"
       @dragover="handleDragOver"
       @dragleave="handleDragLeave"
       @drop="handleDrop">
@@ -123,7 +123,7 @@ const handleDrop = async (event: DragEvent) => {
 </script>
 
 <style lang="scss" scoped>
-.container {
+.miao-drop-container {
    width: 100%;
    height: 100%;
    position: relative;
