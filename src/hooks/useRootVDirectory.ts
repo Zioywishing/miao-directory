@@ -1,8 +1,8 @@
-import VirtualDirectory from '@/class/VirtualDirectory'
+import { VirtualRemoteDirectory } from '@/class/VirtualRemoteDirectory'
 import { reactive } from 'vue'
 
 const root = reactive(
-   new VirtualDirectory({
+   new VirtualRemoteDirectory({
       name: '根目录',
       stats: {
          atimeMs: 0,

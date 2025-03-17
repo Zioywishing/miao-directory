@@ -441,18 +441,12 @@ const handleItemDownload = (item: VirtualFile) => {
 
 const handleItemDelete = async (_item: VirtualDirectory | VirtualFile) => {
    for (let item of uniq([...selectedItem.value, _item])) {
-      ;(async () => {
-         const { response } = miaoFetchApi.delete(item, {
-            retry: 5
-         })
-         // todo: 将删除事件统一用一个事件管理中心管理
-         const id = (await response).eventId
-         const { response: res } = miaoFetchApi.query(id)
-         const eventResult = await res
-         if (eventResult.status === 'success') {
-            reload()
+      (async () => {
+         const success = await item.delete();
+         if (success) {
+            reload();
          }
-      })()
+      })();
    }
 }
 
@@ -483,14 +477,10 @@ const handleItemRename = async (item: VirtualDirectory | VirtualFile) => {
    if (!newName) {
       return
    }
-   const { response } = miaoFetchApi.rename(item, newName, {
-      retry: 5
-   })
-   const id = (await response).eventId
-   const { response: res } = miaoFetchApi.query(id)
-   const eventResult = await res
-   if (eventResult.status === 'success') {
-      reload()
+   
+   const success = await item.rename(newName);
+   if (success) {
+      reload();
    }
 }
 
@@ -520,46 +510,25 @@ const handleDropFiles = async (files: File[]) => {
 }
 
 const handleDropVDirectory = async (vDirs: VirtualDirectory[]) => {
-   // 不能移到自己或自己的子文件夹内
-   for (let vDir of vDirs) {
-      if (currentDirectory.value.getParents.includes(vDir)) {
-         return
-      }
-      if (vDir.parent === currentDirectory.value) {
-         return
-      }
-   }
+   // 不能移到自己或自己的子文件夹内 - 这部分逻辑已经移到类的实现中
    for (let dir of vDirs) {
-      ;(async () => {
-         const _from = dir.parent
-         const { response } = miaoFetchApi.cut(dir, currentDirectory.value)
-         const id = (await response).eventId
-         const { response: res } = miaoFetchApi.query(id)
-         const eventResult = await res
-         if (eventResult.status === 'success') {
-            reload()
-            _from && _from.update()
+      (async () => {
+         const success = await dir.mv(currentDirectory.value);
+         if (success) {
+            reload();
          }
-      })()
+      })();
    }
 }
 
 const handleDropVirtualFiles = (files: VirtualFile[]) => {
-   if (files[0].parent === currentDirectory.value) {
-      return
-   }
    for (let file of files) {
-      ;(async () => {
-         const _from = file.parent
-         const { response } = miaoFetchApi.cut(file, currentDirectory.value)
-         const id = (await response).eventId
-         const { response: res } = miaoFetchApi.query(id)
-         const eventResult = await res
-         if (eventResult.status === 'success') {
-            reload()
-            _from.update()
+      (async () => {
+         const success = await file.moveTo(currentDirectory.value);
+         if (success) {
+            reload();
          }
-      })()
+      })();
    }
 }
 

@@ -1,10 +1,6 @@
-import config from '@/config'
 import generateId from '@/utils/generateId'
-import useMiaoFetchApi from '@/hooks/useMiaoFetchApi'
 import type { stats, file, directory } from '@/types/type.ts'
-import difference from 'lodash/difference'
 
-const miaoFetchApi = useMiaoFetchApi()
 
 // const vDirectoryMap = new Map<string, VirtualDirectory>()
 // const vFileMap = new Map<string, VirtualFile>()
@@ -24,65 +20,63 @@ export interface Tree {
    directories: Tree[]
 }
 
-export class VirtualFile {
-   constructor(info: file, parent: VirtualDirectory) {
-      this.name = info.name
-      this.size = info.size
-      this.stats = info.stats
-      this.parent = parent
-      this.type = 'file'
-      this.id = generateId()
-      // if (vFileMap.get(this.path) !== undefined) {
-      //     throw `${this.path} is already exist`
-      // }
-      // vFileMap.set(this.path, this)
-   }
+export abstract class VirtualFileBase {
    name: string
-   type: 'file'
+   type: 'file' = 'file'
    size: number
    stats: stats
-   parent: VirtualDirectory
+   parent: VirtualDirectoryBase
    id: number
    storage: { [key: string]: any } = {}
+
+   constructor(name: string, size: number, stats: stats, parent: VirtualDirectoryBase) {
+      this.name = name
+      this.size = size
+      this.stats = stats
+      this.parent = parent
+      this.id = generateId()
+   }
+
    get path() {
       return `${this.parent.path}${this.name}`
    }
 
-   get url() {
-      return `${config.api.get}${this.parent.path}${this.name}`
-   }
-
-   // destroy() {
-   //     vFileMap.delete(this.path)
-   // }
+   abstract get url(): string;
+   
+   /**
+    * 删除文件
+    * @returns {Promise<boolean>} 删除是否成功
+    */
+   abstract delete(): Promise<boolean>;
+   
+   /**
+    * 重命名文件
+    * @param {string} newName 新文件名
+    * @returns {Promise<boolean>} 重命名是否成功
+    */
+   abstract rename(newName: string): Promise<boolean>;
+   
+   /**
+    * 移动文件到目标目录
+    * @param {VirtualDirectoryBase} targetDir 目标目录
+    * @returns {Promise<boolean>} 移动是否成功
+    */
+   abstract moveTo(targetDir: VirtualDirectoryBase): Promise<boolean>;
 }
 
-class VirtualDirectory {
-   /**
-    * 除非为根节点，否则必须设置parent
-    */
-   constructor(info: directory, parent?: VirtualDirectory) {
-      this.name = info.name
-      this.stats = info.stats
-      this.parent = parent ?? undefined
-      this.id = generateId()
-      // if (vDirectoryMap.get(this.path) !== undefined) {
-      //     throw `${this.path} is already exist`
-      // }
-      // vDirectoryMap.set(this.path, this)
-   }
+export abstract class VirtualDirectoryBase {
    // 文件夹名
    name: string
    // 子文件
-   files: VirtualFile[] = []
+   files: VirtualFileBase[] = []
    // 子目录
-   directories: VirtualDirectory[] = []
+   directories: VirtualDirectoryBase[] = []
    // 没啥意义，标注一下就是了
    type: 'directory' = 'directory'
    // 文件夹创建时间等杂项属性
    stats: stats
    // 父文件夹
-   parent?: VirtualDirectory
+   parent?: VirtualDirectoryBase
 
    _isUpdated: boolean = false
 
@@ -90,6 +84,13 @@ class VirtualDirectory {
 
    // 用来存储一些标记信息啥的
    storage: { [key: string]: any } = {}
+
+   constructor(name: string, stats: stats, parent?: VirtualDirectoryBase) {
+      this.name = name
+      this.stats = stats
+      this.parent = parent
+      this.id = generateId()
+   }
 
    /**
     * 获取相对于根目录的路径的层数
@@ -99,6 +100,7 @@ class VirtualDirectory {
    get layer(): number {
       return this.parent ? this.parent.layer + 1 : 0
    }
+   
    /**
     * 相对于根目录的路径， 如: "/",  "/123/321/"
     * 用于目录下文件定位
@@ -111,15 +113,13 @@ class VirtualDirectory {
       return `${this.parent.path}${this.name}/`
    }
 
-   get url(): string {
-      return `${config.api.get}${this.path}/`
-   }
+   abstract get url(): string;
 
    /**
     * 获取从根目录开始的按顺序的文件夹
-    * @returns {VirtualDirectory[]}
+    * @returns {VirtualDirectoryBase[]}
     */
-   get getParents(): VirtualDirectory[] {
+   get getParents(): VirtualDirectoryBase[] {
       if (!this.parent) {
          return [this]
       }
@@ -136,9 +136,9 @@ class VirtualDirectory {
    /**
     * 获取 layer 级父文件夹, 如getParent(1)就返回父级
     * @param {number} layer 需要跳转的层数
-    * @returns {VirtualDirectory}
+    * @returns {VirtualDirectoryBase}
     */
-   getParent(layer: number): VirtualDirectory {
+   getParent(layer: number): VirtualDirectoryBase {
       if (layer <= 0 || !this.parent) {
          return this
       }
@@ -163,77 +163,39 @@ class VirtualDirectory {
       }
    }
 
-   // 时间复杂度大爆炸
-   updateContent(content: (file | directory)[]) {
-      this._isUpdated = true
-
-      const itemNames: string[] = content.map((v) => v.name)
-      // 删去远程端已不存在的文件与文件夹
-      const _delete = (target: (VirtualFile | VirtualDirectory)[]) => {
-         let index = 0
-         while (index < target.length) {
-            if (!itemNames.includes(target[index].name)) {
-               target.splice(index, 1)
-            } else {
-               index += 1
-            }
-         }
-      }
-      const _addFile = (item: file) => {
-         const nvf =
-            // vFileMap.get(`${this.path}${item.name}`) ??
-            new VirtualFile(item, this)
-         this.files.push(nvf)
-      }
-      const _addDirectory = (item: directory) => {
-         const nvd =
-            // vDirectoryMap.get(`${this.path}${item.name}/`) ??
-            new VirtualDirectory(item, this)
-         this.directories.push(nvd)
-      }
-      const newFileNames: string[] = difference(
-         content.filter((v) => v.type === 'file').map((v) => v.name),
-         this.files.map((v) => v.name)
-      )
-      const newDirectoryNames: string[] = difference(
-         content.filter((v) => v.type === 'directory').map((v) => v.name),
-         this.directories.map((v) => v.name)
-      )
-      _delete(this.files)
-      _delete(this.directories)
-      // 加入新的文件与文件夹
-      for (let item of content.filter((v) => newFileNames.includes(v.name))) {
-         _addFile(item as file)
-      }
-      for (let item of content.filter((v) =>
-         newDirectoryNames.includes(v.name)
-      )) {
-         _addDirectory(item as directory)
-      }
-   }
-
-   hasChild(item: VirtualDirectory | VirtualFile): boolean {
+   hasChild(item: VirtualDirectoryBase | VirtualFileBase): boolean {
       if (item.type === 'directory') {
-         return this.directories?.includes(item) ?? false
+         return this.directories?.includes(item as VirtualDirectoryBase) ?? false
       } else {
-         return this.files?.includes(item) ?? false
+         return this.files?.includes(item as VirtualFileBase) ?? false
       }
    }
 
-   // destroy() {
-   //     for(const item of [...this.files, ...this.directories]){
-   //         item.destroy()
-   //     }
-   //     vDirectoryMap.delete(this.path)
-   // }
-
+   abstract updateContent(content: (file | directory)[]): void;
+   abstract update(): Promise<void>;
+   
    /**
-    * 调用后重新向远端拉取文件夹信息并进行更新
-    * @returns {void}
+    * 删除目录
+    * @returns {Promise<boolean>} 删除是否成功
     */
-   async update(): Promise<void> {
-      const data: (file | directory)[] = await miaoFetchApi.get(this)
-      this.updateContent(data)
-   }
+   abstract delete(): Promise<boolean>;
+   
+   /**
+    * 重命名目录
+    * @param {string} newName 新目录名
+    * @returns {Promise<boolean>} 重命名是否成功
+    */
+   abstract rename(newName: string): Promise<boolean>;
+   
+   /**
+    * 移动目录到目标目录
+    * @param {VirtualDirectoryBase} targetDir 目标目录
+    * @returns {Promise<boolean>} 移动是否成功
+    */
+   abstract mv(targetDir: VirtualDirectoryBase): Promise<boolean>;
 }
+
+export abstract class VirtualFile extends VirtualFileBase {}
+export abstract class VirtualDirectory extends VirtualDirectoryBase {}
+
 export default VirtualDirectory
