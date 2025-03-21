@@ -5,6 +5,31 @@ import config from '@/config'
 
 const miaoFetchApi = useMiaoFetchApi()
 
+/**
+ * 轮询事件直到完成
+ * @param eventId 事件ID
+ * @param maxRetries 最大重试次数
+ * @param interval 轮询间隔(毫秒)
+ * @returns 事件结果
+ */
+async function pollEventUntilComplete(eventId: number, maxRetries = 100, interval = 300) {
+    let _count = 0;
+    while (_count < maxRetries) {
+        try {
+            const { response } = miaoFetchApi.query(eventId);
+            const result = await response;
+            if (result.status === 'success' || result.status === 'failed') {
+                return result;
+            }
+            _count++;
+            await new Promise(_ => setTimeout(_, interval));
+        } catch (error) {
+            throw error;
+        }
+    }
+    throw new Error('poll timeout');
+}
+
 export class VirtualRemoteFile extends VirtualFileBase {
     constructor(info: file, parent: VirtualDirectoryBase) {
         super(info.name, info.size, info.stats, parent)
@@ -20,8 +45,13 @@ export class VirtualRemoteFile extends VirtualFileBase {
                 retry: 5
             });
             const id = (await response).eventId;
-            const { response: res } = miaoFetchApi.query(id);
-            const eventResult = await res;
+            
+            const eventResult = await pollEventUntilComplete(id);
+            
+            if (eventResult.status === 'success' && this.parent) {
+                await this.parent.update(); // 操作成功后更新父目录
+            }
+            
             return eventResult.status === 'success';
         } catch (error) {
             console.error('删除文件失败:', error);
@@ -39,8 +69,13 @@ export class VirtualRemoteFile extends VirtualFileBase {
                 retry: 5
             });
             const id = (await response).eventId;
-            const { response: res } = miaoFetchApi.query(id);
-            const eventResult = await res;
+            
+            const eventResult = await pollEventUntilComplete(id);
+            
+            if (eventResult.status === 'success' && this.parent) {
+                await this.parent.update(); // 操作成功后更新父目录
+            }
+            
             return eventResult.status === 'success';
         } catch (error) {
             console.error('重命名文件失败:', error);
@@ -57,12 +92,13 @@ export class VirtualRemoteFile extends VirtualFileBase {
             const _from = this.parent;
             const { response } = miaoFetchApi.cut(this, targetDir);
             const id = (await response).eventId;
-            const { response: res } = miaoFetchApi.query(id);
-            const eventResult = await res;
+            
+            const eventResult = await pollEventUntilComplete(id);
             const success = eventResult.status === 'success';
 
             if (success) {
-                _from.update();
+                if (_from) await _from.update(); // 更新源目录
+                await targetDir.update(); // 更新目标目录
             }
 
             return success;
@@ -79,40 +115,87 @@ export class VirtualRemoteDirectory extends VirtualDirectoryBase {
     }
 
     get url(): string {
-        return `${config.api.get}${this.path}/`
+        return `${config.api.get}${this.path}`
     }
 
     updateContent(content: (file | directory)[]) {
         this._isUpdated = true
 
-        // 创建名称到内容项的映射，O(n)
-        const contentMap = new Map<string, file | directory>();
-        content.forEach(item => contentMap.set(item.name, item));
+        const files = content.filter(item => item.type === 'file') as file[];
+        const directories = content.filter(item => item.type === 'directory') as directory[];
 
-        // 使用Set存储所有内容项的名称，用于O(1)查找，O(n)
-        const itemNamesSet = new Set(content.map(v => v.name));
+        this.diffFiles(files);
+        this.diffDirectories(directories);
+    }
 
-        // 删除不再存在的文件和目录，O(m)
-        this.files = this.files.filter(file => itemNamesSet.has(file.name));
-        this.directories = this.directories.filter(dir => itemNamesSet.has(dir.name));
+    /**
+     * 文件diff算法，类似Vue的diff
+     * @param newFiles 新文件列表
+     */
+    private diffFiles(newFiles: file[]) {
+        if (this.files.length === 0) {
+            this.files = newFiles.map(file => new VirtualRemoteFile(file, this));
+            return;
+        }
 
-        // 创建现有文件和目录的名称集合，O(m)
-        const existingFileNames = new Set(this.files.map(file => file.name));
-        const existingDirNames = new Set(this.directories.map(dir => dir.name));
-
-        // 添加新文件和目录，O(n)
-        content.forEach(item => {
-            // 如果是文件且不存在于现有文件中
-            if (item.type === 'file' && !existingFileNames.has(item.name)) {
-                const nvf = new VirtualRemoteFile(item as file, this);
-                this.files.push(nvf);
+        const oldFiles = [...this.files];
+        const newFilesList: VirtualRemoteFile[] = [];
+        
+        const oldKeyMap = new Map<string, VirtualRemoteFile>();
+        oldFiles.forEach(file => oldKeyMap.set(file.name, file as VirtualRemoteFile));
+        
+        for (let i = 0; i < newFiles.length; i++) {
+            const newFile = newFiles[i];
+            const key = newFile.name;
+            
+            const oldFile = oldKeyMap.get(key);
+            
+            if (oldFile) {
+                oldFile.size = newFile.size;
+                oldFile.stats = newFile.stats;
+                newFilesList.push(oldFile);
+                // 从旧映射中删除，表示已处理
+                oldKeyMap.delete(key);
+            } else {
+                newFilesList.push(new VirtualRemoteFile(newFile, this));
             }
-            // 如果是目录且不存在于现有目录中
-            else if (item.type === 'directory' && !existingDirNames.has(item.name)) {
-                const nvd = new VirtualRemoteDirectory(item as directory, this);
-                this.directories.push(nvd);
+        }
+        
+        this.files = newFilesList;
+    }
+
+    /**
+     * 目录diff算法，类似Vue的diff
+     * @param newDirs 新目录列表
+     */
+    private diffDirectories(newDirs: directory[]) {
+        if (this.directories.length === 0) {
+            this.directories = newDirs.map(dir => new VirtualRemoteDirectory(dir, this));
+            return;
+        }
+
+        const oldDirs = [...this.directories];
+        const newDirsList: VirtualRemoteDirectory[] = [];
+        
+        const oldKeyMap = new Map<string, VirtualRemoteDirectory>();
+        oldDirs.forEach(dir => oldKeyMap.set(dir.name, dir as VirtualRemoteDirectory));
+        
+        for (let i = 0; i < newDirs.length; i++) {
+            const newDir = newDirs[i];
+            const key = newDir.name;
+            
+            const oldDir = oldKeyMap.get(key);
+            
+            if (oldDir) {
+                oldDir.stats = newDir.stats;
+                newDirsList.push(oldDir);
+                oldKeyMap.delete(key);
+            } else {
+                newDirsList.push(new VirtualRemoteDirectory(newDir, this));
             }
-        });
+        }
+        
+        this.directories = newDirsList;
     }
 
     async update(): Promise<void> {
@@ -126,8 +209,13 @@ export class VirtualRemoteDirectory extends VirtualDirectoryBase {
                 retry: 5
             });
             const id = (await response).eventId;
-            const { response: res } = miaoFetchApi.query(id);
-            const eventResult = await res;
+            
+            const eventResult = await pollEventUntilComplete(id);
+            
+            if (eventResult.status === 'success' && this.parent) {
+                await this.parent.update(); // 操作成功后更新父目录
+            }
+            
             return eventResult.status === 'success';
         } catch (error) {
             console.error('删除目录失败:', error);
@@ -145,8 +233,13 @@ export class VirtualRemoteDirectory extends VirtualDirectoryBase {
                 retry: 5
             });
             const id = (await response).eventId;
-            const { response: res } = miaoFetchApi.query(id);
-            const eventResult = await res;
+            
+            const eventResult = await pollEventUntilComplete(id);
+            
+            if (eventResult.status === 'success' && this.parent) {
+                await this.parent.update(); // 操作成功后更新父目录
+            }
+            
             return eventResult.status === 'success';
         } catch (error) {
             console.error('重命名目录失败:', error);
@@ -168,12 +261,13 @@ export class VirtualRemoteDirectory extends VirtualDirectoryBase {
             const _from = this.parent;
             const { response } = miaoFetchApi.cut(this, targetDir);
             const id = (await response).eventId;
-            const { response: res } = miaoFetchApi.query(id);
-            const eventResult = await res;
+            
+            const eventResult = await pollEventUntilComplete(id);
             const success = eventResult.status === 'success';
 
-            if (success && _from) {
-                _from.update();
+            if (success) {
+                if (_from) await _from.update(); // 更新源目录
+                await targetDir.update(); // 更新目标目录
             }
 
             return success;

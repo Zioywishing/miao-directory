@@ -72,6 +72,7 @@ func GetHandler(c *gin.Context) {
 			switch ext {
 			case ".js":
 			case ".cjs":
+			case ".mjs":
 				c.Writer.Header().Set("Content-Type", "application/javascript")
 			case ".css":
 				c.Writer.Header().Set("Content-Type", "text/css")
@@ -79,6 +80,8 @@ func GetHandler(c *gin.Context) {
 				c.Writer.Header().Set("Content-Type", "text/html")
 			case ".json":
 				c.Writer.Header().Set("Content-Type", "application/json")
+			case ".wasm":
+				c.Writer.Header().Set("Content-Type", "application/wasm")
 			default:
 				c.Writer.Header().Set("Content-Type", "application/octet-stream")
 			}

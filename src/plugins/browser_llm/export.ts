@@ -18,7 +18,7 @@ const pluginConfig: registerComponentOption = {
          return false
       }
       for (let i of vFiles) {
-         for (let s of ['model.bin']) {
+         for (let s of ['model.bin', 'model.task']) {
             if (i.name.endsWith(s)) {
                return true
             }

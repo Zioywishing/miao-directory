@@ -10,16 +10,16 @@
     </div>
     <div v-else class="chat-main">
       <div class="chat-history" ref="chatHistoryRef">
-          <div v-for="(message, index) in chatHistory" :key="index"
-            :class="['message', message.role === 'user' ? 'user-message' : 'ai-message']">
-            <div class="message-content" v-if="message.role === 'user'">{{ message.content }}</div>
-            <div class="message-content markdown-content" v-else v-html="renderMarkdown(message.content)"></div>
-          </div>
-          <!-- 实时生成的内容 -->
-          <div v-if="generatingMessage" class="message ai-message">
-            <div class="message-content markdown-content" v-html="renderMarkdown(currentGeneratedText)"></div>
-            <div class="generating-indicator"><span>.</span><span>.</span><span>.</span></div>
-          </div>
+        <div v-for="(message, index) in chatHistory" :key="index"
+          :class="['message', message.role === 'user' ? 'user-message' : 'ai-message']">
+          <div class="message-content" v-if="message.role === 'user'">{{ message.content }}</div>
+          <div class="message-content markdown-content" v-else v-html="renderMarkdown(message.content)"></div>
+        </div>
+        <!-- 实时生成的内容 -->
+        <div v-if="generatingMessage" class="message ai-message">
+          <div class="message-content markdown-content" v-html="renderMarkdown(currentGeneratedText)"></div>
+          <div class="generating-indicator"><span>.</span><span>.</span><span>.</span></div>
+        </div>
       </div>
       <div class="chat-input">
         <textarea v-model="userInput" @keydown.enter.prevent="sendMessage" placeholder="输入消息..."
@@ -96,62 +96,62 @@ const initializeModel = async () => {
 
   try {
     const modelFile = currentFiles.value[0];
-    const modelName = modelFile.name.split('.model.bin')[0];
-    
+    const modelName = modelFile.name.split('.model.bin')[0] && modelFile.name.split('.model.task')[0];
+
     // 第一阶段：开始加载
     updateLoadingProgress(5, '正在加载MediaPipe LLM引擎...');
-    
+
     // 模拟下载进度
     const simulateDownloadProgress = () => {
       const totalTime = 2000; // 2秒
       const interval = 100; // 每100毫秒更新一次
       const steps = totalTime / interval;
       const incrementPerStep = 15 / steps; // 从5%到20%
-      
+
       let currentStep = 0;
       const timer = setInterval(() => {
         if (currentStep >= steps) {
           clearInterval(timer);
           return;
         }
-        
+
         loadingProgress.value = Math.min(20, 5 + currentStep * incrementPerStep);
         currentStep++;
       }, interval);
     };
-    
+
     simulateDownloadProgress();
 
     // 初始化FilesetResolver
     updateLoadingProgress(20, '正在初始化MediaPipe文件解析器...');
     const genai = await FilesetResolver.forGenAiTasks(
-      currentDirectories.value[0].url ?? "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-genai@latest/wasm"
+      currentDirectories.value[0]?.url ?? "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-genai@latest/wasm"
     );
-    
+
     // 第二阶段：文件解析器加载完成
     updateLoadingProgress(40, '正在加载模型文件...');
-    
+
     // 模拟模型文件加载进度
     const simulateModelLoadingProgress = () => {
       const totalTime = 3000; // 3秒
       const interval = 100; // 每100毫秒更新一次
       const steps = totalTime / interval;
       const incrementPerStep = 45 / steps; // 从40%到85%
-      
+
       let currentStep = 0;
       const timer = setInterval(() => {
         if (currentStep >= steps) {
           clearInterval(timer);
           return;
         }
-        
+
         loadingProgress.value = Math.min(85, 40 + currentStep * incrementPerStep);
         currentStep++;
       }, interval);
     };
-    
+
     simulateModelLoadingProgress();
-    
+
     // 创建LLM推理实例
     llmInstance.value = await LlmInference.createFromOptions(genai, {
       baseOptions: {
@@ -160,16 +160,16 @@ const initializeModel = async () => {
       maxTokens: 1024,
       temperature: 0.7
     });
-    
+
     // 第三阶段：模型加载完成
     updateLoadingProgress(90, '初始化对话...');
-    
+
     // 短暂延迟以显示最终阶段
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     // 加载完成
     updateLoadingProgress(100, '加载完成！');
-    
+
     // 短暂延迟以显示100%完成状态
     await new Promise(resolve => setTimeout(resolve, 300));
 
@@ -221,10 +221,10 @@ const sendMessage = async () => {
         // 累加部分结果并更新UI
         currentGeneratedText.value += partialResult;
         const banStart = [',', '，']
-        for(const ban of banStart) {
-          if(currentGeneratedText.value.startsWith(ban)) {
+        for (const ban of banStart) {
+          if (currentGeneratedText.value.startsWith(ban)) {
             currentGeneratedText.value = currentGeneratedText.value.slice(1)
-          } 
+          }
         }
 
         // 滚动到底部以显示最新内容
@@ -280,20 +280,26 @@ const cleanupResources = () => {
     generatingMessage.value = false;
     console.log('组件卸载：已停止正在进行的文本生成');
   }
-  
+
   // 释放LLM实例资源
   if (llmInstance.value) {
-    try {
-      // 调用模型实例的清理方法（如果有）
-      if (typeof llmInstance.value.close === 'function') {
-        llmInstance.value.close();
+    const releaseResources = async () => {
+      try {
+        // 调用模型实例的清理方法（如果有）
+        if (typeof llmInstance.value.close === 'function') {
+          llmInstance.value.close();
+        }
+        // 置空实例引用
+        llmInstance.value = null;
+        console.log('组件卸载：已释放模型资源');
+      } catch (error) {
+        console.error('释放模型资源时出错:', error);
+        setTimeout(() => {
+          releaseResources();
+        }, 1000);
       }
-      // 置空实例引用
-      llmInstance.value = null;
-      console.log('组件卸载：已释放模型资源');
-    } catch (error) {
-      console.error('释放模型资源时出错:', error);
     }
+    releaseResources();
   }
 };
 
@@ -321,7 +327,6 @@ watch(() => currentFiles.value, () => {
   height: 100%;
   width: 100%;
   background-color: #f5f5f5;
-  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -358,7 +363,7 @@ watch(() => currentFiles.value, () => {
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .progress-bar {

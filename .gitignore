@@ -35,4 +35,8 @@ auto-imports.d.ts
 
 components.d.ts
 
-src/plugins/onnx_demo_*
+# src/plugins/onnx_demo_*
+
+public/test
+
+doc

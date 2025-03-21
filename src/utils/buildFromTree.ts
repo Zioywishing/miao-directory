@@ -1,4 +1,5 @@
-import VirtualDirectory, { Tree, VirtualFile } from '@/class/VirtualDirectory'
+import { Tree } from '@/class/VirtualDirectory'
+import { VirtualRemoteDirectory, VirtualRemoteFile } from '@/class/VirtualRemoteDirectory'
 
 /**
  * 通过VirtualDirectory的.tree重建文件夹树
@@ -6,8 +7,8 @@ import VirtualDirectory, { Tree, VirtualFile } from '@/class/VirtualDirectory'
  * @returns {any}
  */
 const buildFromTree = (data: Tree) => {
-   const root = new VirtualDirectory(data)
-   root.files = data.files?.map((v) => new VirtualFile(v, root))
+   const root = new VirtualRemoteDirectory(data)
+   root.files = data.files?.map((v) => new VirtualRemoteFile(v, root))
    root.directories = data.directories?.map((v) => buildFromTree(v))
    return root
 }
