@@ -36,7 +36,7 @@ import {
 } from 'vue'
 import './src/APlayer.fix.css'
 // @ts-ignore
-import APlayer from 'APlayer'
+import APlayer from 'aplayer'
 import config from '@/config'
 import difference from 'lodash/difference'
 import uniq from 'lodash/uniq'

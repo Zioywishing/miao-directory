@@ -66,5 +66,8 @@ export default defineConfig({
     },
     // 支持Web Worker
     worker: {
+    },
+    optimizeDeps: {
+        include: ['aplayer']
     }
 })
