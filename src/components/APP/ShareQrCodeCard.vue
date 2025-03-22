@@ -6,12 +6,12 @@
           <!-- <n-text>扫描下方二维码访问不同设备上的应用</n-text>
           <n-divider /> -->
           <n-spin :show="loading">
-            <n-grid :cols="2" :x-gap="16" :y-gap="16">
-              <n-grid-item v-for="(item, index) in shareLinks" :key="index">
+            <div class="grid-container">
+              <div v-for="(item, index) in shareLinks" :key="index" class="grid-item">
                 <n-card embedded class="qrcode-card">
                   <template #header>
                     <div class="card-header bg-zinc-100 p-3 rounded-md">
-                      <n-text>{{ item.title }}</n-text>
+                      <n-text>{{ item.title.split('(')[0] }}</n-text>
                       <n-tooltip trigger="hover" placement="top">
                         <template #trigger>
                           <n-button quaternary circle size="small" @click="copyUrl(item.url)">
@@ -36,8 +36,8 @@
                     </div>
                   </template>
                 </n-card>
-              </n-grid-item>
-            </n-grid>
+              </div>
+            </div>
           </n-spin>
         </n-space>
       </n-scrollbar>
@@ -114,10 +114,16 @@ const openUrl = (url: string) => {
 
 <style scoped>
 .share-card {
-  min-width: 680px;
-  max-width: 800px;
+  min-width: 280px;
+  max-width: 90vw;
   max-height: 80vh;
   overflow-y: auto;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 8px;
 }
 
 .qrcode-card {
