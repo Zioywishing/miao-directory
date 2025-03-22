@@ -14,7 +14,8 @@ export default {
       query: '/query',
       rename: '/rename',
       mkdir: '/mkdir',
-      cut: '/cut'
+      cut: '/cut',
+      addresses: '/addresses'
    },
    enableUpload: true
 }

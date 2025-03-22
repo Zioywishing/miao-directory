@@ -23,10 +23,20 @@ dist-ssr
 *.sln
 *.sw?
 .vscode
+
 miao-directory.exe
 miao-directory-amd64-linux
 miao-directory-amd64-win.exe
+miao-directory-amd64-win.gui.exe
 miao-directory-amd64-win.upx.exe
+miao-directory-amd64-win.gui.upx.exe
+miao-directory.exe~
+miao-directory-amd64-linux~
+miao-directory-amd64-win.exe~
+miao-directory-amd64-win.gui.exe~
+miao-directory-amd64-win.upx.exe~
+miao-directory-amd64-win.gui.upx.exe~
+
 test
 stats.html
 

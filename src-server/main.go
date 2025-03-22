@@ -39,6 +39,9 @@ func main() {
 	router.POST("/rename/*path", api.RenameHandler(fsOperateEventCenter))
 	router.POST("/delete/*path", api.DeleteHandler(fsOperateEventCenter))
 
+	// 添加获取所有可用地址的API
+	router.GET("/addresses", api.AddressesHandler(port))
+
 	// Redirect from '/' to '/web/'
 	router.GET("/", func(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "/web/")
@@ -54,7 +57,22 @@ func main() {
 
 	address := "[::]" + port
 	printListeningAddresses(port)
-	router.Run(address)
+
+	// 在非阻塞的goroutine中启动服务器
+	go func() {
+		if err := router.Run(address); err != nil {
+			fmt.Printf("服务器启动失败: %v\n", err)
+			os.Exit(1)
+		}
+	}()
+
+	// 如果启用了webview，则启动webview窗口
+	if useWebView {
+		startWebView(port)
+	} else {
+		// 如果不使用webview，则阻塞主线程，保持服务器运行
+		select {}
+	}
 }
 
 func corsMiddleware() gin.HandlerFunc {

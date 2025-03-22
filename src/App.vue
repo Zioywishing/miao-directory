@@ -12,7 +12,7 @@ import type VirtualDirectory from './class/VirtualDirectory'
 import type { VirtualFile } from './class/VirtualDirectory'
 import MiaoMask from './components/miaoMask.vue'
 import MiaoMessageProvider from './components/miaoAlertTipProvider.vue'
-import config from './config'
+// import config from './config'
 import useVirtualPages from './hooks/useVirtualPages'
 import init from './hooks/init'
 import usePluginCenter from './hooks/usePluginCenter'
@@ -22,8 +22,9 @@ import { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import useRootVDirectory from './hooks/useRootVDirectory'
 import ViewController from '@/components/APP/ViewController.vue'
 import ViewContainer from '@/components/APP/ViewContainer.vue'
+import ShareQrCodeCard from './components/APP/ShareQrCodeCard.vue'
 
-const { baseUrl } = config
+// const { baseUrl } = config
 
 const showModal = ref<boolean>(false)
 const viewRef = ref<HTMLDivElement>()
@@ -35,6 +36,7 @@ const messageProviderRef = useTemplateRef('messageProviderRef')
 const views = useVirtualPages()
 let pluginCenter = ref<PluginCenter>()
 const rootDirectory = useRootVDirectory()
+
 
 // component就是一个vue组件，类似于miaoDirectory
 const createView = (
@@ -77,40 +79,46 @@ const openMenuOption = computed(
          },
          pluginCenter.value
             ? {
-                 label: '插件',
-                 key: 'plugin',
-                 children: [
-                    ...pluginCenter.value
-                       .getUsablePlugin([], [], {
-                          group: [PluginGroup.mainMenu]
-                       })
-                       .map((v) => ({
-                          label: `${v.name}`,
-                          key: `plugin:${v.key}`,
-                          icon: v.icon ? renderIcon(v.icon) : undefined
-                       }))
-                 ],
-                 icon: renderIcon(ExtensionPuzzleOutline)
-              }
+               label: '插件',
+               key: 'plugin',
+               children: [
+                  ...pluginCenter.value
+                     .getUsablePlugin([], [], {
+                        group: [PluginGroup.mainMenu]
+                     })
+                     .map((v) => ({
+                        label: `${v.name}`,
+                        key: `plugin:${v.key}`,
+                        icon: v.icon ? renderIcon(v.icon) : undefined
+                     }))
+               ],
+               icon: renderIcon(ExtensionPuzzleOutline)
+            }
             : undefined
       ].filter((v) => v) as DropdownMixedOption[]
 )
 
 const handleMenuSelect = async (key: string) => {
    if (key === 'share') {
+      // 立即显示模态框
       showModal.value = true
+
+      // 设置模态框数据，将serverAddressesService传递给组件
       modalData.value = {
-         component: (await import('naive-ui/es/qr-code')).NQrCode,
-         props: {
-            value: baseUrl,
-            size: 300,
-            errorCorrectionLevel: 'H'
-         }
+         component: ShareQrCodeCard,
+         props: {}
       }
    } else if (key.startsWith('plugin:')) {
       const pluginName = key.split(':')[1]
       pluginCenter.value && pluginCenter.value.usePlugin(pluginName, [], [])
    }
+}
+
+const handleModalClose = () => {
+   showModal.value = false
+   nextTick(() => {
+      modalData.value = undefined
+   })
 }
 
 onMounted(async () => {
@@ -127,25 +135,15 @@ provide('rootDirectory', rootDirectory)
 <template>
    <div class="view" ref="viewRef">
       <miao-message-provider ref="messageProviderRef">
-         <ViewController
-            :views="views"
-            :handleClickTitle="handleClickTitle"
-            :createView="createView"
-            :deleteView="deleteView"
-            :openMenuOption="openMenuOption"
-            :handleMenuSelect="handleMenuSelect" />
-         <ViewContainer
-            :views="views"
-            :deleteView="deleteView"
-            :handleClickTitle="handleClickTitle" />
+         <ViewController :views="views" :handleClickTitle="handleClickTitle" :createView="createView"
+            :deleteView="deleteView" :openMenuOption="openMenuOption" :handleMenuSelect="handleMenuSelect" />
+         <ViewContainer :views="views" :deleteView="deleteView" :handleClickTitle="handleClickTitle" />
       </miao-message-provider>
    </div>
    <!-- 模态框展示，用来显示分享二维码，设置菜单之类的东西 -->
-   <MiaoMask v-model:show="showModal" @click="showModal = false">
-      <component
-         @click="(e: any) => e.stopPropagation()"
-         :is="modalData?.component"
-         v-bind="modalData?.props"></component>
+   <MiaoMask v-model:show="showModal" @click="handleModalClose">
+      <component @click="(e: any) => e.stopPropagation()" :is="modalData?.component" v-bind="modalData?.props">
+      </component>
    </MiaoMask>
 </template>
 
