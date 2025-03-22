@@ -11,6 +11,12 @@ check_upx() {
   fi
 }
 
+rm ./miao-directory-amd64-win.exe
+rm ./miao-directory-amd64-win.upx.exe
+rm ./miao-directory-amd64-win.gui.exe
+rm ./miao-directory-amd64-win.gui.upx.exe
+rm ./miao-directory-amd64-linux
+
 pnpm run build
 
 rm -rf ./src-server/web/*
@@ -18,9 +24,6 @@ rm -rf ./src-server/web/*
 cp -r ./dist/* ./src-server/web/
 
 cd ./src-server
-
-# 安装webview2依赖（如果尚未安装）
-go get github.com/jchv/go-webview2
 
 # 构建不带GUI版本（Windows）
 echo "building amd64 win (no GUI)"
