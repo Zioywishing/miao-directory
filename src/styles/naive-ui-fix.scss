@@ -1,0 +1,4 @@
+// 修复naive-ui与tailwindcss冲突
+.n-qr-code {
+   box-sizing: content-box;
+}
