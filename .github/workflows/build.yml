@@ -1,0 +1,95 @@
+name: 构建并发布应用
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: 构建和发布
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 设置Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: 安装pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          
+      - name: 安装前端依赖
+        run: pnpm install
+        
+      - name: 构建前端
+        run: pnpm run build
+        
+      - name: 设置Go环境
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          
+      - name: 安装UPX
+        run: sudo apt-get update && sudo apt-get install -y upx
+        
+      - name: 构建应用
+        run: bash build.auto.release.sh
+        
+      - name: 上传Windows无GUI版本
+        uses: actions/upload-artifact@v4
+        with:
+          name: miao-directory-amd64-win
+          path: miao-directory-amd64-win.exe
+          
+      - name: 上传Windows无GUI压缩版本
+        uses: actions/upload-artifact@v4
+        with:
+          name: miao-directory-amd64-win-upx
+          path: miao-directory-amd64-win.upx.exe
+          
+      - name: 上传Windows GUI版本
+        uses: actions/upload-artifact@v4
+        with:
+          name: miao-directory-amd64-win-gui
+          path: miao-directory-amd64-win.gui.exe
+          
+      - name: 上传Windows GUI压缩版本
+        uses: actions/upload-artifact@v4
+        with:
+          name: miao-directory-amd64-win-gui-upx
+          path: miao-directory-amd64-win.gui.upx.exe
+          
+      - name: 上传Linux版本
+        uses: actions/upload-artifact@v4
+        with:
+          name: miao-directory-amd64-linux
+          path: miao-directory-amd64-linux
+          
+      - name: 生成版本号
+        id: version
+        run: |
+          echo "date=$(date +'%Y%m%d%H%M')" >> $GITHUB_OUTPUT
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          
+      - name: 创建自动发布
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        uses: softprops/action-gh-release@v1
+        with:
+          name: 自动发布 ${{ steps.version.outputs.date }}-${{ steps.version.outputs.sha_short }}
+          tag_name: auto-${{ steps.version.outputs.date }}-${{ steps.version.outputs.sha_short }}
+          draft: false
+          prerelease: true
+          files: |
+            miao-directory-amd64-win.exe
+            miao-directory-amd64-win.upx.exe
+            miao-directory-amd64-win.gui.exe
+            miao-directory-amd64-win.gui.upx.exe
+            miao-directory-amd64-linux 

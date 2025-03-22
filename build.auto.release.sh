@@ -33,7 +33,7 @@ go build -ldflags="-s -w" -o ../miao-directory-amd64-win.exe
 # 尝试UPX压缩Windows无GUI版本
 if check_upx; then
   echo "正在压缩Windows无GUI版本"
-  upx -9 -o ../miao-directory-amd64-win.upx.exe ../miao-directory-amd64-win.exe
+  upx --ultra-brute -o ../miao-directory-amd64-win.upx.exe ../miao-directory-amd64-win.exe
 fi
 
 # 构建不带GUI版本（Linux）
@@ -49,7 +49,7 @@ go build -tags webview -ldflags="-s -w -H=windowsgui" -o ../miao-directory-amd64
 # 尝试UPX压缩Windows GUI版本
 if check_upx; then
   echo "正在压缩Windows GUI版本"
-  upx -9 -o ../miao-directory-amd64-win.gui.upx.exe ../miao-directory-amd64-win.gui.exe
+  upx --ultra-brute -o ../miao-directory-amd64-win.gui.upx.exe ../miao-directory-amd64-win.gui.exe
 fi
 
 # 如果需要为Linux构建带GUI版本，需要系统安装相应的依赖
