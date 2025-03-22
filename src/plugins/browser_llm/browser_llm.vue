@@ -72,22 +72,18 @@ const chatHistory = ref<{ role: string, content: string }[]>([]);
 const chatHistoryRef = ref<HTMLElement | null>(null);
 const llmInstance = ref<any>(null);
 
-// 实时生成内容管理
 const generatingMessage = ref(false);
 const currentGeneratedText = ref('');
 
-// 更新加载进度
 const updateLoadingProgress = (progress: number, state: string) => {
   loadingProgress.value = progress;
   loadingState.value = state;
 };
 
-// 渲染Markdown为HTML
 const renderMarkdown = (text: string) => {
   return md.render(text);
 };
 
-// 初始化模型
 const initializeModel = async () => {
   if (!currentFiles.value || currentFiles.value.length === 0) {
     loadingState.value = '错误：未找到模型文件';
@@ -98,10 +94,8 @@ const initializeModel = async () => {
     const modelFile = currentFiles.value[0];
     const modelName = modelFile.name.split('.model.bin')[0] && modelFile.name.split('.model.task')[0];
 
-    // 第一阶段：开始加载
     updateLoadingProgress(5, '正在加载MediaPipe LLM引擎...');
 
-    // 模拟下载进度
     const simulateDownloadProgress = () => {
       const totalTime = 2000; // 2秒
       const interval = 100; // 每100毫秒更新一次
@@ -122,16 +116,12 @@ const initializeModel = async () => {
 
     simulateDownloadProgress();
 
-    // 初始化FilesetResolver
     updateLoadingProgress(20, '正在初始化MediaPipe文件解析器...');
     const genai = await FilesetResolver.forGenAiTasks(
       currentDirectories.value[0]?.url ?? "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-genai@latest/wasm"
     );
-
-    // 第二阶段：文件解析器加载完成
     updateLoadingProgress(40, '正在加载模型文件...');
 
-    // 模拟模型文件加载进度
     const simulateModelLoadingProgress = () => {
       const totalTime = 3000; // 3秒
       const interval = 100; // 每100毫秒更新一次
@@ -152,25 +142,20 @@ const initializeModel = async () => {
 
     simulateModelLoadingProgress();
 
-    // 创建LLM推理实例
     llmInstance.value = await LlmInference.createFromOptions(genai, {
       baseOptions: {
         modelAssetPath: modelFile.url
       },
-      maxTokens: 1024,
+      maxTokens: 2048,
       temperature: 0.7
     });
 
-    // 第三阶段：模型加载完成
     updateLoadingProgress(90, '初始化对话...');
 
-    // 短暂延迟以显示最终阶段
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    // 加载完成
     updateLoadingProgress(100, '加载完成！');
 
-    // 短暂延迟以显示100%完成状态
     await new Promise(resolve => setTimeout(resolve, 300));
 
     loading.value = false;

@@ -149,23 +149,18 @@ const processImage = async () => {
    modelOutput.value = null
 
    try {
-      // 显示处理信息
       const alertUpdate = miaoMessageRef.value!.alertTip('正在加载ONNX模型...', { type: 'info', timeout: 2000 })
 
-      // 1. 加载模型
       const modelResponse = await fetch(onnxModel.value.url)
       const modelBuffer = await modelResponse.arrayBuffer()
       alertUpdate('正在创建推理会话...')
 
-      // 创建ONNX会话
       const session = await ort.InferenceSession.create(modelBuffer)
 
-      // 2. 加载和预处理图像
       alertUpdate('正在加载图像...')
       const imgResponse = await fetch(inputImage.value.url)
       const imgBlob = await imgResponse.blob()
 
-      // 将图像转换为适合模型的格式
       alertUpdate('正在预处理图像...')
       const size = 64
       const img = await createImageBitmap(imgBlob)
@@ -186,29 +181,20 @@ const processImage = async () => {
       const inputTensor = new ort.Tensor('float32', new Float32Array(greyScale), [1, 1, size, size])
 
       alertUpdate('执行模型推理...')
-
-      // 3. 运行模型推理
       const outputMap = await session.run({
-         // 这里的键名应该根据实际模型的输入名称进行调整
          Input2505: inputTensor
       })
 
-      // 4. 处理模型输出
       alertUpdate('处理模型输出结果...')
 
-      // 获取输出数据（假设输出张量名为"output"，可能需要根据实际模型调整）
       const outputTensor = Object.values(outputMap)[0]
-      // 将输出格式化为可读内容
       const formattedOutput = JSON.stringify(
          {
-            // shape: outputTensor.dims,
             data: [...[...(outputTensor as { data: Float32Array }).data].entries()].sort((a, b) => b[1] - a[1]).map(([index, value]) => ({ index, value }))
          },
          null,
          2
       )
-
-      // 设置结果
       modelOutput.value = formattedOutput
 
       alertUpdate('处理完成!', { type: 'success' })
@@ -223,25 +209,20 @@ const processImage = async () => {
 
 onMounted(async () => {
    console.log('currentDirectories.value[0].url', currentDirectories.value[0]?.url)
-   // 如果传入了onnxruntime-web，则使用传入的，否则从jsdelivr加载
    if (currentDirectories.value && currentDirectories.value.length > 0 && currentDirectories.value[0].url) {
       const ortModule = await import(/* @vite-ignore */ `${currentDirectories.value[0].url}dist/ort.all.min.mjs`);
       ort = ortModule;
       console.log('ort', ort)
    } else {
-      // 从jsdelivr加载
       //  @ts-ignore
       const ortModule = await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.all.min.js');
       ort = ortModule;
    }
    
-   // 初始化模型
    await initModel();
 })
 
-// 初始化模型函数
 const initModel = async () => {
-   // 初始化时检查是否有适合的文件
    if (inputImage.value && onnxModel.value) {
       miaoMessageRef.value?.alertTip('已检测到图像和ONNX模型，可以进行处理', { type: 'info', timeout: 2000 })
    }

@@ -10,6 +10,7 @@
             v-for="dir in showData_directory"
             :key="dir.id"
             min-height="50px"
+            :disable-lazy="props.index < 20"
             margin="10px">
             <miaoDirectoryItem
                :item="dir"

@@ -26,6 +26,7 @@ dist-ssr
 miao-directory.exe
 miao-directory-amd64-linux
 miao-directory-amd64-win.exe
+miao-directory-amd64-win.upx.exe
 test
 stats.html
 

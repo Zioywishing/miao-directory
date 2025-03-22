@@ -13,7 +13,7 @@ import { onMounted, ref } from 'vue'
 const props = defineProps<{
    isDraggable?: boolean,
    bindVirtualFiles?: VirtualFile[],
-   bindVirtualDirectories?: VirtualDirectory[]
+   bindVirtualDirectories?: VirtualDirectory[],
 }>()
 const emit = defineEmits<{
    onDragStart: [e: DragEvent]
