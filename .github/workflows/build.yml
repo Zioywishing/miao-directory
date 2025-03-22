@@ -7,6 +7,9 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: 构建和发布
@@ -47,37 +50,19 @@ jobs:
         
       - name: 构建应用
         run: bash build.auto.release.sh
+      
+      - name: 显示构建产物
+        run: |
+          ls -la
+          find . -name "miao-directory*" -type f
         
-      - name: 上传Windows无GUI版本
+      - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
-          name: miao-directory-amd64-win
-          path: miao-directory-amd64-win.exe
-          
-      - name: 上传Windows无GUI压缩版本
-        uses: actions/upload-artifact@v4
-        with:
-          name: miao-directory-amd64-win-upx
-          path: miao-directory-amd64-win.upx.exe
-          
-      - name: 上传Windows GUI版本
-        uses: actions/upload-artifact@v4
-        with:
-          name: miao-directory-amd64-win-gui
-          path: miao-directory-amd64-win.gui.exe
-          
-      - name: 上传Windows GUI压缩版本
-        uses: actions/upload-artifact@v4
-        with:
-          name: miao-directory-amd64-win-gui-upx
-          path: miao-directory-amd64-win.gui.upx.exe
-          
-      - name: 上传Linux版本
-        uses: actions/upload-artifact@v4
-        with:
-          name: miao-directory-amd64-linux
-          path: miao-directory-amd64-linux
-          
+          name: miao-directory-all
+          path: |
+            **/miao-directory*
+            
       - name: 生成版本号
         id: version
         run: |
@@ -93,8 +78,6 @@ jobs:
           draft: false
           prerelease: true
           files: |
-            miao-directory-amd64-win.exe
-            miao-directory-amd64-win.upx.exe
-            miao-directory-amd64-win.gui.exe
-            miao-directory-amd64-win.gui.upx.exe
-            miao-directory-amd64-linux 
+            **/miao-directory*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
