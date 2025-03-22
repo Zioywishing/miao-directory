@@ -42,7 +42,11 @@ fi
 # 构建不带GUI版本（Linux）
 echo "building amd64 linux (no GUI)"
 go env -w GOOS=linux GOARCH=amd64
+# 禁用CGO以避免架构不匹配问题
+export CGO_ENABLED=0
 go build -ldflags="-s -w" -o ../miao-directory-amd64-linux
+# 恢复CGO设置
+export CGO_ENABLED=1
 
 # 构建带GUI版本（仅Windows，go-webview2主要针对Windows平台）
 echo "building amd64 win with GUI"
