@@ -11,16 +11,19 @@ check_upx() {
   fi
 }
 
-rm ./miao-directory-amd64-win.exe
-rm ./miao-directory-amd64-win.upx.exe
-rm ./miao-directory-amd64-win.gui.exe
-rm ./miao-directory-amd64-win.gui.upx.exe
-rm ./miao-directory-amd64-linux
+# 仅在文件存在时删除
+[ -f "./miao-directory-amd64-win.exe" ] && rm ./miao-directory-amd64-win.exe
+[ -f "./miao-directory-amd64-win.upx.exe" ] && rm ./miao-directory-amd64-win.upx.exe
+[ -f "./miao-directory-amd64-win.gui.exe" ] && rm ./miao-directory-amd64-win.gui.exe
+[ -f "./miao-directory-amd64-win.gui.upx.exe" ] && rm ./miao-directory-amd64-win.gui.upx.exe
+[ -f "./miao-directory-amd64-linux" ] && rm ./miao-directory-amd64-linux
 
 pnpm run build
 
 rm -rf ./src-server/web/*
 
+# 确保目标目录存在
+mkdir -p ./src-server/web/
 cp -r ./dist/* ./src-server/web/
 
 cd ./src-server
