@@ -87,7 +87,21 @@ if [ "$FULL_BUILD" = true ]; then
   echo "构建 Linux ARM64 版本"
   go env -w GOOS=linux GOARCH=arm64
   export CGO_ENABLED=0
+
+  # 临时备份并移除resource.syso文件
+  if [ -f "resource.syso" ]; then
+    echo "临时备份resource.syso文件"
+    mv resource.syso resource.syso.bak
+  fi
+
   go build -ldflags="-s -w" -o ../miao-directory-arm64-linux
+
+  # 恢复resource.syso文件
+  if [ -f "resource.syso.bak" ]; then
+    echo "恢复resource.syso文件"
+    mv resource.syso.bak resource.syso
+  fi
+
   export CGO_ENABLED=1
   
   # macOS AMD64
@@ -101,7 +115,21 @@ if [ "$FULL_BUILD" = true ]; then
   echo "构建 macOS ARM64 版本"
   go env -w GOOS=darwin GOARCH=arm64
   export CGO_ENABLED=0
+
+  # 临时备份并移除resource.syso文件
+  if [ -f "resource.syso" ]; then
+    echo "临时备份resource.syso文件"
+    mv resource.syso resource.syso.bak
+  fi
+
   go build -ldflags="-s -w" -o ../miao-directory-arm64-darwin
+
+  # 恢复resource.syso文件
+  if [ -f "resource.syso.bak" ]; then
+    echo "恢复resource.syso文件"
+    mv resource.syso.bak resource.syso
+  fi
+
   export CGO_ENABLED=1
 fi
 
@@ -144,13 +172,13 @@ if check_upx; then
     echo "正在压缩Linux ARM64版本"
     upx $COMPRESSION_LEVEL -o ../miao-directory-arm64-linux.upx ../miao-directory-arm64-linux
     
-    # 压缩macOS AMD64版本
-    echo "正在压缩macOS AMD64版本"
-    upx $COMPRESSION_LEVEL -o ../miao-directory-amd64-darwin.upx ../miao-directory-amd64-darwin
+    # # 压缩macOS AMD64版本
+    # echo "正在压缩macOS AMD64版本"
+    # upx $COMPRESSION_LEVEL -o ../miao-directory-amd64-darwin.upx ../miao-directory-amd64-darwin
     
-    # 压缩macOS ARM64版本
-    echo "正在压缩macOS ARM64版本"
-    upx $COMPRESSION_LEVEL -o ../miao-directory-arm64-darwin.upx ../miao-directory-arm64-darwin
+    # # 压缩macOS ARM64版本
+    # echo "正在压缩macOS ARM64版本"
+    # upx $COMPRESSION_LEVEL -o ../miao-directory-arm64-darwin.upx ../miao-directory-arm64-darwin
   fi
   
   echo "所有压缩完成"
