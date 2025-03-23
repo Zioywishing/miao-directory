@@ -59,6 +59,13 @@ miao-directory-arm64-darwin~
 miao-directory-arm64-darwin.upx
 miao-directory-arm64-darwin.upx~
 
+# Windows ARM64 版本
+miao-directory-arm64-win.exe
+miao-directory-arm64-win.exe~
+
+# 带x-前缀的版本
+miao-directory-x-*
+
 test
 stats.html
 

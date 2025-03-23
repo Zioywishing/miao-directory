@@ -28,22 +28,69 @@ check_upx() {
 
 # 清理已有构建产物
 echo "清理已有构建产物..."
-[ -f "./miao-directory-amd64-win.exe" ] && rm ./miao-directory-amd64-win.exe
-[ -f "./miao-directory-amd64-win.upx.exe" ] && rm ./miao-directory-amd64-win.upx.exe
-[ -f "./miao-directory-amd64-win.gui.exe" ] && rm ./miao-directory-amd64-win.gui.exe
-[ -f "./miao-directory-amd64-win.gui.upx.exe" ] && rm ./miao-directory-amd64-win.gui.upx.exe
-[ -f "./miao-directory-amd64-linux" ] && rm ./miao-directory-amd64-linux
-[ -f "./miao-directory-amd64-linux.upx" ] && rm ./miao-directory-amd64-linux.upx
+
+# 基础前缀
+PREFIX="miao-directory"
+
+# 基础构建产物
+BASE_ARCHOS=(
+  "amd64-win.exe"
+  "amd64-win.upx.exe"
+  "amd64-win.gui.exe"
+  "amd64-win.gui.upx.exe"
+  "amd64-linux"
+  "amd64-linux.upx"
+)
+
+# 清理基础构建产物
+for suffix in "${BASE_ARCHOS[@]}"; do
+  [ -f "./$PREFIX-$suffix" ] && rm "./$PREFIX-$suffix"
+done
 
 # 如果是完整构建，清理额外架构产物
 if [ "$FULL_BUILD" = true ]; then
   echo "完整构建模式，清理额外架构产物..."
-  [ -f "./miao-directory-arm64-linux" ] && rm ./miao-directory-arm64-linux
-  [ -f "./miao-directory-arm64-linux.upx" ] && rm ./miao-directory-arm64-linux.upx
-  [ -f "./miao-directory-amd64-darwin" ] && rm ./miao-directory-amd64-darwin
-  [ -f "./miao-directory-amd64-darwin.upx" ] && rm ./miao-directory-amd64-darwin.upx
-  [ -f "./miao-directory-arm64-darwin" ] && rm ./miao-directory-arm64-darwin
-  [ -f "./miao-directory-arm64-darwin.upx" ] && rm ./miao-directory-arm64-darwin.upx
+  
+  # 无需添加x-前缀的特殊版本
+  SPECIAL_ARCHOS=(
+    "arm64-linux"
+    "arm64-linux.upx"
+    "amd64-darwin"
+    "amd64-darwin.upx"
+    "arm64-darwin"
+    "arm64-darwin.upx"
+    "arm64-win.exe"
+  )
+  
+  # 清理特殊版本产物
+  for suffix in "${SPECIAL_ARCHOS[@]}"; do
+    [ -f "./$PREFIX-$suffix" ] && rm "./$PREFIX-$suffix"
+  done
+  
+  # 处理带x-前缀的不同系统和架构
+  X_OS_ARCHS=(
+    # FreeBSD系列
+    "freebsd:amd64,arm64,386"
+    # OpenBSD系列
+    "openbsd:amd64,arm64,386"
+    # Windows额外架构
+    "win.exe:386"
+    # Linux额外架构
+    "linux:386,mips,mips64,mips64le,ppc64,ppc64le,riscv64,s390x"
+  )
+  
+  # 清理带x-前缀的版本产物
+  for os_arch in "${X_OS_ARCHS[@]}"; do
+    # 分离操作系统和架构列表
+    IFS=":" read -r os archs <<< "$os_arch"
+    
+    # 处理每个架构
+    IFS="," read -ra arch_array <<< "$archs"
+    for arch in "${arch_array[@]}"; do
+      file="$PREFIX-x-$arch-$os"
+      [ -f "./$file" ] && rm "./$file"
+    done
+  done
 fi
 
 echo "构建前端..."
@@ -83,53 +130,59 @@ go build -tags webview -ldflags="-s -w -H=windowsgui" -o ../miao-directory-amd64
 if [ "$FULL_BUILD" = true ]; then
   echo "构建额外架构版本..."
   
-  # Linux ARM64
-  echo "构建 Linux ARM64 版本"
-  go env -w GOOS=linux GOARCH=arm64
-  export CGO_ENABLED=0
-
-  # 临时备份并移除resource.syso文件
+  # 备份resource.syso文件(如果存在)
   if [ -f "resource.syso" ]; then
-    echo "临时备份resource.syso文件"
+    echo "备份resource.syso文件"
     mv resource.syso resource.syso.bak
   fi
-
-  go build -ldflags="-s -w" -o ../miao-directory-arm64-linux
-
+  
+  # 无需GUI和syso的构建批次
+  export CGO_ENABLED=0
+  
+  # 定义操作系统和架构映射
+  declare -A OS_ARCHS
+  OS_ARCHS["linux"]="arm64 386 mips mips64 mips64le ppc64 ppc64le riscv64 s390x"
+  OS_ARCHS["darwin"]="amd64 arm64"
+  OS_ARCHS["windows"]="arm64 386"
+  OS_ARCHS["freebsd"]="amd64 arm64 386"
+  OS_ARCHS["openbsd"]="amd64 arm64 386"
+  # OS_ARCHS["netbsd"]="amd64 arm64 386"
+  
+  # 遍历操作系统和架构进行构建
+  for os in "${!OS_ARCHS[@]}"; do
+    echo "构建 ${os^} 系列版本..."
+    go env -w GOOS=$os
+    
+    # 获取当前操作系统支持的架构列表
+    archs=${OS_ARCHS[$os]}
+    
+    for arch in $archs; do
+      # 设置输出文件名后缀
+      suffix=""
+      if [ "$os" = "windows" ]; then
+        suffix=".exe"
+      fi
+      
+      echo "构建 ${os^} ${arch^^} 版本"
+      go env -w GOARCH=$arch
+      
+      # 根据条件设置不同的输出文件名格式
+      if [[ "$os" == "darwin" || ("$os" == "linux" && "$arch" == "arm64") || ("$os" == "windows" && "$arch" == "arm64") ]]; then
+        output_file="../miao-directory-${arch}-${os}${suffix}"
+      else
+        output_file="../miao-directory-x-${arch}-${os}${suffix}"
+      fi
+      
+      go build -ldflags="-s -w" -o "$output_file"
+    done
+  done
+  
   # 恢复resource.syso文件
   if [ -f "resource.syso.bak" ]; then
     echo "恢复resource.syso文件"
     mv resource.syso.bak resource.syso
   fi
-
-  export CGO_ENABLED=1
   
-  # macOS AMD64
-  echo "构建 macOS AMD64 版本"
-  go env -w GOOS=darwin GOARCH=amd64
-  export CGO_ENABLED=0
-  go build -ldflags="-s -w" -o ../miao-directory-amd64-darwin
-  export CGO_ENABLED=1
-  
-  # macOS ARM64 (Apple Silicon)
-  echo "构建 macOS ARM64 版本"
-  go env -w GOOS=darwin GOARCH=arm64
-  export CGO_ENABLED=0
-
-  # 临时备份并移除resource.syso文件
-  if [ -f "resource.syso" ]; then
-    echo "临时备份resource.syso文件"
-    mv resource.syso resource.syso.bak
-  fi
-
-  go build -ldflags="-s -w" -o ../miao-directory-arm64-darwin
-
-  # 恢复resource.syso文件
-  if [ -f "resource.syso.bak" ]; then
-    echo "恢复resource.syso文件"
-    mv resource.syso.bak resource.syso
-  fi
-
   export CGO_ENABLED=1
 fi
 
