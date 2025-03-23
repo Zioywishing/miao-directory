@@ -8,7 +8,7 @@
         "dev:host": "vite --host 0.0.0.0",
         "build": "vue-tsc -b && vite build",
         "build:auto": "pnpm run build && go env -w GOOS=windows GOARCH=amd64 && rm -rf ./src-server/web/* && cp -r ./dist/* ./src-server/web/ && cd ./src-server && go env -w GOOS=windows && go build -o ../miao-directory.exe",
-        "build:release": "bash build.auto.release.sh",
+        "build:fast": "bash build.auto.release.sh -fast",
         "preview": "vite preview",
         "format": "prettier --write src/"
     },

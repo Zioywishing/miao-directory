@@ -37,6 +37,28 @@ miao-directory-amd64-win.gui.exe~
 miao-directory-amd64-win.upx.exe~
 miao-directory-amd64-win.gui.upx.exe~
 
+# Linux 压缩版本
+miao-directory-amd64-linux.upx
+miao-directory-amd64-linux.upx~
+
+# Linux ARM64 版本
+miao-directory-arm64-linux
+miao-directory-arm64-linux~
+miao-directory-arm64-linux.upx
+miao-directory-arm64-linux.upx~
+
+# macOS AMD64 版本
+miao-directory-amd64-darwin
+miao-directory-amd64-darwin~
+miao-directory-amd64-darwin.upx
+miao-directory-amd64-darwin.upx~
+
+# macOS ARM64 版本
+miao-directory-arm64-darwin
+miao-directory-arm64-darwin~
+miao-directory-arm64-darwin.upx
+miao-directory-arm64-darwin.upx~
+
 test
 stats.html
 

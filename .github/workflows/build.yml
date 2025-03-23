@@ -49,7 +49,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y upx
         
       - name: 构建应用
-        run: bash build.auto.release.sh
+        run: bash build.auto.release.sh -full
       
       - name: 显示构建产物
         run: |
@@ -73,10 +73,10 @@ jobs:
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         uses: softprops/action-gh-release@v1
         with:
-          name: 自动发布 ${{ steps.version.outputs.date }}-${{ steps.version.outputs.sha_short }}
+          name: Auto-Build-${{ steps.version.outputs.date }}-${{ steps.version.outputs.sha_short }}
           tag_name: auto-${{ steps.version.outputs.date }}-${{ steps.version.outputs.sha_short }}
           draft: false
-          prerelease: true
+          prerelease: false
           files: |
             **/miao-directory*
         env:
