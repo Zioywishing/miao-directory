@@ -62,6 +62,13 @@ export abstract class VirtualFileBase {
     * @returns {Promise<boolean>} 移动是否成功
     */
    abstract moveTo(targetDir: VirtualDirectoryBase): Promise<boolean>;
+   
+   /**
+    * 复制文件到目标目录
+    * @param {VirtualDirectoryBase} targetDir 目标目录
+    * @returns {Promise<boolean>} 复制是否成功
+    */
+   abstract copyTo(targetDir: VirtualDirectoryBase): Promise<boolean>;
 }
 
 export abstract class VirtualDirectoryBase {
@@ -193,6 +200,13 @@ export abstract class VirtualDirectoryBase {
     * @returns {Promise<boolean>} 移动是否成功
     */
    abstract mv(targetDir: VirtualDirectoryBase): Promise<boolean>;
+   
+   /**
+    * 复制目录到目标目录
+    * @param {VirtualDirectoryBase} targetDir 目标目录
+    * @returns {Promise<boolean>} 复制是否成功
+    */
+   abstract copy(targetDir: VirtualDirectoryBase): Promise<boolean>;
 }
 
 export abstract class VirtualFile extends VirtualFileBase {}

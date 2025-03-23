@@ -107,6 +107,34 @@ export class VirtualRemoteFile extends VirtualFileBase {
             return false;
         }
     }
+
+    async copyTo(targetDir: VirtualDirectoryBase): Promise<boolean> {
+        // 检查目标目录是否已存在同名文件
+        const existingFile = targetDir.files.find(file => file.name === this.name);
+        if (existingFile) {
+            // 存在同名文件，拒绝操作并显示提示
+            console.error(`目标目录已存在同名文件: ${this.name}`);
+            alert(`复制失败：目标目录已存在同名文件"${this.name}"`);
+            return false;
+        }
+
+        try {
+            const { response } = miaoFetchApi.copy(this, targetDir);
+            const id = (await response).eventId;
+            
+            const eventResult = await pollEventUntilComplete(id);
+            const success = eventResult.status === 'success';
+
+            if (success) {
+                await targetDir.update(); // 更新目标目录
+            }
+
+            return success;
+        } catch (error) {
+            console.error('复制文件失败:', error);
+            return false;
+        }
+    }
 }
 
 export class VirtualRemoteDirectory extends VirtualDirectoryBase {
@@ -248,8 +276,7 @@ export class VirtualRemoteDirectory extends VirtualDirectoryBase {
     }
 
     async mv(targetDir: VirtualDirectoryBase): Promise<boolean> {
-        // 不能移动到自己或自己的子目录
-        if (targetDir === this || this.getParents.includes(targetDir as VirtualDirectoryBase)) {
+        if (targetDir === this || targetDir.getParents.includes(this)) {
             return false;
         }
 
@@ -273,6 +300,41 @@ export class VirtualRemoteDirectory extends VirtualDirectoryBase {
             return success;
         } catch (error) {
             console.error('移动目录失败:', error);
+            return false;
+        }
+    }
+
+    async copy(targetDir: VirtualDirectoryBase): Promise<boolean> {
+        if (targetDir === this || targetDir.getParents.includes(this)) {
+            return false;
+        }
+
+        // 检查目标目录是否已存在同名目录
+        const existingDir = targetDir.directories.find(dir => dir.name === this.name);
+        if (existingDir) {
+            // 存在同名目录，拒绝操作并显示提示
+            console.error(`目标位置已存在同名目录: ${this.name}`);
+            alert(`复制失败：目标位置已存在同名目录"${this.name}"`);
+            return false;
+        }
+
+        console.log(this.parent, targetDir, this)
+
+        try {
+            const { response } = miaoFetchApi.copy(this, targetDir);
+            const id = (await response).eventId;
+            
+            const eventResult = await pollEventUntilComplete(id);
+            const success = eventResult.status === 'success';
+
+            if (success) {
+                // 不需要更新源目录，因为复制不会改变源目录
+                await targetDir.update(); // 更新目标目录
+            }
+
+            return success;
+        } catch (error) {
+            console.error('复制目录失败:', error);
             return false;
         }
     }

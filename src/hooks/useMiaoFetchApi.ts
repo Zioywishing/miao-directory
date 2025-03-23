@@ -9,7 +9,8 @@ import {
    renameOption,
    cutOption,
    mkdirOption,
-   getFileOption
+   getFileOption,
+   copyOption
 } from '@/types/fetch'
 import Config from '@/config'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
@@ -252,6 +253,35 @@ const miaoFetchApi = {
       const newPath = to.path
       const { baseUrl, api } = Config
       const url = `${baseUrl}${api.cut}${target.path}`
+      const retry = option?.retry ?? 0
+      const { miaoFetch } = useMiaoFetch({
+         retry
+      })
+      return {
+         response: new Promise<{
+            eventId: number
+         }>(async (resolve) => {
+            const response = await miaoFetch({
+               url,
+               method: 'post',
+               data: { newPath }
+            })
+            resolve(response.data)
+         })
+      }
+   },
+
+   /**
+    * 复制文件或文件夹
+    */
+   copy(
+      target: VirtualFile | VirtualDirectory,
+      to: VirtualDirectory,
+      option?: copyOption
+   ) {
+      const newPath = to.path
+      const { baseUrl, api } = Config
+      const url = `${baseUrl}${api.copy}${target.path}`
       const retry = option?.retry ?? 0
       const { miaoFetch } = useMiaoFetch({
          retry

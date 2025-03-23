@@ -510,7 +510,7 @@ const handleDropFiles = async (files: File[]) => {
 }
 
 const handleDropVDirectory = async (vDirs: VirtualDirectory[]) => {
-   // 不能移到自己或自己的子文件夹内 - 这部分逻辑已经移到类的实现中
+   console.log(vDirs, currentDirectory.value)
    for (let dir of vDirs) {
       (async () => {
          const success = await dir.mv(currentDirectory.value);

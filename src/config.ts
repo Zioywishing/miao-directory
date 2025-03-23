@@ -15,6 +15,7 @@ export default {
       rename: '/rename',
       mkdir: '/mkdir',
       cut: '/cut',
+      copy: '/copy',
       addresses: '/addresses'
    },
    enableUpload: true
