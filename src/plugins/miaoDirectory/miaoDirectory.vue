@@ -172,7 +172,7 @@ const showData_directory = computed<VirtualDirectory[]>(() => {
    if (searchText.value !== '') {
       data = data.filter((vd) => vd.name.includes(searchText.value))
    }
-   return data
+   return data.sort((a, b) => a.name.localeCompare(b.name))
 })
 const showData_files = computed<VirtualFile[]>(() => {
    if (showFiles.value === false) {
@@ -184,7 +184,7 @@ const showData_files = computed<VirtualFile[]>(() => {
    if (searchText.value !== '') {
       data = data.filter((vd) => vd.name.includes(searchText.value))
    }
-   return data
+   return data.sort((a, b) => a.name.localeCompare(b.name))
 })
 
 const topBarMenuOption = computed(() => {

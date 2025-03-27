@@ -318,8 +318,6 @@ export class VirtualRemoteDirectory extends VirtualDirectoryBase {
             return false;
         }
 
-        console.log(this.parent, targetDir, this)
-
         try {
             const { response } = miaoFetchApi.copy(this, targetDir);
             const id = (await response).eventId;
