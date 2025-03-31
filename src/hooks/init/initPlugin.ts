@@ -14,7 +14,7 @@ const initPlugin = async (globalAlertTip: alertTipType) => {
          type: PluginExportType
          key?: string
       }
-      const { type, key } = _config
+      const { type, key = `${Math.random()}` } = _config
       if (type === PluginExportType.component) {
          pluginCenter.registerComponent(
             _config.default as registerComponentOption

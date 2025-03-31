@@ -19,11 +19,9 @@ const pluginConfig: Plugin = {
    disable: false,
    group: [PluginGroup.default],
    func: Copy,
-   priority: -1
+   priority: -100
 }
 
 export default pluginConfig
 
 export const type = PluginExportType.default
-
-export const key = 'miaoCopy'
