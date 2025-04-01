@@ -42,6 +42,11 @@ func main() {
 	// 添加获取所有可用地址的API
 	router.GET("/addresses", api.AddressesHandler(port))
 
+	// 添加map相关API
+	router.POST("/map/set/*key", api.MapSetHandler)
+	router.GET("/map/get/*key", api.MapGetHandler)
+	router.POST("/map/delete/*key", api.MapDeleteHandler)
+
 	// Redirect from '/' to '/web/'
 	router.GET("/", func(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "/web/")

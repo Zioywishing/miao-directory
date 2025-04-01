@@ -173,12 +173,12 @@ export default class PluginCenter {
       }
    }
 
-   usePlugin(
-      key: string,
-      VDirectories?: VirtualDirectory[],
-      VFiles?: VirtualFile[],
-      ...args: any[]
-   ): void
+   // usePlugin(
+   //    key: string,
+   //    VDirectories?: VirtualDirectory[],
+   //    VFiles?: VirtualFile[],
+   //    ...args: any[]
+   // ): void
    usePlugin(
       key: string,
       VDirectories?: VirtualDirectory[],

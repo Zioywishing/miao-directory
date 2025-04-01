@@ -40,7 +40,7 @@ export default defineConfig({
     },
     server: {
         proxy: {
-            '^/(get|upload|delete|query|rename|cut|copy|mkdir|addresses)': {
+            '^/(get|upload|delete|query|rename|cut|copy|mkdir|addresses|map)': {
                 target: 'http://127.0.0.1:17705',
                 changeOrigin: true,
                 rewrite: (path) => path
