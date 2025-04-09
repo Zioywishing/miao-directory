@@ -27,7 +27,9 @@
                      v-for="dir in currentDirectory?.getParents"
                      @click="handleClickBreadcrumbItem(dir)"
                      :clickable="true">
-                     <div>{{ dir.name }}</div>
+                     <n-ellipsis class="!max-w-[100px]">
+                        {{ dir.name }}
+                     </n-ellipsis>
                   </n-breadcrumb-item>
                </n-breadcrumb>
             </div>
@@ -60,13 +62,6 @@
 
 <script setup lang="ts">
 import {
-   NBreadcrumbItem,
-   NBreadcrumb,
-   NIcon,
-   NDropdown,
-   NScrollbar
-} from 'naive-ui'
-import {
    CloudOutline,
    ChevronBackOutline,
    ReloadOutline,
@@ -74,6 +69,7 @@ import {
 } from '@vicons/ionicons5'
 import VirtualDirectory from '@/class/VirtualDirectory'
 import { ref } from 'vue'
+import { NScrollbar } from 'naive-ui/es/scrollbar';
 
 const props = defineProps<{
    color: string
