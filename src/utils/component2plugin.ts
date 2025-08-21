@@ -3,6 +3,7 @@ import VirtualDirectory, { VirtualFile } from "@/class/VirtualDirectory"
 import VirtualPage from "@/class/VirtualPage"
 import usePluginCenter from "@/hooks/usePluginCenter"
 import useVirtualPages from "@/hooks/useVirtualPages"
+import { Component } from "vue"
 
 export const componentOption2pluginOption = (option: registerComponentOption) => {
     const {
@@ -17,7 +18,8 @@ export const componentOption2pluginOption = (option: registerComponentOption) =>
         single = false,
         priority = 0
     } = option
-    let _component: any
+    let _component: Component
+    let _componentPromise: Promise<Component>
     const views = useVirtualPages()
     const pluginCenter = usePluginCenter()
     return {
@@ -36,13 +38,19 @@ export const componentOption2pluginOption = (option: registerComponentOption) =>
             }
 
             if (_component === undefined) {
-                const setAlertTip = pluginCenter.globalAlertTip(`加载 ${name} 插件中`)
-                _component = await getComponent()
-                setAlertTip &&
-                    setAlertTip(`加载 ${name} 插件完成`, {
-                        type: 'success',
-                        timeout: 2000
-                    })
+                if (_componentPromise !== undefined) {
+                    await _componentPromise
+                }
+                else {
+                    const setAlertTip = pluginCenter.globalAlertTip(`加载 ${name} 插件中`)
+                    _componentPromise = getComponent()
+                    _component = await _componentPromise
+                    setAlertTip &&
+                        setAlertTip(`加载 ${name} 插件完成`, {
+                            type: 'success',
+                            timeout: 2000
+                        })
+                }
             }
             const _findRes = views.find(_component) as VirtualPage[]
             if (single && _findRes.length !== 0) {
