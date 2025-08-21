@@ -71,7 +71,7 @@ jobs:
           
       - name: 创建自动发布
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: Auto-Build-${{ steps.version.outputs.date }}-${{ steps.version.outputs.sha_short }}
           tag_name: auto-${{ steps.version.outputs.date }}-${{ steps.version.outputs.sha_short }}
@@ -80,4 +80,4 @@ jobs:
           files: |
             **/miao-directory*
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
