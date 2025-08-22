@@ -25,28 +25,26 @@
                   </div>
                </div>
             </n-scrollbar>
-            <miao-mask :show="activeImage !== undefined" @click="activeImage = undefined" class="miaoImage-mask"
-               @wheel="handleWheel">
-               <ChevronBack class="miaoImage-mask-btn miaoImage-mask-btn-back" @click="handleActiveImageBack" />
-               <img :src="activeImage?.url" class="miaoImage-mask-active" @click="(e) => e.stopPropagation()"
-                  draggable="false" :style="{ transform: `scale(${imgViewScale})` }" />
-               <ChevronForward class="miaoImage-mask-btn miaoImage-mask-btn-forward"
-                  @click="handleActiveImageForward" />
-            </miao-mask>
+            <MiaoImageViewer
+               :show="activeImage !== undefined"
+               :file="activeImage"
+               @close="activeImage = undefined"
+               @back="handleActiveImageBack"
+               @forward="handleActiveImageForward"
+            />
          </div>
       </miao-message-provider>
    </miao-drop-handler>
 </template>
 
 <script setup lang="ts">
-import miaoMask from '@/components/miaoMask.vue'
 import miaoDropHandler from '@/components/miaoDropHandler.vue'
 import miaoMessageProvider from '@/components/miaoAlertTipProvider.vue'
 import VirtualDirectory, { VirtualFile } from '@/class/VirtualDirectory'
 import uniq from 'lodash/uniq'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { NScrollbar } from 'naive-ui'
-import { ChevronBack, ChevronForward } from '@vicons/ionicons5'
+import MiaoImageViewer from './miaoImageViewer.vue'
 
 const imageSuffixList = [
    'xbm',
@@ -80,7 +78,6 @@ const currentFiles = defineModel<VirtualFile[]>('currentFiles', {
 const NScrollbarRef = ref()
 const rootRef = ref<any>()
 const miaoMessageRef = ref<InstanceType<typeof miaoMessageProvider>>()
-const imgViewScale = ref(1)
 const imageFileList = ref<VirtualFile[]>([])
 const activeImage = ref<VirtualFile>()
 
@@ -90,7 +87,6 @@ const imageGroupList = computed(() => {
 
 watch(activeImage, () => {
    nextTick(scrollToActiveImage)
-   imgViewScale.value = 1
 })
 
 const groupByDay = (array: VirtualFile[]) => {
@@ -210,14 +206,6 @@ const updateImageSrcList = async (source: VirtualFile[] | VirtualDirectory) => {
    )
 }
 
-const handleWheel = (e: WheelEvent) => {
-   if (e.deltaY < 0) {
-      imgViewScale.value *= 1.42857
-   } else {
-      imgViewScale.value /= 1.42857
-   }
-}
-
 onMounted(async () => {
    const length_before = imageFileList.value.length
    for (const i of [currentFiles.value, ...currentDirectories.value]) {
@@ -329,6 +317,7 @@ onMounted(async () => {
       width: 7%;
       position: absolute;
       cursor: pointer;
+      z-index: 9999;
 
       &-back {
          left: 1%;
