@@ -2,6 +2,7 @@
 set -Eeuo pipefail
 IFS=$'\n\t'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+OUT_DIR="$SCRIPT_DIR/output"
 
 # 解析命令行参数
 FULL_BUILD=false
@@ -37,6 +38,7 @@ require_cmd() {
 
 # 清理已有构建产物
 echo "清理已有构建产物..."
+mkdir -p "$OUT_DIR"
 
 # 基础前缀
 PREFIX="miao-directory"
@@ -53,7 +55,7 @@ BASE_ARCHOS=(
 
 # 清理基础构建产物
 for suffix in "${BASE_ARCHOS[@]}"; do
-  [ -f "./$PREFIX-$suffix" ] && rm "./$PREFIX-$suffix"
+  [ -f "$OUT_DIR/$PREFIX-$suffix" ] && rm "$OUT_DIR/$PREFIX-$suffix"
 done
 
 # 如果是完整构建，清理额外架构产物
@@ -73,7 +75,7 @@ if [ "$FULL_BUILD" = true ]; then
   
   # 清理特殊版本产物
   for suffix in "${SPECIAL_ARCHOS[@]}"; do
-    [ -f "./$PREFIX-$suffix" ] && rm "./$PREFIX-$suffix"
+    [ -f "$OUT_DIR/$PREFIX-$suffix" ] && rm "$OUT_DIR/$PREFIX-$suffix"
   done
   
   # 处理带x-前缀的不同系统和架构
@@ -83,7 +85,7 @@ if [ "$FULL_BUILD" = true ]; then
     # OpenBSD系列
     "openbsd:amd64,arm64,386"
     # Windows额外架构
-    "win.exe:386"
+    "windows:arm64"
     # Linux额外架构
     "linux:386,mips,mips64,mips64le,ppc64,ppc64le,riscv64,s390x"
   )
@@ -97,7 +99,7 @@ if [ "$FULL_BUILD" = true ]; then
     IFS="," read -ra arch_array <<< "$archs"
     for arch in "${arch_array[@]}"; do
       file="$PREFIX-x-$arch-$os"
-      [ -f "./$file" ] && rm "./$file"
+      [ -f "$OUT_DIR/$file" ] && rm "$OUT_DIR/$file"
     done
   done
 fi
@@ -123,17 +125,17 @@ echo "===== 开始构建阶段 ====="
 echo "构建基础版本..."
 
 # Windows AMD64 无GUI
-echo "构建 Windows AMD64 无GUI 版本"
-GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o "$SCRIPT_DIR/miao-directory-amd64-win.exe"
+echo "构建 Win AMD64 无GUI 版本"
+GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o "$OUT_DIR/miao-directory-amd64-win.exe"
 
 # Linux AMD64 无GUI
 echo "构建 Linux AMD64 无GUI 版本"
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o "$SCRIPT_DIR/miao-directory-amd64-linux"
-chmod +x "$SCRIPT_DIR/miao-directory-amd64-linux"
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o "$OUT_DIR/miao-directory-amd64-linux"
+chmod +x "$OUT_DIR/miao-directory-amd64-linux"
 
 # Windows AMD64 GUI
-echo "构建 Windows AMD64 GUI 版本"
-GOOS=windows GOARCH=amd64 go build -tags webview -ldflags="-s -w -H=windowsgui" -o "$SCRIPT_DIR/miao-directory-amd64-win.gui.exe"
+echo "构建 Win AMD64 GUI 版本"
+GOOS=windows GOARCH=amd64 go build -tags webview -ldflags="-s -w -H=windowsgui" -o "$OUT_DIR/miao-directory-amd64-win.gui.exe"
 
 # 完整构建 - 额外的系统和架构
 if [ "$FULL_BUILD" = true ]; then
@@ -159,36 +161,40 @@ if [ "$FULL_BUILD" = true ]; then
   to_upper() {
     printf "%s" "$1" | tr '[:lower:]' '[:upper:]'
   }
-  OS_LIST="linux darwin windows freebsd openbsd"
-  for os in $OS_LIST; do
+  OS_LIST=(linux darwin win freebsd openbsd)
+  for os in "${OS_LIST[@]}"; do
     echo "构建 $(uc_first "$os") 系列版本..."
     case "$os" in
-      linux) archs="arm64 386 mips mips64 mips64le ppc64 ppc64le riscv64 s390x" ;;
-      darwin) archs="amd64 arm64" ;;
-      windows) archs="arm64 386" ;;
-      freebsd) archs="amd64 arm64 386" ;;
-      openbsd) archs="amd64 arm64 386" ;;
-      *) archs="" ;;
+      linux) archs=(arm64 386 mips mips64 mips64le ppc64 ppc64le riscv64 s390x) ;; 
+      darwin) archs=(amd64 arm64) ;; 
+      win) archs=(arm64) ;; 
+      freebsd) archs=(amd64 arm64 386) ;; 
+      openbsd) archs=(amd64 arm64 386) ;; 
+      *) archs=() ;; 
     esac
 
-    for arch in $archs; do
+    for arch in "${archs[@]}"; do
       # 设置输出文件名后缀
       suffix=""
-      if [ "$os" = "windows" ]; then
+      if [ "$os" = "win" ]; then
         suffix=".exe"
       fi
 
       echo "构建 $(uc_first "$os") $(to_upper "$arch") 版本"
 
       # 根据条件设置不同的输出文件名格式
-      if [[ "$os" == "darwin" || ("$os" == "linux" && "$arch" == "arm64") || ("$os" == "windows" && "$arch" == "arm64") ]]; then
-        output_file="$SCRIPT_DIR/miao-directory-${arch}-${os}${suffix}"
+      if [[ "$os" == "darwin" || ("$os" == "linux" && "$arch" == "arm64") || ("$os" == "win" && "$arch" == "arm64") ]]; then
+        output_file="$OUT_DIR/miao-directory-${arch}-${os}${suffix}"
       else
-        output_file="$SCRIPT_DIR/miao-directory-x-${arch}-${os}${suffix}"
+        output_file="$OUT_DIR/miao-directory-x-${arch}-${os}${suffix}"
       fi
 
-      CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" go build -ldflags="-s -w" -o "$output_file"
-      if [ "$os" != "windows" ]; then
+      GOOS_VAR="$os"
+      if [ "$os" = "win" ]; then
+        GOOS_VAR="windows"
+      fi
+      CGO_ENABLED=0 GOOS="$GOOS_VAR" GOARCH="$arch" go build -ldflags="-s -w" -o "$output_file"
+      if [ "$os" != "win" ]; then
         chmod +x "$output_file"
       fi
     done
@@ -223,16 +229,16 @@ if check_upx; then
   echo "压缩基础版本..."
   
   # 压缩Windows无GUI版本
-  echo "正在压缩Windows AMD64无GUI版本"
-  upx $COMPRESSION_LEVEL -o "$SCRIPT_DIR/miao-directory-amd64-win.upx.exe" "$SCRIPT_DIR/miao-directory-amd64-win.exe"
+  echo "正在压缩Win AMD64无GUI版本"
+  upx $COMPRESSION_LEVEL -o "$OUT_DIR/miao-directory-amd64-win.upx.exe" "$OUT_DIR/miao-directory-amd64-win.exe"
   
   # 压缩Linux AMD64版本
   echo "正在压缩Linux AMD64版本"
-  upx $COMPRESSION_LEVEL -o "$SCRIPT_DIR/miao-directory-amd64-linux.upx" "$SCRIPT_DIR/miao-directory-amd64-linux"
+  upx $COMPRESSION_LEVEL -o "$OUT_DIR/miao-directory-amd64-linux.upx" "$OUT_DIR/miao-directory-amd64-linux"
   
   # 压缩Windows GUI版本
-  echo "正在压缩Windows AMD64 GUI版本"
-  upx $COMPRESSION_LEVEL -o "$SCRIPT_DIR/miao-directory-amd64-win.gui.upx.exe" "$SCRIPT_DIR/miao-directory-amd64-win.gui.exe"
+  echo "正在压缩Win AMD64 GUI版本"
+  upx $COMPRESSION_LEVEL -o "$OUT_DIR/miao-directory-amd64-win.gui.upx.exe" "$OUT_DIR/miao-directory-amd64-win.gui.exe"
   
   # 压缩额外架构版本
   if [ "$FULL_BUILD" = true ]; then
@@ -240,15 +246,8 @@ if check_upx; then
     
     # 压缩Linux ARM64版本
     echo "正在压缩Linux ARM64版本"
-    upx $COMPRESSION_LEVEL -o "$SCRIPT_DIR/miao-directory-arm64-linux.upx" "$SCRIPT_DIR/miao-directory-arm64-linux"
+    upx $COMPRESSION_LEVEL -o "$OUT_DIR/miao-directory-arm64-linux.upx" "$OUT_DIR/miao-directory-arm64-linux"
     
-    # # 压缩macOS AMD64版本
-    # echo "正在压缩macOS AMD64版本"
-    # upx $COMPRESSION_LEVEL -o "$SCRIPT_DIR/miao-directory-amd64-darwin.upx" "$SCRIPT_DIR/miao-directory-amd64-darwin"
-    
-    # # 压缩macOS ARM64版本
-    # echo "正在压缩macOS ARM64版本"
-    # upx $COMPRESSION_LEVEL -o "$SCRIPT_DIR/miao-directory-arm64-darwin.upx" "$SCRIPT_DIR/miao-directory-arm64-darwin"
   fi
   
   echo "所有压缩完成"
