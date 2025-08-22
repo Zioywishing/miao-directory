@@ -30,8 +30,10 @@ func main() {
 	router.Use(corsMiddleware())
 
 	router.GET("/query", api.QueryHandler(fsOperateEventCenter))
-	router.GET("/get/*path", api.GetHandler)
-	router.HEAD("/get/*path", api.GetHandler)
+	router.GET("/file/*path", api.GetHandler)
+	router.HEAD("/file/*path", api.GetHandler)
+	// 新增目录专用接口
+	router.GET("/dir/*path", api.GetDirHandler)
 	router.POST("/mkdir/*path", api.MkdirHandler)
 	router.POST("/upload/*path", api.UploadHandler)
 	router.POST("/cut/*path", api.CutHandler(fsOperateEventCenter))

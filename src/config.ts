@@ -8,7 +8,8 @@ export default {
    baseUrl,
    uploadSizeLimit: 1024 * 1024 * 100,
    api: {
-      get: '/get',
+      file: '/file',
+      dir: '/dir',
       upload: '/upload',
       delete: '/delete',
       query: '/query',

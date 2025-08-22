@@ -59,16 +59,24 @@ const miaoFetchApi = {
       option?: getOption
    ): Promise<getResponse> {
       const { baseUrl, api } = Config
-      const url = `${baseUrl}${api.get}${vDirectory.path}`
+      const url = `${baseUrl}${api.dir}${vDirectory.path}`
       const retry = option?.retry ?? 0
 
       const { miaoFetch } = useMiaoFetch({
          retry
       })
-      const response = await miaoFetch({
-         url
-      })
-      return response.data
+      try {
+         const response = await miaoFetch({
+            url
+         })
+         return response.data
+      } catch (e: any) {
+         // 将404明确定义为“非目录”错误，便于上层处理
+         if (Array.isArray(e) && e[0]?.response?.status === 404) {
+            throw new Error('Not a directory')
+         }
+         throw e
+      }
    },
 
    /**

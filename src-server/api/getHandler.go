@@ -1,7 +1,7 @@
 package api
 
 import (
-	"io/ioutil"
+	// removed ioutil
 	"net/http"
 	"os"
 	"path/filepath"
@@ -24,68 +24,40 @@ func GetHandler(c *gin.Context) {
 		return
 	}
 
+	// 当请求路径为文件夹时，返回404
 	if fileInfo.IsDir() {
-		files, err := ioutil.ReadDir(decodedPath)
+		c.JSON(http.StatusNotFound, gin.H{"error": "Path is a directory"})
+		return
+	}
+
+	// 仅处理文件：保持原有文件返回行为
+	if strings.HasSuffix(decodedPath, "index.html") {
+		f, err := os.Open(decodedPath)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to scan directory"})
+			c.Writer.WriteHeader(http.StatusInternalServerError)
+			c.Writer.Write([]byte("Internal Server Error"))
 			return
 		}
-
-		var fileDetails []gin.H
-		for _, file := range files {
-			fileDetails = append(fileDetails, gin.H{
-				"name": file.Name(),
-				"size": file.Size(),
-				"type": func() string {
-					if file.IsDir() {
-						return "directory"
-					}
-					return "file"
-				}(),
-				"stats": gin.H{
-					"atimeMs":     file.ModTime().UnixNano() / 1e6,
-					"birthtimeMs": file.ModTime().UnixNano() / 1e6,
-					"ctimeMs":     file.ModTime().UnixNano() / 1e6,
-					"mtimeMs":     file.ModTime().UnixNano() / 1e6,
-				},
-			})
-		}
-		if len(fileDetails) == 0 {
-			c.JSON(http.StatusOK, []gin.H{})
-		} else {
-			c.JSON(http.StatusOK, fileDetails)
-		}
-	} else {
-		if strings.HasSuffix(decodedPath, "index.html") {
-			f, err := os.Open(decodedPath)
-			if err != nil {
-				c.Writer.WriteHeader(http.StatusInternalServerError)
-				c.Writer.Write([]byte("Internal Server Error"))
-				return
-			}
-			http.ServeContent(c.Writer, c.Request, "index.html", time.Now(), f)
-		} else {
-			// if c.Query("import") != "" {
-			// 	c.Writer.Header().Set("Content-Type", "application/javascript")
-			// }
-			ext := filepath.Ext(decodedPath)
-			switch ext {
-			case ".js":
-			case ".cjs":
-			case ".mjs":
-				c.Writer.Header().Set("Content-Type", "application/javascript")
-			case ".css":
-				c.Writer.Header().Set("Content-Type", "text/css")
-			case ".html":
-				c.Writer.Header().Set("Content-Type", "text/html")
-			case ".json":
-				c.Writer.Header().Set("Content-Type", "application/json")
-			case ".wasm":
-				c.Writer.Header().Set("Content-Type", "application/wasm")
-			default:
-				c.Writer.Header().Set("Content-Type", "application/octet-stream")
-			}
-			c.File(decodedPath)
-		}
+		http.ServeContent(c.Writer, c.Request, "index.html", time.Now(), f)
+		return
 	}
+
+	ext := filepath.Ext(decodedPath)
+	switch ext {
+	case ".js":
+	case ".cjs":
+	case ".mjs":
+		c.Writer.Header().Set("Content-Type", "application/javascript")
+	case ".css":
+		c.Writer.Header().Set("Content-Type", "text/css")
+	case ".html":
+		c.Writer.Header().Set("Content-Type", "text/html")
+	case ".json":
+		c.Writer.Header().Set("Content-Type", "application/json")
+	case ".wasm":
+		c.Writer.Header().Set("Content-Type", "application/wasm")
+	default:
+		c.Writer.Header().Set("Content-Type", "application/octet-stream")
+	}
+	c.File(decodedPath)
 }
