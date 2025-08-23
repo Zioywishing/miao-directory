@@ -31,12 +31,6 @@ const props = defineProps<{
   file?: VirtualFile
 }>()
 
-const emit = defineEmits<{
-  close: []
-  back: []
-  forward: []
-}>()
-
 const imgViewScale = ref(1)
 const isDraggable = ref(false)
 let pressTimer: number | undefined

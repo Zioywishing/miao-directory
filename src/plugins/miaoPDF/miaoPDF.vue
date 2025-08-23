@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import miaoMessageProvider from '@/components/miaoAlertTipProvider.vue'
-import { onMounted, ref, shallowReactive, computed, onBeforeUnmount } from 'vue'
+import { onMounted, ref, shallowReactive, onBeforeUnmount } from 'vue'
 import PdfjsWorker from 'pdfjs-dist/build/pdf.worker.mjs?worker'
 import { VirtualFile } from '@/class/VirtualDirectory'
 import { NScrollbar } from 'naive-ui'
@@ -178,7 +178,7 @@ const handleShrink = (index?: number) => {
 }
 
 const handleResetMargin = () => {
-   const el = getScrollEl()
+   // const el = getScrollEl()
    scale.value = 1
 }
 

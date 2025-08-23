@@ -134,8 +134,7 @@ const scrollToActiveImage = () => {
       })
 }
 
-const handleActiveImageBack = (e: any) => {
-   e.stopPropagation()
+const handleActiveImageBack = () => {
    if (!activeImage.value) {
       return
    }
@@ -146,8 +145,7 @@ const handleActiveImageBack = (e: any) => {
       ]
 }
 
-const handleActiveImageForward = (e: any) => {
-   e.stopPropagation()
+const handleActiveImageForward = () => {
    if (!activeImage.value) {
       return
    }
