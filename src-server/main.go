@@ -4,7 +4,6 @@ package main
 import (
 	"embed"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -88,15 +87,9 @@ func corsMiddleware() gin.HandlerFunc {
 }
 
 func printListeningAddresses(port string) {
-	host, _ := os.Hostname()
-	addrs, _ := net.LookupHost(host)
-
 	fmt.Printf("Listening on:\n")
 	fmt.Printf("  ➜  Local:   http://localhost%s\n", port)
-	for _, addr := range addrs {
-		if strings.Contains(addr, "%") {
-			addr = strings.Split(addr, "%")[0]
-		}
+	for _, addr := range api.GetAllLocalIPs() {
 		if strings.Contains(addr, ":") {
 			// IPv6 address
 			fmt.Printf("  ➜  Network: http://[%s]%s\n", addr, port)
