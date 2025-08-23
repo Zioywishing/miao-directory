@@ -3,7 +3,6 @@ package api
 import (
 	"net"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -19,14 +18,8 @@ func AddressesHandler(serverPort string) gin.HandlerFunc {
 			"url":   "http://localhost" + serverPort,
 		})
 
-		host, _ := os.Hostname()
-
-		addrs, _ := net.LookupHost(host)
-		for _, addr := range addrs {
-			if strings.Contains(addr, "%") {
-				addr = strings.Split(addr, "%")[0]
-			}
-
+		// 使用网卡枚举方式，确保在各种网络配置下都能获取到可用的IP地址
+		for _, addr := range GetAllLocalIPs() {
 			var url string
 			var title string
 
@@ -45,6 +38,75 @@ func AddressesHandler(serverPort string) gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, addresses)
 	}
+}
+
+// GetAllLocalIPs 枚举所有可用的本机IP地址（排除回环、链路本地等一般不可达地址）
+func GetAllLocalIPs() []string {
+	ips := []string{}
+
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return ips
+	}
+
+	for _, iface := range ifaces {
+		// 仅考虑启用的非回环网卡
+		if iface.Flags&net.FlagUp == 0 {
+			continue
+		}
+		if iface.Flags&net.FlagLoopback != 0 {
+			continue
+		}
+
+		addrs, err := iface.Addrs()
+		if err != nil {
+			continue
+		}
+		for _, a := range addrs {
+			var ip net.IP
+			switch v := a.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			case *net.IPAddr:
+				ip = v.IP
+			}
+			if ip == nil {
+				continue
+			}
+
+			// 处理 IPv4
+			if ipv4 := ip.To4(); ipv4 != nil {
+				if ipv4.IsLoopback() {
+					continue
+				}
+				// 跳过 IPv4 链路本地 169.254.0.0/16
+				if ipv4[0] == 169 && ipv4[1] == 254 {
+					continue
+				}
+				ips = append(ips, ipv4.String())
+				continue
+			}
+
+			// 处理 IPv6：排除回环与链路本地
+			if ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() {
+				continue
+			}
+			// 去除 zone（如存在），通过上面的类型断言我们只取 IP 本身已无 zone
+			ips = append(ips, ip.String())
+		}
+	}
+
+	// 去重
+	seen := map[string]struct{}{}
+	unique := make([]string, 0, len(ips))
+	for _, s := range ips {
+		if _, ok := seen[s]; ok {
+			continue
+		}
+		seen[s] = struct{}{}
+		unique = append(unique, s)
+	}
+	return unique
 }
 
 // 判断是否是私有IP地址
