@@ -425,7 +425,7 @@ const handleItemClick = (item: VirtualDirectory | VirtualFile) => {
          if (useablePlugins.length > 0) {
             pluginCenter.usePlugin(useablePlugins[0].key, [], [item])
          } else {
-            openUrl(`${baseUrl}${api.get}${item.path}`)
+            openUrl(`${baseUrl}${api.file}${item.path}`)
          }
       } else if (item.type === 'directory') {
          setCurrentDirectory(item)
@@ -434,7 +434,7 @@ const handleItemClick = (item: VirtualDirectory | VirtualFile) => {
 }
 
 const handleItemDownload = (item: VirtualFile) => {
-   openUrl(`${baseUrl}${api.get}${item.path}`, {
+   openUrl(`${baseUrl}${api.file}${item.path}`, {
       download: item.name
    })
 }

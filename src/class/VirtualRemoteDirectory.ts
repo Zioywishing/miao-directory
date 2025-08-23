@@ -36,7 +36,7 @@ export class VirtualRemoteFile extends VirtualFileBase {
     }
 
     get url() {
-        return `${config.api.get}${this.parent.path}${this.name}`
+        return `${config.api.file}${this.parent.path}${this.name}`
     }
 
     async delete(): Promise<boolean> {
@@ -143,7 +143,7 @@ export class VirtualRemoteDirectory extends VirtualDirectoryBase {
     }
 
     get url(): string {
-        return `${config.api.get}${this.path}`
+        return `${config.api.dir}${this.path}`
     }
 
     updateContent(content: (file | directory)[]) {
