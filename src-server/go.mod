@@ -2,6 +2,15 @@ module miao-directory
 
 go 1.23.0
 
+toolchain go1.24.6
+
+require (
+	github.com/gin-contrib/gzip v1.0.1
+	github.com/gin-gonic/gin v1.10.0
+	github.com/jchv/go-webview2 v0.0.0-20221223143126-dc24628cff85
+	golang.org/x/net v0.28.0
+)
+
 require (
 	github.com/akavel/rsrc v0.10.2 // indirect
 	github.com/bytedance/sonic v1.12.1 // indirect
