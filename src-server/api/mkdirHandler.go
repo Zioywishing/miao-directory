@@ -16,8 +16,12 @@ func MkdirHandler(c *gin.Context) {
         c.JSON(http.StatusBadRequest, gin.H{"message": "failed", "error": err.Error()})
         return
     }
+    if !isSafeName(request.FolderName) {
+        c.JSON(http.StatusBadRequest, gin.H{"message": "failed", "error": "invalid folder name"})
+        return
+    }
 
-    decodedPath, err := filepath.Abs(filepath.Join(staticPath, c.Param("path")))
+    decodedPath, err := resolvePath(c.Param("path"))
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"message": "failed", "error": "Unable to access path"})
         return

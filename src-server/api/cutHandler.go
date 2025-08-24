@@ -21,13 +21,18 @@ func CutHandler(fsOperateEventCenter *fsOperateEventCenter.FsOperateEventCenter)
 			return
 		}
 
-		decodedPath, err := filepath.Abs(filepath.Join(staticPath, c.Param("path")))
+		decodedPath, err := resolvePath(c.Param("path"))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to access path"})
 			return
 		}
 
-		newPath := filepath.Join(staticPath, req.NewPath, filepath.Base(decodedPath))
+		destDir, err := resolvePath(req.NewPath)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid destination"})
+			return
+		}
+		newPath := filepath.Join(destDir, filepath.Base(decodedPath))
 		eventId := fsOperateEventCenter.Push(func() error {
 			return os.Rename(decodedPath, newPath)
 		})
