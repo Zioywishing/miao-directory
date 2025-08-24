@@ -55,7 +55,7 @@ BASE_ARCHOS=(
 
 # 清理基础构建产物
 for suffix in "${BASE_ARCHOS[@]}"; do
-  [ -f "$OUT_DIR/$PREFIX-$suffix" ] && rm "$OUT_DIR/$PREFIX-$suffix"
+  [ -f "$OUT_DIR/$PREFIX-$suffix" ] && rm -f "$OUT_DIR/$PREFIX-$suffix"
 done
 
 # 如果是完整构建，清理额外架构产物
@@ -75,31 +75,24 @@ if [ "$FULL_BUILD" = true ]; then
   
   # 清理特殊版本产物
   for suffix in "${SPECIAL_ARCHOS[@]}"; do
-    [ -f "$OUT_DIR/$PREFIX-$suffix" ] && rm "$OUT_DIR/$PREFIX-$suffix"
+    [ -f "$OUT_DIR/$PREFIX-$suffix" ] && rm -f "$OUT_DIR/$PREFIX-$suffix"
   done
   
   # 处理带x-前缀的不同系统和架构
   X_OS_ARCHS=(
-    # FreeBSD系列
     "freebsd:amd64,arm64,386"
-    # OpenBSD系列
     "openbsd:amd64,arm64,386"
-    # Windows额外架构
     "windows:arm64"
-    # Linux额外架构
     "linux:386,mips,mips64,mips64le,ppc64,ppc64le,riscv64,s390x"
   )
   
   # 清理带x-前缀的版本产物
   for os_arch in "${X_OS_ARCHS[@]}"; do
-    # 分离操作系统和架构列表
     IFS=":" read -r os archs <<< "$os_arch"
-    
-    # 处理每个架构
     IFS="," read -ra arch_array <<< "$archs"
     for arch in "${arch_array[@]}"; do
       file="$PREFIX-x-$arch-$os"
-      [ -f "$OUT_DIR/$file" ] && rm "$OUT_DIR/$file"
+      [ -f "$OUT_DIR/$file" ] && rm -f "$OUT_DIR/$file"
     done
   done
 fi
@@ -118,139 +111,136 @@ fi
 
 cd "$SCRIPT_DIR/src-server"
 
-# ===== 构建阶段 =====
-echo "===== 开始构建阶段 ====="
+# ===== 阶段1: 收集需要构建和进行upx压缩的目录列表 =====
+echo "===== 阶段1: 收集构建和压缩目标 ====="
 
-# 基础构建 - 始终构建的版本
-echo "构建基础版本..."
+declare -a win_amd64_build_targets
+declare -a other_build_targets
+declare -a upx_targets
 
-# Windows AMD64 无GUI
-echo "构建 Win AMD64 无GUI 版本"
-GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o "$OUT_DIR/miao-directory-amd64-win.exe"
+# 格式: "GOOS:GOARCH:OUTPUT_PATH:TAGS:LDFLAGS_EXTRA"
+win_amd64_build_targets+=( "windows:amd64:$OUT_DIR/miao-directory-amd64-win.exe::" )
+win_amd64_build_targets+=( "windows:amd64:$OUT_DIR/miao-directory-amd64-win.gui.exe:webview:-H=windowsgui" )
 
-# Linux AMD64 无GUI
-echo "构建 Linux AMD64 无GUI 版本"
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o "$OUT_DIR/miao-directory-amd64-linux"
-chmod +x "$OUT_DIR/miao-directory-amd64-linux"
+other_build_targets+=( "linux:amd64:$OUT_DIR/miao-directory-amd64-linux::" )
 
-# Windows AMD64 GUI
-echo "构建 Win AMD64 GUI 版本"
-GOOS=windows GOARCH=amd64 go build -tags webview -ldflags="-s -w -H=windowsgui" -o "$OUT_DIR/miao-directory-amd64-win.gui.exe"
+# 格式: "INPUT_PATH:OUTPUT_PATH"
+upx_targets+=( "$OUT_DIR/miao-directory-amd64-win.exe:$OUT_DIR/miao-directory-amd64-win.upx.exe" )
+upx_targets+=( "$OUT_DIR/miao-directory-amd64-win.gui.exe:$OUT_DIR/miao-directory-amd64-win.gui.upx.exe" )
+upx_targets+=( "$OUT_DIR/miao-directory-amd64-linux:$OUT_DIR/miao-directory-amd64-linux.upx" )
 
-# 完整构建 - 额外的系统和架构
 if [ "$FULL_BUILD" = true ]; then
-  echo "构建额外架构版本..."
-  
-  # 备份resource.syso文件(如果存在)
-  if [ -f "resource.syso" ]; then
-    echo "备份resource.syso文件"
-    mv resource.syso resource.syso.bak
-  fi
-  
-  : # CGO 在每次构建调用中禁用，无需全局 export
-  
-  # 定义操作系统和架构映射
-  # 在工具函数处增加大小写格式化，避免使用 Bash 4 的 ${var^}/${var^^}
-  uc_first() {
-    local s="$1"
-    local first="${s:0:1}"
-    local rest="${s:1}"
-    printf "%s%s" "$(printf "%s" "$first" | tr '[:lower:]' '[:upper:]')" "$rest"
-  }
-  
-  to_upper() {
-    printf "%s" "$1" | tr '[:lower:]' '[:upper:]'
-  }
-  OS_LIST=(linux darwin win freebsd openbsd)
-  for os in "${OS_LIST[@]}"; do
-    echo "构建 $(uc_first "$os") 系列版本..."
-    case "$os" in
-      linux) archs=(arm64 386 mips mips64 mips64le ppc64 ppc64le riscv64 s390x) ;; 
-      darwin) archs=(amd64 arm64) ;; 
-      win) archs=(arm64) ;; 
-      freebsd) archs=(amd64 arm64 386) ;; 
-      openbsd) archs=(amd64 arm64 386) ;; 
-      *) archs=() ;; 
-    esac
+  # linux
+  other_build_targets+=( "linux:arm64:$OUT_DIR/miao-directory-arm64-linux::" )
+  other_build_targets+=( "linux:386:$OUT_DIR/miao-directory-x-386-linux::" )
+  other_build_targets+=( "linux:mips:$OUT_DIR/miao-directory-x-mips-linux::" )
+  other_build_targets+=( "linux:mips64:$OUT_DIR/miao-directory-x-mips64-linux::" )
+  other_build_targets+=( "linux:mips64le:$OUT_DIR/miao-directory-x-mips64le-linux::" )
+  other_build_targets+=( "linux:ppc64:$OUT_DIR/miao-directory-x-ppc64-linux::" )
+  other_build_targets+=( "linux:ppc64le:$OUT_DIR/miao-directory-x-ppc64le-linux::" )
+  other_build_targets+=( "linux:riscv64:$OUT_DIR/miao-directory-x-riscv64-linux::" )
+  other_build_targets+=( "linux:s390x:$OUT_DIR/miao-directory-x-s390x-linux::" )
+  # darwin
+  other_build_targets+=( "darwin:amd64:$OUT_DIR/miao-directory-amd64-darwin::" )
+  other_build_targets+=( "darwin:arm64:$OUT_DIR/miao-directory-arm64-darwin::" )
+  # windows
+  other_build_targets+=( "windows:arm64:$OUT_DIR/miao-directory-arm64-win.exe::" )
+  # freebsd
+  other_build_targets+=( "freebsd:amd64:$OUT_DIR/miao-directory-x-amd64-freebsd::" )
+  other_build_targets+=( "freebsd:arm64:$OUT_DIR/miao-directory-x-arm64-freebsd::" )
+  other_build_targets+=( "freebsd:386:$OUT_DIR/miao-directory-x-386-freebsd::" )
+  # openbsd
+  other_build_targets+=( "openbsd:amd64:$OUT_DIR/miao-directory-x-amd64-openbsd::" )
+  other_build_targets+=( "openbsd:arm64:$OUT_DIR/miao-directory-x-arm64-openbsd::" )
+  other_build_targets+=( "openbsd:386:$OUT_DIR/miao-directory-x-386-openbsd::" )
 
-    for arch in "${archs[@]}"; do
-      # 设置输出文件名后缀
-      suffix=""
-      if [ "$os" = "win" ]; then
-        suffix=".exe"
-      fi
-
-      echo "构建 $(uc_first "$os") $(to_upper "$arch") 版本"
-
-      # 根据条件设置不同的输出文件名格式
-      if [[ "$os" == "darwin" || ("$os" == "linux" && "$arch" == "arm64") || ("$os" == "win" && "$arch" == "arm64") ]]; then
-        output_file="$OUT_DIR/miao-directory-${arch}-${os}${suffix}"
-      else
-        output_file="$OUT_DIR/miao-directory-x-${arch}-${os}${suffix}"
-      fi
-
-      GOOS_VAR="$os"
-      if [ "$os" = "win" ]; then
-        GOOS_VAR="windows"
-      fi
-      CGO_ENABLED=0 GOOS="$GOOS_VAR" GOARCH="$arch" go build -ldflags="-s -w" -o "$output_file"
-      if [ "$os" != "win" ]; then
-        chmod +x "$output_file"
-      fi
-    done
-  done
-  
-  # 恢复resource.syso文件
-  if [ -f "resource.syso.bak" ]; then
-    echo "恢复resource.syso文件"
-    mv resource.syso.bak resource.syso
-  fi
-  
-  : # 无需恢复 CGO，全程使用内联变量
+  upx_targets+=( "$OUT_DIR/miao-directory-arm64-linux:$OUT_DIR/miao-directory-arm64-linux.upx" )
 fi
 
-# ===== 压缩阶段 =====
-echo "===== 开始压缩阶段 ====="
+# ===== 阶段2: 并行执行所有版本的构建任务 =====
+echo "===== 阶段2: 并行构建 ====="
 
-# 检查是否可以进行UPX压缩
-if check_upx; then
-  echo "开始压缩所有可执行文件..."
+build_target() {
+  local target_info=($1)
+  IFS=":" read -r goos goarch output tags ldflags_extra <<< "$target_info"
   
-  # 设置压缩级别
-  COMPRESSION_LEVEL="--ultra-brute"
+  echo "开始构建: $output"
+  
+  local ldflags="-s -w ${ldflags_extra-}"
+  local build_cmd="GOOS=$goos GOARCH=$goarch go build -ldflags='$ldflags'"
+  
+  if [ -n "$tags" ]; then
+    build_cmd+=" -tags '$tags'"
+  fi
+  
+  build_cmd+=" -o '$output'"
+  
+  eval "$build_cmd"
+  
+  if [ "$goos" != "windows" ]; then
+    chmod +x "$output"
+  fi
+  
+  echo "完成构建: $output"
+}
+
+# 构建需要 resource.syso 的版本 (Win AMD64)
+echo "--- 开始构建 Windows AMD64 版本 ---"
+for target in "${win_amd64_build_targets[@]}"; do
+  build_target "$target" &
+done
+wait
+echo "--- Windows AMD64 版本构建完成 ---"
+
+# 为其他版本构建做准备
+if [ -f "resource.syso" ]; then
+  echo "备份 resource.syso 文件"
+  mv resource.syso resource.syso.bak
+fi
+
+# 构建其他所有版本
+echo "--- 开始构建其他版本 ---"
+for target in "${other_build_targets[@]}"; do
+  CGO_ENABLED=0 build_target "$target" &
+done
+wait
+echo "--- 其他版本构建完成 ---"
+
+# 恢复 resource.syso
+if [ -f "resource.syso.bak" ]; then
+  echo "恢复 resource.syso 文件"
+  mv resource.syso.bak resource.syso
+fi
+
+# ===== 阶段3: 并行执行所有版本的upx压缩处理 =====
+echo "===== 阶段3: 并行UPX压缩 ====="
+
+if check_upx; then
+  COMPRESSION_LEVEL="--best"
   if [ "$FAST_COMPRESSION" = true ]; then
     echo "使用快速压缩模式"
     COMPRESSION_LEVEL="--fast"
   else
     echo "使用极限压缩模式"
   fi
-  
-  # 压缩基础版本
-  echo "压缩基础版本..."
-  
-  # 压缩Windows无GUI版本
-  echo "正在压缩Win AMD64无GUI版本"
-  upx $COMPRESSION_LEVEL -o "$OUT_DIR/miao-directory-amd64-win.upx.exe" "$OUT_DIR/miao-directory-amd64-win.exe"
-  
-  # 压缩Linux AMD64版本
-  echo "正在压缩Linux AMD64版本"
-  upx $COMPRESSION_LEVEL -o "$OUT_DIR/miao-directory-amd64-linux.upx" "$OUT_DIR/miao-directory-amd64-linux"
-  
-  # 压缩Windows GUI版本
-  echo "正在压缩Win AMD64 GUI版本"
-  upx $COMPRESSION_LEVEL -o "$OUT_DIR/miao-directory-amd64-win.gui.upx.exe" "$OUT_DIR/miao-directory-amd64-win.gui.exe"
-  
-  # 压缩额外架构版本
-  if [ "$FULL_BUILD" = true ]; then
-    echo "压缩额外架构版本..."
-    
-    # 压缩Linux ARM64版本
-    echo "正在压缩Linux ARM64版本"
-    upx $COMPRESSION_LEVEL -o "$OUT_DIR/miao-directory-arm64-linux.upx" "$OUT_DIR/miao-directory-arm64-linux"
-    
-  fi
-  
-  echo "所有压缩完成"
+
+  compress_target() {
+    local target_info=($1)
+    IFS=":" read -r input_file output_file <<< "$target_info"
+    if [ -f "$input_file" ]; then
+      echo "开始压缩: $input_file"
+      upx "$COMPRESSION_LEVEL" -o "$output_file" "$input_file"
+      echo "完成压缩: $output_file"
+    else
+      echo "警告: 找不到文件 $input_file，跳过压缩"
+    fi
+  }
+
+  for target in "${upx_targets[@]}"; do
+    compress_target "$target" &
+  done
+  wait
+  echo "--- 所有压缩任务完成 ---"
 fi
 
 echo "构建完成"
